@@ -63,12 +63,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Configure Nodemailer transporter with Gmail SMTP
+// Configure Nodemailer transporter with Gmail SMTP - Explicit configuration for production
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // Use STARTTLS
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
+    },
+    tls: {
+        rejectUnauthorized: false
     },
     pool: true,
     maxConnections: 1,
@@ -77,14 +82,18 @@ const transporter = nodemailer.createTransport({
     rateLimit: 3,
     connectionTimeout: 60000,
     greetingTimeout: 30000,
-    socketTimeout: 60000
+    socketTimeout: 60000,
+    logger: true, // Enable logging for debugging
+    debug: true   // Show SMTP traffic in logs
 });
 
 // Verify transporter configuration on startup
 transporter.verify((error, success) => {
     if (error) {
         console.error('❌ Email transporter configuration error:', error);
-        console.log('\n⚠️  Please check your .env file and ensure fields are correct.');
+        console.log('\n⚠️  Please check your .env file and ensure EMAIL_USER and EMAIL_PASS are correct.');
+        console.log('   EMAIL_USER:', process.env.EMAIL_USER ? '✓ Set' : '✗ Missing');
+        console.log('   EMAIL_PASS:', process.env.EMAIL_PASS ? '✓ Set' : '✗ Missing');
     } else {
         console.log('✅ Email server is ready to send messages');
     }
@@ -220,16 +229,24 @@ app.post('/api/guest/register', async (req, res) => {
         };
 
         // Send both emails
+        console.log(`📧 Attempting to send guest registration emails for: ${name}`);
+        console.log(`   Admin emails: ${adminEmails}`);
+        console.log(`   Guest email: ${email}`);
+
         await Promise.all([
             transporter.sendMail(adminMailOptions),
             transporter.sendMail(guestMailOptions)
         ]);
 
-        console.log(`✅ Guest registration emails sent for: ${name}`);
+        console.log(`✅ Guest registration emails sent successfully for: ${name}`);
         res.status(200).json({ success: true, message: 'Registration submitted and emails sent successfully.' });
 
     } catch (error) {
-        console.error('❌ Error in guest registration:', error);
+        console.error('❌ ERROR in guest registration:');
+        console.error('   Error name:', error.name);
+        console.error('   Error message:', error.message);
+        console.error('   Full error:', error);
+        console.error('   Stack:', error.stack);
         res.status(500).json({ success: false, message: 'Failed to process registration emails.' });
     }
 });
