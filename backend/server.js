@@ -132,57 +132,182 @@ app.get('/api/email-status', (req, res) => {
     res.json(status);
 });
 
-// Test email endpoint - sends a test email to verify SMTP connection
+// Test email endpoint - COMPREHENSIVE DIAGNOSTICS
 app.get('/api/test-email', async (req, res) => {
-    try {
-        const data = await sendEmail({
-            to: process.env.EMAIL_USER || process.env.ADMIN_EMAILS.split(',')[0],
-            subject: 'Brevo API Connection Test',
-            htmlContent: '<p>If you receive this, Brevo API is working correctly! 🎉</p>'
+    const timestamp = new Date().toISOString();
+
+    console.log('\n' + '='.repeat(80));
+    console.log(`🧪 EMAIL SYSTEM TEST INITIATED - ${timestamp}`);
+    console.log('='.repeat(80));
+
+    // Step 1: Check environment variables
+    const diagnostics = {
+        timestamp,
+        environmentVariables: {
+            BREVO_API_KEY: process.env.BREVO_API_KEY ? '✅ Configured' : '❌ NOT SET',
+            EMAIL_USER: process.env.EMAIL_USER || '❌ NOT SET',
+            BACKEND_URL: process.env.BACKEND_URL || 'Not set (using default)',
+            NODE_ENV: process.env.NODE_ENV || 'Not set'
+        },
+        targetEmail: 'nnscahyderabad@gmail.com',
+        emailService: 'Brevo API (SendinBlue)'
+    };
+
+    console.log('\n📋 ENVIRONMENT DIAGNOSTICS:');
+    console.log(JSON.stringify(diagnostics.environmentVariables, null, 2));
+
+    // Step 2: Check if Brevo API key is configured
+    if (!process.env.BREVO_API_KEY) {
+        console.error('\n❌ CRITICAL: BREVO_API_KEY is not configured!');
+        console.error('='.repeat(80) + '\n');
+        return res.status(500).json({
+            success: false,
+            message: 'Email service not configured. BREVO_API_KEY is missing.',
+            diagnostics
         });
+    }
+
+    // Step 3: Attempt to send test email
+    try {
+        console.log('\n📤 Sending test email to sangam address...');
+
+        const emailResult = await sendEmail({
+            to: 'nnscahyderabad@gmail.com',
+            subject: '🧪 Email System Test - Hyderabad Nagarathar Sangam',
+            htmlContent: `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                </head>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                    <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 2px solid #4caf50; border-radius: 8px;">
+                        <h2 style="color: #4caf50; text-align: center;">
+                            ✅ Email System Test Successful!
+                        </h2>
+                        
+                        <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                            <p><strong>Test Timestamp:</strong> ${timestamp}</p>
+                            <p><strong>Email Service:</strong> Brevo API</p>
+                            <p><strong>Sender:</strong> ${process.env.EMAIL_USER}</p>
+                            <p><strong>Recipient:</strong> nnscahyderabad@gmail.com</p>
+                        </div>
+                        
+                        <div style="background: #e8f5e9; padding: 15px; border-left: 4px solid #4caf50; margin: 20px 0;">
+                            <p style="margin: 0;">
+                                <strong>Status:</strong> If you receive this email, the contact form email system is working correctly! 🎉
+                            </p>
+                        </div>
+                        
+                        <p style="color: #666; font-size: 12px; text-align: center; margin-top: 30px;">
+                            Hyderabad Nattukottai Nagarathar Sangam<br>
+                            Automated Email System Test
+                        </p>
+                    </div>
+                </body>
+                </html>
+            `
+        });
+
+        console.log('\n' + '='.repeat(80));
+        console.log('✅ TEST EMAIL SENT SUCCESSFULLY!');
+        console.log('='.repeat(80));
+        console.log(`   Message ID: ${emailResult?.messageId || 'N/A'}`);
+        console.log(`   Recipient: nnscahyderabad@gmail.com`);
+        console.log(`   ⚠️  Check inbox and spam folder at nnscahyderabad@gmail.com`);
+        console.log('='.repeat(80) + '\n');
 
         res.json({
             success: true,
-            message: 'Test email sent successfully via Brevo!',
-            messageId: data.messageId
+            message: 'Test email sent successfully to nnscahyderabad@gmail.com via Brevo!',
+            messageId: emailResult?.messageId,
+            diagnostics,
+            instructions: 'Check the inbox and spam folder at nnscahyderabad@gmail.com'
         });
+
     } catch (error) {
-        res.json({
+        console.error('\n' + '='.repeat(80));
+        console.error('❌ TEST EMAIL FAILED');
+        console.error('='.repeat(80));
+        console.error(`   Error Type: ${error.name}`);
+        console.error(`   Error Message: ${error.message}`);
+        if (error.response) {
+            console.error(`   API Response: ${JSON.stringify(error.response.text)}`);
+        }
+        console.error('='.repeat(80) + '\n');
+
+        res.status(500).json({
             success: false,
+            message: 'Failed to send test email via Brevo API',
             error: error.message,
-            details: 'Failed to send via Brevo API'
+            diagnostics,
+            troubleshooting: [
+                'Verify BREVO_API_KEY is correctly set in environment variables',
+                'Check if the API key is valid and not expired',
+                'Ensure the sender email is verified in Brevo dashboard',
+                'Check Brevo account status and sending limits'
+            ]
         });
     }
 });
 
-// Contact form submission endpoint - RESTRUCTURED FOR DIRECT DELIVERY
+// Contact form submission endpoint - ENHANCED WITH DETAILED LOGGING
 app.post('/api/contact', async (req, res) => {
+    const timestamp = new Date().toISOString();
+
     try {
         const { name, email, phone, subject, message } = req.body;
 
-        console.log('📬 Contact form submission received:');
+        console.log('\n' + '='.repeat(80));
+        console.log(`📬 CONTACT FORM SUBMISSION RECEIVED - ${timestamp}`);
+        console.log('='.repeat(80));
         console.log(`   Name: ${name}`);
         console.log(`   Email: ${email}`);
+        console.log(`   Phone: ${phone || 'Not provided'}`);
         console.log(`   Subject: ${subject}`);
+        console.log(`   Message Length: ${message?.length || 0} characters`);
 
+        // Validate required fields
         if (!name || !email || !subject || !message) {
+            console.error('❌ VALIDATION ERROR: Missing required fields');
             return res.status(400).json({
                 success: false,
-                message: 'Please fill in all required fields'
+                message: 'Please fill in all required fields (name, email, subject, message)'
+            });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            console.error(`❌ VALIDATION ERROR: Invalid email format: ${email}`);
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide a valid email address'
             });
         }
 
         // DIRECT EMAIL TO SANGAM ONLY
         const sangamEmail = 'nnscahyderabad@gmail.com';
 
-        console.log(`\n🎯 Preparing to send email to: ${sangamEmail}`);
-        console.log(`   From account: ${process.env.EMAIL_USER}`);
+        console.log('\n' + '-'.repeat(80));
+        console.log('🎯 EMAIL CONFIGURATION:');
+        console.log('-'.repeat(80));
+        console.log(`   Recipient (TO): ${sangamEmail}`);
+        console.log(`   Sender (FROM): ${process.env.EMAIL_USER || 'NOT SET'}`);
+        console.log(`   Reply-To: ${email}`);
+        console.log(`   Brevo API Key: ${process.env.BREVO_API_KEY ? '✅ Configured' : '❌ NOT SET'}`);
+        console.log(`   Subject: Contact Form: ${subject}`);
 
-        console.log('\n📤 Sending email via Brevo...');
-        await sendEmail({
+        if (!process.env.BREVO_API_KEY) {
+            throw new Error('BREVO_API_KEY is not configured in environment variables');
+        }
+
+        console.log('\n📤 Attempting to send email via Brevo API...');
+
+        const emailResult = await sendEmail({
             to: sangamEmail,
             senderName: name,
-            senderEmail: process.env.EMAIL_USER, // Use verified sender to avoid blocking, user email in reply-to
+            senderEmail: process.env.EMAIL_USER,
             replyTo: email,
             subject: `Contact Form: ${subject}`,
             htmlContent: `
@@ -231,24 +356,38 @@ app.post('/api/contact', async (req, res) => {
             `
         });
 
-        console.log('\n✅ EMAIL SENT SUCCESSFULLY VIA BREVO!');
+        console.log('\n' + '='.repeat(80));
+        console.log('✅ EMAIL SENT SUCCESSFULLY VIA BREVO!');
+        console.log('='.repeat(80));
         console.log(`   Recipient: ${sangamEmail}`);
-        console.log(`   ⚠️  CHECK INBOX AND SPAM FOLDER at ${sangamEmail}\n`);
+        console.log(`   Message ID: ${emailResult?.messageId || 'N/A'}`);
+        console.log(`   Timestamp: ${timestamp}`);
+        console.log(`   ⚠️  IMPORTANT: Check inbox AND spam folder at ${sangamEmail}`);
+        console.log('='.repeat(80) + '\n');
 
         res.status(200).json({
             success: true,
-            message: 'Message sent successfully to nnscahyderabad@gmail.com'
+            message: 'Message sent successfully to nnscahyderabad@gmail.com',
+            messageId: emailResult?.messageId
         });
 
     } catch (error) {
-        console.error('\n❌ CONTACT FORM EMAIL ERROR:');
+        console.error('\n' + '='.repeat(80));
+        console.error('❌ CONTACT FORM EMAIL ERROR');
+        console.error('='.repeat(80));
+        console.error(`   Timestamp: ${timestamp}`);
         console.error(`   Error Type: ${error.name}`);
         console.error(`   Error Message: ${error.message}`);
-        console.error(`   Full Error:`, error);
+        if (error.response) {
+            console.error(`   API Response: ${JSON.stringify(error.response.text)}`);
+        }
+        console.error(`   Stack Trace:`, error.stack);
+        console.error('='.repeat(80) + '\n');
 
         res.status(500).json({
             success: false,
-            message: 'Failed to send message. Please try again or contact us directly.'
+            message: 'Failed to send message. Please try again or contact us directly at nnscahyderabad@gmail.com',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
