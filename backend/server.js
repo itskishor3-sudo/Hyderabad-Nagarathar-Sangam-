@@ -129,7 +129,12 @@ app.get('/api/test-email', async (req, res) => {
         res.json({
             success: true,
             message: 'Test email sent successfully! Check your inbox.',
-            sentTo: process.env.EMAIL_USER
+            sentTo: process.env.EMAIL_USER,
+            config: {
+                host: transporter.options.host,
+                port: transporter.options.port,
+                secure: transporter.options.secure
+            }
         });
     } catch (error) {
         res.json({
@@ -137,7 +142,12 @@ app.get('/api/test-email', async (req, res) => {
             error: error.message,
             errorCode: error.code,
             errorName: error.name,
-            details: 'Gmail may be blocking connections from this server IP address'
+            details: 'Gmail may be blocking connections from this server IP address',
+            config: {
+                host: transporter.options.host,
+                port: transporter.options.port,
+                secure: transporter.options.secure
+            }
         });
     }
 });
