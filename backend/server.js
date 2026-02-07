@@ -68,7 +68,15 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
-    }
+    },
+    pool: true,
+    maxConnections: 1,
+    maxMessages: 3,
+    rateDelta: 1000,
+    rateLimit: 3,
+    connectionTimeout: 60000,
+    greetingTimeout: 30000,
+    socketTimeout: 60000
 });
 
 // Verify transporter configuration on startup
