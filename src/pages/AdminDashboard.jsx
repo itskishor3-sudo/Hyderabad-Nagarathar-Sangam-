@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import invitationTemplate from '../assets/template.jpg';
+import { API_BASE_URL } from '../config';
 
 
 const AdminDashboard = () => {
@@ -1482,8 +1483,7 @@ const AdminDashboard = () => {
                 if (newStatus === 'approved') {
                     const guest = guests.find(g => g.id === guestId);
                     if (guest && guest.email) {
-                        const API_URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/guest/approve`;
-                        fetch(API_URL, {
+                        fetch(`${API_BASE_URL}/api/guest/approve`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({

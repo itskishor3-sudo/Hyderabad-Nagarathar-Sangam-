@@ -3,6 +3,7 @@ import { db } from '../firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
+import { API_BASE_URL } from '../config';
 import './GuestForm.css';
 
 const GuestForm = () => {
@@ -64,8 +65,7 @@ const GuestForm = () => {
             });
 
             // 2️⃣ TRIGGER BACKEND EMAIL SERVICE
-            const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/guest/register`;
-            const response = await fetch(API_URL, {
+            const response = await fetch(`${API_BASE_URL}/api/guest/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
