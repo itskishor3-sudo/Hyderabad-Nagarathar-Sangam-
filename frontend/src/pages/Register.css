@@ -1,0 +1,250 @@
+/* NEW FIELDS STYLES - Matches your neon theme */
+.register-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #2851A3 0%, #3D6FA8 25%, #5A9B8E 75%, #6AAA9A 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.register-form {
+    background: rgba(30, 60, 100, 0.5);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 25px;
+    padding: 3rem;
+    max-width: 900px;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.form-section {
+    margin-bottom: 2.5rem;
+}
+
+.form-section h2 {
+    color: white;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.form-group label {
+    color: #FFFFFF !important;
+    /* ← ADD !important AND use #FFFFFF */
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: block;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+
+.form-group input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 1rem;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.toggle-switch {
+    width: 55px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 28px;
+    position: relative;
+    transition: 0.3s;
+}
+
+.family-member-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1.5fr auto;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.register-btn {
+    width: 100%;
+    padding: 1.2rem;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-field input {
+    width: 100%;
+    padding-right: 50px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 5px 10px;
+}
+
+.toggle-password:hover {
+    opacity: 0.7;
+}
+
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-field input {
+    width: 100%;
+    padding-right: 50px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 5px 10px;
+}
+
+/* FORCE ALL LABELS TO WHITE - FINAL OVERRIDE */
+label,
+.form-group label,
+.register-form label,
+.password-input-wrapper label {
+    color: #FFFFFF !important;
+}
+
+/* Radio Button Styles */
+.radio-group {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.radio-label:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(244, 180, 26, 0.5);
+}
+
+.radio-label input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.radio-custom {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.radio-label input[type="radio"]:checked~.radio-custom {
+    border-color: #F4B41A;
+    background: rgba(244, 180, 26, 0.2);
+}
+
+.radio-label input[type="radio"]:checked~.radio-custom::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: #F4B41A;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(244, 180, 26, 0.6);
+}
+
+.radio-label input[type="radio"]:checked {
+    background: rgba(244, 180, 26, 0.15);
+    border-color: #F4B41A;
+}
+
+.field-label {
+    display: block;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .radio-group {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .radio-label {
+        width: 100%;
+    }
+}
+
+/* Join Us Button Fix */
+a[href="/guest-registration"].secondary-btn:hover,
+.hero-btn.secondary-btn:hover {
+    background: white !important;
+    color: #F4B41A !important;
+    border-color: white !important;
+}

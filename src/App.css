@@ -1,0 +1,270 @@
+:root {
+  /* Exact colors from your logo */
+  --primary-blue: #2851A3;
+  --primary-green: #5A9B8E;
+  --primary-gold: #F4B41A;
+  --accent-orange: #E8A03D;
+  --light-green: #7DB39A;
+  --dark-blue: #1e3a78;
+  --white: #FFFFFF;
+  --light-bg: #F8F9FA;
+  --dark-text: #1A1A1A;
+  --shadow: rgba(40, 81, 163, 0.3);
+}
+
+/* Zoom out entire website */
+html {
+  zoom: 70%;
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #2851A3 0%, #3D6FA8 25%, #5A9B8E 75%, #6AAA9A 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  background: transparent;
+}
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+}
+
+.main-content {
+  flex: 1;
+  background: transparent;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Global Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 1s ease-in-out;
+}
+
+.slide-in {
+  animation: slideInLeft 0.8s ease-in-out;
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.8s ease-in-out;
+}
+
+.slide-in-right {
+  animation: slideInRight 0.8s ease-in-out;
+}
+
+/* Page Headers */
+.page-header {
+  background: transparent;
+  padding: 4rem 0 2rem;
+  text-align: center;
+}
+
+.header-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.header-content h1 {
+  color: white;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.header-subtitle {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.3rem;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Container */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section {
+  padding: 4rem 0;
+  background: transparent;
+}
+
+/* Global text color fix - Change all black text to white/cyan */
+body {
+  color: #FFFFFF;
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* All input fields - white text */
+input,
+textarea,
+select {
+  color: #FFFFFF !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Input placeholder text */
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* All text elements */
+p,
+span,
+div,
+label,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+a {
+  color: #FFFFFF !important;
+  /* ← ADD !important HERE */
+}
+
+/* FORCE all labels to be white */
+label {
+  color: #FFFFFF !important;
+}
+
+/* Specific fix for login form inputs */
+.login-form input[type="email"],
+.login-form input[type="password"],
+.login-form input[type="text"] {
+  color: #FFFFFF !important;
+  font-weight: 500;
+}
+
+/* For any element with black text */
+[style*="color: black"],
+[style*="color:#000"],
+[style*="color: #000000"] {
+  color: #FFFFFF !important;
+}
+
+
+/* Specific fix for login form inputs */
+.login-form input[type="email"],
+.login-form input[type="password"],
+.login-form input[type="text"] {
+  color: #FFFFFF !important;
+  font-weight: 500;
+}
+
+/* For any element with black text */
+[style*="color: black"],
+[style*="color:#000"],
+[style*="color: #000000"] {
+  color: #FFFFFF !important;
+}
+
+/* FORCE ALL BUTTONS TO PURE WHITE TEXT */
+button,
+.btn,
+.submit-btn,
+.logout-btn,
+.register-btn,
+.add-btn,
+.export-btn,
+.delete-btn,
+.edit-btn,
+.view-results-btn,
+.close-poll-btn,
+.add-role-btn,
+.year-btn,
+.clear-search-btn,
+.usage-btn,
+input[type="submit"],
+input[type="button"] {
+  color: #FFFFFF !important;
+}
+
+/* Specific fix for cyan colored buttons */
+button[style*="color: #00FFF9"],
+button[style*="color:#00FFF9"] {
+  color: #FFFFFF !important;
+}
+
+/* Make sure navbar doesn't cover hero */
+.navbar {
+  position: relative;
+  /* Change from sticky/fixed if it was */
+  z-index: 1000;
+}

@@ -1,0 +1,591 @@
+/* Background same as other pages */
+.home {
+    min-height: 100vh;
+    background: linear-gradient(135deg,
+            #2851a3 0%,
+            #3d6fa8 35%,
+            #5a9b8e 70%,
+            #6aaa9a 100%);
+    background-attachment: fixed;
+}
+
+/* Main glass panel like CREATE NEW EVENT */
+.home-main-panel {
+    max-width: 1100px;
+    margin: 3.5rem auto 3rem;
+    padding: 3rem 3.5rem;
+    border-radius: 18px;
+    background: linear-gradient(135deg,
+            rgba(15, 52, 96, 0.92),
+            rgba(26, 95, 122, 0.9));
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(16px);
+}
+
+/* Generic sections inside panel */
+.section {
+    padding: 0 0 2.5rem;
+}
+
+.section+.section {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 2.5rem;
+}
+
+.container {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* Section headings inside panel */
+.section-title {
+    color: #ffffff;
+    font-size: 1.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    margin-bottom: 1.8rem;
+    text-transform: uppercase;
+}
+
+/* ===================== LOGIN CREDENTIALS ===================== */
+
+.login-section-home {
+    padding-top: 0.5rem;
+}
+
+.login-types-detailed {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(250px, 1fr));
+    gap: 1.8rem;
+}
+
+.login-detail-card {
+    background: rgba(14, 37, 68, 0.92);
+    border-radius: 12px;
+    padding: 1.8rem 1.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease,
+        border-color 0.18s ease, background-color 0.18s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-detail-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+    border-color: rgba(244, 180, 26, 0.8);
+    background-color: rgba(24, 77, 121, 0.96);
+}
+
+.login-photo {
+    font-size: 2.4rem;
+    margin-bottom: 0.8rem;
+}
+
+.login-detail-card h3 {
+    margin: 0 0 0.4rem;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.login-position {
+    margin: 0 0 0.9rem;
+    font-size: 0.9rem;
+    color: #c9d6ff;
+}
+
+.login-details {
+    font-size: 0.9rem;
+    color: #e4ecff;
+    line-height: 1.5;
+}
+
+.login-details p {
+    margin: 0.2rem 0;
+}
+
+/* ===================== LOGIN / REGISTER FORM ===================== */
+
+.login-form-container {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 2.1rem 2rem 2.3rem;
+    border-radius: 14px;
+    background: rgba(14, 37, 68, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+    position: relative;
+}
+
+.login-form-container h3 {
+    margin: 0.2rem 0 1.1rem;
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.back-btn {
+    border: none;
+    background: transparent;
+    color: #c9d6ff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin-bottom: 0.6rem;
+}
+
+.back-btn:hover {
+    text-decoration: underline;
+}
+
+.login-form-home {
+    margin-top: 0.3rem;
+}
+
+.form-group {
+    margin-bottom: 0.9rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: #d0ddff;
+    margin-bottom: 0.25rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.65rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(10, 30, 55, 0.95);
+    color: #f5f7ff;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease,
+        background-color 0.18s ease;
+}
+
+.form-group input:focus {
+    border-color: rgba(120, 186, 255, 0.9);
+    box-shadow: 0 0 0 2px rgba(120, 186, 255, 0.3);
+    background-color: rgba(15, 40, 72, 0.98);
+}
+
+/* submit button */
+.submit-button {
+    width: 100%;
+    margin-top: 0.6rem;
+    padding: 0.85rem 1rem;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(135deg, #2e7d32, #43a047);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.submit-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.submit-button:disabled {
+    opacity: 0.7;
+    cursor: default;
+}
+
+.toggle-form {
+    margin-top: 1.1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #cfd5ff;
+}
+
+.toggle-link {
+    color: #ffeb3b;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.toggle-link:hover {
+    text-decoration: underline;
+}
+
+/* ===================== COMMITTEE MEMBERS ===================== */
+
+.committee-section {
+    padding-top: 0.5rem;
+}
+
+.committee-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(230px, 1fr));
+    gap: 2.2rem;
+}
+
+.committee-card {
+    background: rgba(14, 37, 68, 0.9);
+    border-radius: 14px;
+    padding: 2.2rem 1.8rem;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(14px);
+    transition: transform 0.2s ease, box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.committee-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
+    border-color: rgba(244, 180, 26, 0.7);
+}
+
+.member-photo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.1rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6b4bb8, #8b6ed6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.committee-card h3 {
+    margin: 0 0 0.4rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.member-position {
+    margin: 0 0 1rem;
+    font-size: 0.9rem;
+    color: #f4b41a;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.member-details {
+    font-size: 0.9rem;
+    color: #e4ecff;
+    line-height: 1.5;
+}
+
+.member-details p {
+    margin: 0.25rem 0;
+}
+
+/* ===================== LOCATION & CONTACT ===================== */
+
+.contact-location-section {
+    padding-top: 0.5rem;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(230px, 1fr));
+    gap: 2.2rem;
+}
+
+.contact-card {
+    background: rgba(14, 37, 68, 0.9);
+    border-radius: 14px;
+    padding: 2.2rem 1.8rem;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(14px);
+    transition: transform 0.2s ease, box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.contact-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
+    border-color: rgba(244, 180, 26, 0.7);
+}
+
+.contact-photo {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+    border-radius: 18px;
+    background: rgba(40, 81, 163, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    color: #ffffff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.contact-card h3 {
+    margin: 0 0 0.3rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.contact-position {
+    margin: 0 0 0.9rem;
+    font-size: 0.9rem;
+    color: #f4b41a;
+    font-weight: 600;
+}
+
+.contact-details {
+    font-size: 0.9rem;
+    color: #e4ecff;
+    line-height: 1.6;
+}
+
+/* ===================== RESPONSIVE ===================== */
+
+@media (max-width: 1024px) {
+    .login-types-detailed {
+        grid-template-columns: repeat(2, minmax(240px, 1fr));
+    }
+
+    .committee-grid,
+    .contact-grid {
+        grid-template-columns: repeat(2, minmax(230px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .home-main-panel {
+        margin: 2.5rem 1rem 2rem;
+        padding: 2.2rem 1.7rem;
+    }
+
+    .section-title {
+        font-size: 1.4rem;
+    }
+
+    .login-types-detailed,
+    .committee-grid,
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* COMPLETE HOME.CSS - BLENDED WITH BACKGROUND */
+
+/* Main gradient background */
+.home {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #2851A3 0%, #3D6FA8 35%, #5A9B8E 70%, #6AAA9A 100%);
+    background-attachment: fixed;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* NEW REGISTRATION FORM STYLES */
+.form-section-title {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 2rem 0 1rem 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    border-bottom: 2px solid rgba(244, 180, 26, 0.5);
+    padding-bottom: 0.5rem;
+}
+
+.registration-expanded .form-group {
+    margin-bottom: 1.2rem;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    cursor: pointer;
+}
+
+.family-member-group {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.family-member-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 0.8fr 1.2fr;
+    gap: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.family-member-inputs input {
+    padding: 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+.remove-family-btn {
+    background: rgba(244, 67, 54, 0.6);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.add-family-btn {
+    background: rgba(33, 150, 243, 0.6);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .family-member-inputs {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Radio Button Styles for Home - IMPROVED */
+.radio-group-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+}
+
+.field-label {
+    display: block;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.radio-group-home {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.radio-label-home {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 1.2rem 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.radio-label-home:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(244, 180, 26, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.radio-label-home input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    width: 0;
+    height: 0;
+}
+
+.radio-custom-home {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.radio-label-home input[type="radio"]:checked~.radio-custom-home {
+    border-color: #F4B41A;
+    background: rgba(244, 180, 26, 0.25);
+}
+
+.radio-label-home input[type="radio"]:checked~.radio-custom-home::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: #F4B41A;
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(244, 180, 26, 0.8);
+}
+
+.radio-label-home:has(input[type="radio"]:checked) {
+    background: linear-gradient(135deg, rgba(244, 180, 26, 0.2) 0%, rgba(244, 180, 26, 0.1) 100%);
+    border-color: #F4B41A;
+    box-shadow: 0 4px 20px rgba(244, 180, 26, 0.3);
+}
+
+.radio-label-home input[type="radio"]:disabled~.radio-custom-home {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .radio-group-home {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .radio-label-home {
+        width: 100%;
+        min-width: unset;
+    }
+}
+
+/* Join Us Button Fix */
+a[href="/guest-registration"].secondary-btn:hover,
+.hero-btn.secondary-btn:hover {
+    background: white !important;
+    color: #F4B41A !important;
+    border-color: white !important;
+}

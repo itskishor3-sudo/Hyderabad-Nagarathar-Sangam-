@@ -1,0 +1,45 @@
+.admin-members {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #2851A3 0%, #3D6FA8 25%, #5A9B8E 75%, #6AAA9A 100%);
+    padding: 3rem;
+}
+
+.admin-members h1 {
+    color: white;
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.member-card {
+    background: rgba(30, 60, 100, 0.5);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 2rem;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.family-list {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.family-list span {
+    display: inline-block;
+    background: rgba(244, 180, 26, 0.3);
+    padding: 0.5rem 1rem;
+    margin: 0.2rem;
+    border-radius: 20px;
+    border: 1px solid rgba(244, 180, 26, 0.5);
+}

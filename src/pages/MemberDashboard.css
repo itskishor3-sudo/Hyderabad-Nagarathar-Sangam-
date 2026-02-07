@@ -1,0 +1,1589 @@
+.member-dashboard {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #2851A3 0%, #3D6FA8 25%, #5A9B8E 75%, #6AAA9A 100%);
+    background-attachment: fixed;
+    padding: 0;
+}
+
+.dashboard-header {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 1.5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-header h1 {
+    color: white;
+    font-size: 2rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.user-info span {
+    color: white;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    font-size: 1rem;
+}
+
+.logout-btn {
+    background: rgba(244, 180, 26, 0.3);
+    color: white;
+    border: 2px solid rgba(244, 180, 26, 0.5);
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.logout-btn:hover {
+    background: rgba(244, 180, 26, 0.5);
+    border-color: rgba(244, 180, 26, 0.7);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(244, 180, 26, 0.4);
+}
+
+.dashboard-tabs {
+    display: flex;
+    gap: 0;
+    padding: 2rem 3rem 0 3rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.tab-btn {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tab-btn:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+    color: white;
+    border-bottom-color: #F4B41A;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dashboard-content {
+    padding: 3rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.events-section h2,
+.registration-form-section h2,
+.my-registrations-section h2 {
+    color: white;
+    margin-bottom: 2rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    font-size: 2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.no-data {
+    color: white;
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.2rem;
+    background: rgba(30, 60, 100, 0.3);
+    border-radius: 15px;
+    border: 2px dashed rgba(255, 255, 255, 0.4);
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+}
+
+/* 1. Update .event-card to use Flexbox */
+.event-card {
+    background: rgba(30, 60, 100, 0.4);
+    backdrop-filter: blur(5px);
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-radius: 20px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+    /* NEW LAYOUT PROPERTIES */
+    display: flex;
+    /* Enables flex layout */
+    flex-direction: column;
+    /* Stacks items vertically */
+    justify-content: space-between;
+    /* Spaces out content */
+    height: 100%;
+    /* Makes all cards in the grid the same height */
+    min-height: 250px;
+    /* Ensures card has enough height */
+}
+
+/* 2. Ensure the description/details take up available space */
+.event-details {
+    margin-bottom: 1.5rem;
+    /* Adds safe space before the button */
+    flex-grow: 1;
+    /* Pushes the button to the bottom */
+}
+
+/* 3. Update the button to stick to the bottom */
+.register-btn {
+    width: 100%;
+    padding: 1rem;
+    /* Adjusted padding for better fit */
+    border: none;
+    border-radius: 50px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: auto;
+    /* Critical: Pushes button to very bottom of flex container */
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+    /* Keep your colors */
+    background: rgba(76, 175, 80, 0.8);
+    /* Made slightly more opaque for readability */
+    color: white;
+    border: 2px solid rgba(76, 175, 80, 0.7);
+}
+
+
+
+.register-btn:hover {
+    background: rgba(76, 175, 80, 0.7);
+    border-color: rgba(76, 175, 80, 0.9);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.registered-btn {
+    background: rgba(100, 100, 100, 0.4);
+    color: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(150, 150, 150, 0.6);
+    cursor: not-allowed;
+}
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    padding: 0.9rem 2rem;
+    border-radius: 50px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    font-size: 1rem;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.registration-form {
+    max-width: 900px;
+    background: rgba(30, 60, 100, 0.4);
+    backdrop-filter: blur(5px);
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-radius: 20px;
+    padding: 3rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+.form-info {
+    background: rgba(244, 180, 26, 0.35);
+    border: 2px solid rgba(244, 180, 26, 0.6);
+    padding: 1.5rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.form-info p {
+    color: white;
+    margin: 0.6rem 0;
+    font-weight: 600;
+    font-size: 1.05rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.registration-form h3 {
+    color: white;
+    margin: 2rem 0 1.5rem 0;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 1.3rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.registration-form label {
+    display: block;
+    color: white;
+    font-weight: 700;
+    margin-bottom: 0.7rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+}
+
+.registration-form input,
+.registration-form textarea {
+    width: 100%;
+    padding: 1rem 1.2rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.registration-form input::placeholder,
+.registration-form textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.registration-form input:focus,
+.registration-form textarea:focus {
+    outline: none;
+    border-color: rgba(244, 180, 26, 0.6);
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 3px rgba(244, 180, 26, 0.2);
+}
+
+/* --- FAMILY MEMBER ROW ALIGNMENT FIX --- */
+.family-member-row {
+    display: grid;
+    /* Grid Columns: Name (2fr) | Relation (1.5fr) | Age (0.8fr) | Phone (1.5fr) | Delete Button (Auto) */
+    grid-template-columns: 2fr 1.5fr 0.8fr 1.5fr auto;
+    gap: 10px;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.family-member-row input {
+    width: 100%;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    font-size: 0.95rem;
+}
+
+.family-member-row input:focus {
+    outline: none;
+    border-color: #F4B41A;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.remove-btn {
+    background: rgba(244, 67, 54, 0.2);
+    color: #ff5252;
+    border: 1px solid rgba(244, 67, 54, 0.5);
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+    background: #ff5252;
+    color: white;
+}
+
+/* --- MOBILE RESPONSIVENESS FOR FAMILY ROW --- */
+@media (max-width: 768px) {
+    .family-member-row {
+        grid-template-columns: 1fr;
+        /* Stack vertically on mobile */
+        gap: 10px;
+    }
+
+    .remove-btn {
+        width: 100%;
+        margin-top: 5px;
+    }
+}
+
+
+.remove-btn:hover {
+    background: rgba(244, 67, 54, 0.7);
+    transform: scale(1.05);
+}
+
+.add-family-btn {
+    background: rgba(33, 150, 243, 0.5);
+    color: white;
+    border: 2px solid rgba(33, 150, 243, 0.7);
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    font-size: 1rem;
+}
+
+.add-family-btn:hover {
+    background: rgba(33, 150, 243, 0.7);
+    border-color: rgba(33, 150, 243, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+}
+
+.headcount-info {
+    background: rgba(244, 180, 26, 0.4);
+    border: 2px solid rgba(244, 180, 26, 0.6);
+    padding: 1.2rem 1.5rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.headcount-info p {
+    color: white;
+    font-size: 1.3rem;
+    margin: 0;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.submit-btn {
+    background: rgba(76, 175, 80, 0.5);
+    color: white;
+    border: 2px solid rgba(76, 175, 80, 0.7);
+    padding: 1.2rem 3rem;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.submit-btn:hover:not(:disabled) {
+    background: rgba(76, 175, 80, 0.7);
+    border-color: rgba(76, 175, 80, 0.9);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.registrations-list {
+    display: grid;
+    gap: 2rem;
+}
+
+.registration-card {
+    background: rgba(30, 60, 100, 0.4);
+    backdrop-filter: blur(5px);
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.registration-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.45);
+}
+
+.registration-card h3 {
+    color: white;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.registration-card p {
+    color: white;
+    margin: 0.6rem 0;
+    font-weight: 600;
+    font-size: 1.05rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.family-members-list {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.family-members-list strong {
+    color: white;
+    display: block;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 1.1rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.family-members-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.family-members-list li {
+    color: white;
+    padding: 0.7rem 1.3rem;
+    background: rgba(244, 180, 26, 0.4);
+    border: 2px solid rgba(244, 180, 26, 0.6);
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+
+    .user-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .dashboard-tabs {
+        flex-direction: column;
+        padding: 1rem 1.5rem 0 1.5rem;
+    }
+
+    .dashboard-content {
+        padding: 2rem 1.5rem;
+    }
+
+    .family-member-row {
+        grid-template-columns: 1fr;
+    }
+
+    .events-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .registration-form {
+        padding: 2rem 1.5rem;
+    }
+}
+
+/* MEMBER VOTING STYLES */
+.voting-section-member {
+    padding: 2rem;
+}
+
+.polls-grid-member {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.poll-card-member {
+    background: rgba(30, 60, 100, 0.5);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 2rem;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.poll-card-member:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    border-color: rgba(244, 180, 26, 0.5);
+}
+
+.poll-card-member h3 {
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.vote-btn {
+    background: rgba(76, 175, 80, 0.6);
+    color: white;
+    border: 2px solid rgba(76, 175, 80, 0.8);
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 700;
+    width: 100%;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+}
+
+.vote-btn:hover {
+    background: rgba(76, 175, 80, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.voted-btn {
+    background: rgba(158, 158, 158, 0.5);
+    color: white;
+    border: 2px solid rgba(158, 158, 158, 0.7);
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    width: 100%;
+    margin-top: 1rem;
+    cursor: not-allowed;
+    font-weight: 700;
+}
+
+.voting-form-section {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.poll-description {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: 10px;
+    margin: 1rem 0;
+}
+
+.poll-deadline {
+    color: #F4B41A;
+    font-weight: 600;
+    margin-bottom: 2rem;
+}
+
+.voting-roles {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.voting-role {
+    background: rgba(30, 60, 100, 0.5);
+    backdrop-filter: blur(15px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 2rem;
+}
+
+.voting-role h3 {
+    color: #F4B41A;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.candidates-voting {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.candidate-option {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.candidate-option:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(244, 180, 26, 0.5);
+    transform: translateX(5px);
+}
+
+.candidate-option input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #F4B41A;
+}
+
+.candidate-option input[type="radio"]:checked+.candidate-name {
+    color: #F4B41A;
+    font-weight: 700;
+}
+
+.candidate-name {
+    font-size: 1.1rem;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.submit-vote-btn {
+    background: linear-gradient(135deg, #F4B41A 0%, #f39c12 100%);
+    color: white;
+    border: none;
+    padding: 1.5rem 3rem;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.2rem;
+    width: 100%;
+    margin-top: 2rem;
+    box-shadow: 0 10px 30px rgba(244, 180, 26, 0.4);
+    transition: all 0.3s ease;
+}
+
+.submit-vote-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(244, 180, 26, 0.6);
+}
+
+@media (max-width: 768px) {
+    .polls-grid-member {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Profile Edit Section */
+.profile-edit-section {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.profile-edit-section h2 {
+    margin-bottom: 30px;
+    color: #333;
+    font-size: 28px;
+    border-bottom: 3px solid #007bff;
+    padding-bottom: 10px;
+}
+
+.profile-edit-section h3 {
+    margin-top: 20px;
+    margin-bottom: 15px;
+    color: #555;
+    font-size: 18px;
+}
+
+.profile-form .form-group {
+    margin-bottom: 20px;
+}
+
+.profile-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.profile-form input,
+.profile-form textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+}
+
+.profile-form input:focus,
+.profile-form textarea:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.profile-form small {
+    display: block;
+    margin-top: 5px;
+    color: #888;
+    font-size: 12px;
+}
+
+.password-input-wrapper .password-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-field input {
+    flex: 1;
+    padding-right: 50px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 5px 10px;
+    transition: opacity 0.3s;
+}
+
+.toggle-password:hover {
+    opacity: 0.7;
+}
+
+.password-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid #eee;
+}
+
+.btn-update,
+.btn-toggle-password {
+    padding: 12px 24px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 10px;
+    transition: background 0.3s;
+    width: 100%;
+}
+
+.btn-toggle-password {
+    background: #6c757d;
+    width: auto;
+}
+
+.btn-update:hover {
+    background: #0056b3;
+}
+
+.btn-toggle-password:hover {
+    background: #5a6268;
+}
+
+.btn-update:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.password-form {
+    margin-top: 20px;
+}
+
+/* Remove white background from dashboard wrapper */
+body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #2851A3 0%, #3D6FA8 25%, #5A9B8E 75%, #6AAA9A 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+/* Ensure navbar has transparent/gradient background */
+.navbar,
+nav {
+    background: rgba(30, 60, 100, 0.5) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Remove any white container backgrounds */
+.admin-dashboard-container,
+.dashboard-wrapper,
+.main-container {
+    background: transparent !important;
+}
+
+/* Update dashboard header to blend better */
+.dashboard-header {
+    background: rgba(30, 60, 100, 0.5);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 1.5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Make the "ADMIN DASHBOARD" heading cyan */
+.dashboard-header h1 {
+    color: #ffffff;
+    font-size: 2rem;
+    text-shadow: 0 0 20px white;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* =========================================
+   FAMILY MEMBER ALIGNMENT FIXES
+   ========================================= */
+
+.section-divider {
+    margin-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 1.5rem;
+    color: #F4B41A;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+}
+
+.family-member-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.family-member-card:hover {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.family-grid {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 0.8fr 1.5fr auto;
+    /* Name | Relation | Age | Phone | Delete */
+    gap: 1rem;
+    align-items: end;
+    /* Aligns inputs and button at the bottom */
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.input-group label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 0.8rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    font-size: 0.95rem;
+}
+
+.input-group input:focus {
+    border-color: #F4B41A;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Delete Button Style */
+.delete-icon-btn {
+    background: rgba(244, 67, 54, 0.2);
+    color: #ff5252;
+    border: 1px solid rgba(244, 67, 54, 0.4);
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    margin-bottom: 2px;
+    /* Slight optical adjustment */
+}
+
+.delete-icon-btn:hover {
+    background: #ff5252;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Add Family Button */
+.add-family-btn {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(33, 150, 243, 0.15);
+    border: 1px dashed rgba(33, 150, 243, 0.5);
+    color: #2196f3;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.add-family-btn:hover {
+    background: rgba(33, 150, 243, 0.25);
+    border-color: #2196f3;
+    color: white;
+}
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 768px) {
+    .family-grid {
+        grid-template-columns: 1fr 1fr;
+        /* 2 columns on tablet */
+    }
+
+    .input-group.small {
+        grid-column: span 1;
+    }
+
+    .action-group {
+        grid-column: span 2;
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .family-grid {
+        grid-template-columns: 1fr;
+        /* 1 column on mobile */
+        gap: 0.8rem;
+    }
+
+    .action-group {
+        grid-column: span 1;
+    }
+
+    .delete-icon-btn {
+        width: 100%;
+        /* Full width delete button on mobile */
+    }
+}
+
+/* --- PROFILE IMAGE STYLES --- */
+/* --- REFINED PROFILE IMAGE STYLES --- */
+/* --- PROFESSIONAL PROFILE IMAGE OVERLAY STYLE --- */
+.profile-image-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 2rem 0 3rem 0;
+}
+
+.profile-image-wrapper {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    cursor: pointer;
+    overflow: hidden;
+    /* Ensures the overlay stays inside the circle */
+    border: 4px solid #F4B41A;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.profile-image-wrapper:hover {
+    box-shadow: 0 0 25px rgba(244, 180, 26, 0.6);
+    transform: scale(1.02);
+}
+
+.profile-img-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* The Placeholder (Initials) */
+.profile-img-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* THE OVERLAY (Hidden by default, shows on hover) */
+.image-upload-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    /* Semi-transparent black */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.profile-image-wrapper:hover .image-upload-overlay {
+    opacity: 1;
+}
+
+.overlay-icon {
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+.overlay-text {
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.image-upload-btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: #F4B41A;
+    /* Gold background */
+    color: #000;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    font-size: 1.2rem;
+    border: 3px solid #1a1a2e;
+    /* Matches dashboard background color to create a 'cutout' look */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Bouncy transition */
+    z-index: 10;
+}
+
+.image-upload-btn:hover {
+    background: white;
+    transform: scale(1.1) rotate(15deg);
+}
+
+/* Helper Text Styling */
+.profile-image-section p {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-weight: 500;
+    opacity: 0;
+    /* Hidden by default */
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+
+/* Show text only when hovering over the image wrapper */
+.profile-image-section:hover p {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+.image-upload-btn {
+    position: absolute;
+    bottom: -10px;
+    /* Moves it down to sit on the border */
+    right: -10px;
+    /* Moves it right to sit on the border */
+    background: #F4B41A;
+    /* Gold background to make it visible */
+    color: #000;
+    width: 50px;
+    /* Larger button size */
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.8rem;
+    /* Larger emoji size */
+    border: 4px solid #1a1a2e;
+    /* Matches your dashboard background color for a 'cutout' look */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    transition: transform 0.2s ease;
+}
+
+.image-upload-btn:hover {
+    transform: scale(1.1);
+    background: #fff;
+}
+
+
+.header-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+}
+
+.header-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #F4B41A;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 2px solid white;
+}
+
+/* --- VOTING SECTION --- */
+.voting-section {
+    padding: 20px;
+}
+
+.poll-voting-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+}
+
+.poll-voting-card.voted-card {
+    border-color: #4caf50;
+    background: rgba(76, 175, 80, 0.05);
+}
+
+.poll-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.status-badge.active {
+    background: #ff9800;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.status-badge.completed {
+    background: #4caf50;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.poll-desc {
+    color: #ddd;
+    margin-bottom: 10px;
+}
+
+.poll-deadline {
+    color: #f4b41a;
+    font-size: 0.9rem;
+    margin-bottom: 25px;
+    font-weight: bold;
+}
+
+.role-vote-group {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.role-vote-group h4 {
+    margin-top: 0;
+    color: #f4b41a;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.candidates-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.candidate-option {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    border: 1px solid transparent;
+}
+
+.candidate-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.candidate-option.selected {
+    background: rgba(244, 180, 26, 0.2);
+    border-color: #f4b41a;
+}
+
+.candidate-option.disabled {
+    cursor: default;
+    opacity: 0.7;
+}
+
+.candidate-option input {
+    margin-right: 10px;
+    accent-color: #f4b41a;
+}
+
+.submit-vote-btn {
+    background: linear-gradient(135deg, #f4b41a 0%, #ff8c00 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    width: 100%;
+    transition: transform 0.2s;
+}
+
+.submit-vote-btn:hover {
+    transform: scale(1.02);
+}
+
+.vote-confirmation {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(76, 175, 80, 0.2);
+    border-radius: 10px;
+    text-align: center;
+    color: #4caf50;
+    font-weight: bold;
+}
+
+/* --- 🗳️ VOTING SECTION (Polished Theme) --- */
+.voting-section {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.polls-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* --- CARD STYLE --- */
+.poll-voting-card {
+    background: rgba(255, 255, 255, 0.08);
+    /* Subtle glass effect */
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 30px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.poll-voting-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.poll-voting-card.voted-card {
+    border-color: #4caf50;
+    background: rgba(76, 175, 80, 0.08);
+    /* Green tint for completed */
+}
+
+/* --- HEADER --- */
+.poll-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
+}
+
+.poll-header h3 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* --- BADGES --- */
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-badge.active {
+    background: rgba(244, 180, 26, 0.2);
+    color: #f4b41a;
+    border: 1px solid #f4b41a;
+}
+
+.status-badge.completed {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+    border: 1px solid #4caf50;
+}
+
+/* --- DETAILS --- */
+.poll-desc {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.poll-deadline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: #ff9800;
+    /* Orange for urgency */
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 25px;
+}
+
+/* --- ROLES & CANDIDATES --- */
+.role-vote-group {
+    background: rgba(0, 0, 0, 0.15);
+    /* Darker inner container */
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.role-vote-group h4 {
+    margin-top: 0;
+    color: #f4b41a;
+    /* Theme Yellow */
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.candidates-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    /* Responsive Grid */
+    gap: 15px;
+}
+
+/* --- RADIO BUTTON CARD --- */
+.candidate-option {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    position: relative;
+}
+
+.candidate-option:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.candidate-option.selected {
+    background: rgba(244, 180, 26, 0.15);
+    /* Selected Yellow Tint */
+    border-color: #f4b41a;
+    box-shadow: 0 0 15px rgba(244, 180, 26, 0.1);
+}
+
+.candidate-option input {
+    width: 18px;
+    height: 18px;
+    margin-right: 12px;
+    accent-color: #f4b41a;
+    /* Yellow Radio */
+    cursor: pointer;
+}
+
+.candidate-name {
+    font-weight: 500;
+    color: #fff;
+    font-size: 1rem;
+}
+
+/* --- SUBMIT BUTTON (Improved) --- */
+.submit-vote-btn {
+    background: linear-gradient(135deg, #f4b41a 0%, #d49504 100%);
+    /* Richer gradient */
+    color: #000;
+    /* Black text for contrast on yellow */
+    border: none;
+    padding: 14px 40px;
+    border-radius: 8px;
+    /* Less rounded, more modern */
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+    width: auto;
+    /* Allow auto width */
+    min-width: 200px;
+    /* Minimum width */
+    display: block;
+    margin-left: auto;
+    /* Right align button */
+    box-shadow: 0 4px 15px rgba(244, 180, 26, 0.3);
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.submit-vote-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(244, 180, 26, 0.4);
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+}
+
+.submit-vote-btn:active {
+    transform: translateY(0);
+}
+
+/* --- CONFIRMATION MESSAGE --- */
+.vote-confirmation {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(76, 175, 80, 0.15);
+    border: 1px solid #4caf50;
+    border-radius: 12px;
+    text-align: center;
+    color: #4caf50;
+    font-weight: 600;
+    font-size: 1.1rem;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- NO DATA --- */
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: rgba(255, 255, 255, 0.5);
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+}

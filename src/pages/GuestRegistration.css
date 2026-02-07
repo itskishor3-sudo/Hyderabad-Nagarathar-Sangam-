@@ -1,0 +1,310 @@
+.guest-registration-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #2851A3 0%, #3D6FA8 25%, #5A9B8E 75%, #6AAA9A 100%);
+    padding: 3rem 2rem;
+}
+
+.registration-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.registration-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.registration-header h1 {
+    font-size: 3rem;
+    color: #F4B41A;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+}
+
+.registration-subtitle {
+    font-size: 1.3rem;
+    color: white;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Form Sections */
+.registration-form {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 3rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.form-section {
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-title {
+    font-size: 1.8rem;
+    color: #F4B41A;
+    margin-bottom: 2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    color: white;
+    font-weight: 600;
+    margin-bottom: 0.7rem;
+    font-size: 1.05rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 1rem 1.2rem;
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #F4B41A;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 3px rgba(244, 180, 26, 0.2);
+}
+
+/* Custom Radio Buttons */
+.radio-group-guest {
+    display: flex;
+    gap: 2rem;
+    margin-top: 0.8rem;
+}
+
+.radio-label-guest {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.radio-label-guest input[type="radio"] {
+    display: none;
+    /* Hide default radio */
+}
+
+.radio-custom-guest {
+    width: 22px;
+    height: 22px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.radio-label-guest:hover .radio-custom-guest {
+    border-color: #F4B41A;
+}
+
+.radio-label-guest input:checked+.radio-custom-guest {
+    border-color: #F4B41A;
+    background: #F4B41A;
+    box-shadow: 0 0 12px rgba(244, 180, 26, 0.6);
+}
+
+.radio-label-guest input:checked+.radio-custom-guest::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-radius: 50%;
+}
+
+.radio-label-guest input:checked~span:last-child {
+    color: #F4B41A;
+    font-weight: bold;
+}
+
+
+/* Family Members */
+.family-member-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.family-member-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.family-member-header h4 {
+    color: white;
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.remove-family-btn {
+    padding: 0.5rem 1rem;
+    background: rgba(255, 69, 69, 0.8);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.remove-family-btn:hover {
+    background: rgba(255, 69, 69, 1);
+    transform: scale(1.05);
+}
+
+.add-family-btn {
+    width: 100%;
+    padding: 1.2rem;
+    background: linear-gradient(135deg, #5A9B8E 0%, #3D6FA8 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-family-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(90, 155, 142, 0.4);
+}
+
+/* Payment Section */
+.payment-section {
+    background: rgba(244, 180, 26, 0.15);
+    border: 2px solid rgba(244, 180, 26, 0.3);
+}
+
+.payment-info-box {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    border-radius: 12px;
+}
+
+.payment-notice {
+    color: white;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.payment-description {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.05rem;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+}
+
+.payment-methods {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.payment-badge {
+    padding: 0.7rem 1.2rem;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* Submit Button */
+.submit-registration-btn {
+    width: 100%;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #F4B41A 0%, #e09b15 100%);
+    color: #1e3c64;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2rem;
+}
+
+.submit-registration-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(244, 180, 26, 0.5);
+}
+
+.submit-registration-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .guest-registration-page {
+        padding: 2rem 1rem;
+    }
+
+    .registration-form {
+        padding: 2rem 1.5rem;
+    }
+
+    .form-section {
+        padding: 1.5rem;
+    }
+
+    .registration-header h1 {
+        font-size: 2rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
