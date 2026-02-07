@@ -448,16 +448,22 @@ app.post('/api/guest/approve', async (req, res) => {
 
         const notificationEmail = process.env.NOTIFICATION_EMAIL || 'nnscahyderabad@gmail.com';
 
-        // Send approval email ONLY to guest (not to sangam email)
-        // Send approval email ONLY to guest (not to sangam email)
+        // 1. Send approval email to guest
         await sendEmail({
             to: email,
             subject: 'Guest Request Approved – Welcome',
             htmlContent: getGuestApprovalEmail(guestData)
         });
 
-        console.log(`✅ Guest approval email sent to: ${email}`);
-        res.status(200).json({ success: true, message: 'Approval email sent successfully.' });
+        // 2. Send confirmation copy to admin
+        await sendEmail({
+            to: notificationEmail,
+            subject: `Guest Approved – ${name}`,
+            htmlContent: getAdminApprovalCopyEmail(guestData)
+        });
+
+        console.log(`✅ Guest approval emails sent. To: ${email}, Admin Copy: ${notificationEmail}`);
+        res.status(200).json({ success: true, message: 'Approval emails sent successfully.' });
 
     } catch (error) {
         console.error('❌ Error in guest approval:', error);

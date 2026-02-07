@@ -1488,7 +1488,12 @@ const AdminDashboard = () => {
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 name: guest.name || guest.fullName,
-                                email: guest.email
+                                email: guest.email,
+                                checkInDate: guest.checkInDate,
+                                checkInTime: guest.checkInTime,
+                                expectedCheckOutDate: guest.expectedCheckOutDate,
+                                expectedCheckOutTime: guest.expectedCheckOutTime,
+                                roomHall: guest.roomHall
                             })
                         }).catch(err => console.error('Error sending approval email:', err));
                     }
