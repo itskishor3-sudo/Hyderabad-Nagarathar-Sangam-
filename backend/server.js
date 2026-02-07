@@ -118,6 +118,33 @@ app.get('/api/email-status', (req, res) => {
     res.json(status);
 });
 
+// Test email endpoint - sends a test email to verify SMTP connection
+app.get('/api/test-email', async (req, res) => {
+    try {
+        const testEmail = {
+            from: `"HNNSC Test" <${process.env.EMAIL_USER}>`,
+            to: process.env.EMAIL_USER, // Send to self
+            subject: 'SMTP Connection Test',
+            text: 'If you receive this email, the SMTP configuration is working correctly!'
+        };
+
+        await transporter.sendMail(testEmail);
+        res.json({
+            success: true,
+            message: 'Test email sent successfully! Check your inbox.',
+            sentTo: process.env.EMAIL_USER
+        });
+    } catch (error) {
+        res.json({
+            success: false,
+            error: error.message,
+            errorCode: error.code,
+            errorName: error.name,
+            details: 'Gmail may be blocking connections from this server IP address'
+        });
+    }
+});
+
 // Contact form submission endpoint - RESTRUCTURED FOR DIRECT DELIVERY
 app.post('/api/contact', async (req, res) => {
     try {
