@@ -86,45 +86,43 @@ const sendEmail = async ({ to, subject, htmlContent, senderName, senderEmail, re
 
         sendSmtpEmail.subject = subject;
         sendSmtpEmail.htmlContent = htmlContent;
+
+        // Sender MUST be a verified email in Brevo. Enforce strict fallback.
+        const verifiedSender = process.env.EMAIL_USER || 'itskishor3@gmail.com';
+
         sendSmtpEmail.sender = {
             name: senderName || "Hyderabad Nagarathar Sangam",
-            email: senderEmail || process.env.EMAIL_USER || "nnscahyderabad@gmail.com"
+            email: verifiedSender
         };
-        sendSmtpEmail.to = Array.isArray(to) ? to.map(e => ({ email: e })) : [{ email: to }];
+
+        // Ensure 'to' is always an array of objects
+        const recipients = Array.isArray(to) ? to : [to];
+        sendSmtpEmail.to = recipients.map(email => ({ email: email }));
 
         if (replyTo) {
             sendSmtpEmail.replyTo = { email: replyTo };
         }
 
         if (attachment) {
-            // Brevo expects attachments as { name: '...', content: 'base64...' } but specific formatted URL also triggers download
-            // Simple handling: If attachment is provided, we might need adjustments based on Brevo's specific format expectation
-            // For now, we'll skip complex attachment handling to ensure basic delivery first, 
-            // or we'd need to read the file and convert to base64.
-            // Let's implement basic base64 reading if path is provided.
-            if (Array.isArray(attachment) && attachment.length > 0) {
-                const atts = attachment.map(att => {
-                    if (att.path && fs.existsSync(att.path)) {
-                        const fileContent = fs.readFileSync(att.path).toString('base64');
-                        return {
-                            name: att.filename,
-                            content: fileContent
-                        };
-                    }
-                    return null;
-                }).filter(a => a !== null);
+            return {
+                name: att.filename,
+                content: fileContent
+            };
+        }
+        return null;
+    }).filter(a => a !== null);
 
-                if (atts.length > 0) sendSmtpEmail.attachment = atts;
-            }
+    if (atts.length > 0) sendSmtpEmail.attachment = atts;
+}
         }
 
-        const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
-        console.log(`✅ Email sent successfully via Brevo. MessageId: ${data.messageId}`);
-        return data;
+const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+console.log(`✅ Email sent successfully via Brevo. MessageId: ${data.messageId}`);
+return data;
     } catch (error) {
-        console.error('❌ Brevo Email Error:', error);
-        throw error;
-    }
+    console.error('❌ Brevo Email Error:', error);
+    throw error;
+}
 };
 
 // Health check endpoint
