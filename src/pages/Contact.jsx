@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './Contact.css';
 import { useToast } from '../context/ToastContext';
+import { API_BASE_URL } from '../config';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -26,37 +27,35 @@ const Contact = () => {
         setSubmitting(true);
 
         try {
-            const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/contact`;
-            const response = await fetch(API_URL, {
+            // Send form data to backend API
+            const response = await fetch(`${API_BASE_URL}/api/contact`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData)
             });
 
             const data = await response.json();
 
-            if (response.ok && data.success) {
-                // Success - show success message
-                showToast('✅ ' + data.message, 'success');
-
-                // Clear form
-                setFormData({
-                    name: '',
-                    email: '',
-                    phone: '',
-                    subject: '',
-                    message: ''
-                });
-            } else {
-                // Server returned an error
-                showToast('❌ ' + (data.message || 'Failed to send message. Please try again.'), 'error');
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Failed to send message');
             }
+
+            // Success - show success message
+            showToast('✅ Message received! We will get back to you soon.', 'success');
+
+            // Clear form
+            setFormData({
+                name: '',
+                email: '',
+                phone: '',
+                subject: '',
+                message: ''
+            });
         } catch (error) {
-            // Network or other error
             console.error('Error submitting form:', error);
-            showToast('❌ Unable to send message. Please check if the backend server is running or try again later.', 'error');
+            showToast('❌ Unable to submit message. Please try again.', 'error');
         } finally {
             setSubmitting(false);
         }

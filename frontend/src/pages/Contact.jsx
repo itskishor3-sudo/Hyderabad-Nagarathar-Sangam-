@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './Contact.css';
 import { useToast } from '../context/ToastContext';
+import { API_BASE_URL } from '../config';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -27,8 +28,6 @@ const Contact = () => {
 
         try {
             // Send form data to backend API
-            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://hyderabad-nagarathar-sangam-backend.onrender.com';
-
             const response = await fetch(`${API_BASE_URL}/api/contact`, {
                 method: 'POST',
                 headers: {
