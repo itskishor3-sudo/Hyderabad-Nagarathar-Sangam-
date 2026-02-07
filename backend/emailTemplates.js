@@ -3,6 +3,7 @@
 const getEmailHeader = () => {
     return `
         <div style="background: linear-gradient(135deg, #003366 0%, #004d99 100%); padding: 40px 20px; text-align: center; border-radius: 12px 12px 0 0;">
+            <div style="font-size: 64px; margin-bottom: 15px;">🪔</div>
             <h1 style="color: white; margin: 20px 0 10px 0; font-size: 28px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; font-family: 'Cinzel', serif;">
                 HYDERABAD NAGARATHAR SANGAM
             </h1>
