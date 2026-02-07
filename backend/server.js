@@ -63,38 +63,69 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Configure Nodemailer transporter with Gmail SMTP - Explicit configuration for production
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // Use SSL
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    // SSL configuration often needs this on some environments
-    tls: {
-        // do not fail on invalid certs
-        rejectUnauthorized: false
-    },
-    pool: false, // Usage of pool with Gmail can sometimes cause timeouts on free hosting
-    connectionTimeout: 10000, // Reduced timeout to fail faster
-    greetingTimeout: 10000,
-    socketTimeout: 10000,
-    logger: true, // Enable logging for debugging
-    debug: true   // Show SMTP traffic in logs
-});
+// Configure Brevo (Sendinblue) API
+import SibApiV3Sdk from 'sib-api-v3-sdk';
 
-// Verify transporter configuration on startup
-transporter.verify((error, success) => {
-    if (error) {
-        console.error('❌ Email transporter configuration error:', error);
-        console.log('\n⚠️  PORT 465 CONNECTION FAILED.');
-        console.log('   If this fails, Gmail is likely blocking the IP address.');
-    } else {
-        console.log('✅ Email server is ready to send messages');
+const defaultClient = SibApiV3Sdk.ApiClient.instance;
+const apiKey = defaultClient.authentications['api-key'];
+apiKey.apiKey = process.env.BREVO_API_KEY;
+
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+
+// Verify API Key on startup
+if (!process.env.BREVO_API_KEY) {
+    console.error('❌ BREVO_API_KEY is missing in environment variables!');
+} else {
+    console.log('✅ Brevo API client configured');
+}
+
+// Helper function to send emails via Brevo
+const sendEmail = async ({ to, subject, htmlContent, senderName, senderEmail, replyTo, attachment }) => {
+    try {
+        const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+
+        sendSmtpEmail.subject = subject;
+        sendSmtpEmail.htmlContent = htmlContent;
+        sendSmtpEmail.sender = {
+            name: senderName || "Hyderabad Nagarathar Sangam",
+            email: senderEmail || process.env.EMAIL_USER || "nnscahyderabad@gmail.com"
+        };
+        sendSmtpEmail.to = Array.isArray(to) ? to.map(e => ({ email: e })) : [{ email: to }];
+
+        if (replyTo) {
+            sendSmtpEmail.replyTo = { email: replyTo };
+        }
+
+        if (attachment) {
+            // Brevo expects attachments as { name: '...', content: 'base64...' } but specific formatted URL also triggers download
+            // Simple handling: If attachment is provided, we might need adjustments based on Brevo's specific format expectation
+            // For now, we'll skip complex attachment handling to ensure basic delivery first, 
+            // or we'd need to read the file and convert to base64.
+            // Let's implement basic base64 reading if path is provided.
+            if (Array.isArray(attachment) && attachment.length > 0) {
+                const atts = attachment.map(att => {
+                    if (att.path && fs.existsSync(att.path)) {
+                        const fileContent = fs.readFileSync(att.path).toString('base64');
+                        return {
+                            name: att.filename,
+                            content: fileContent
+                        };
+                    }
+                    return null;
+                }).filter(a => a !== null);
+
+                if (atts.length > 0) sendSmtpEmail.attachment = atts;
+            }
+        }
+
+        const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+        console.log(`✅ Email sent successfully via Brevo. MessageId: ${data.messageId}`);
+        return data;
+    } catch (error) {
+        console.error('❌ Brevo Email Error:', error);
+        throw error;
     }
-});
+};
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -104,13 +135,9 @@ app.get('/api/health', (req, res) => {
 // Email configuration diagnostic endpoint
 app.get('/api/email-status', (req, res) => {
     const status = {
-        emailConfigured: !!(process.env.EMAIL_USER && process.env.EMAIL_PASS),
-        emailUser: process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 3)}***@${process.env.EMAIL_USER.split('@')[1]}` : 'NOT SET',
-        emailPass: process.env.EMAIL_PASS ? 'SET (hidden)' : 'NOT SET',
-        adminEmails: process.env.ADMIN_EMAILS ? 'SET' : 'NOT SET',
-        notificationEmail: process.env.NOTIFICATION_EMAIL || 'Using default',
-        smtpHost: 'smtp.gmail.com',
-        smtpPort: 587
+        emailConfigured: !!process.env.BREVO_API_KEY,
+        emailUser: process.env.EMAIL_USER || 'Not needed for Brevo API',
+        service: 'Brevo API'
     };
     res.json(status);
 });
@@ -118,36 +145,22 @@ app.get('/api/email-status', (req, res) => {
 // Test email endpoint - sends a test email to verify SMTP connection
 app.get('/api/test-email', async (req, res) => {
     try {
-        const testEmail = {
-            from: `"HNNSC Test" <${process.env.EMAIL_USER}>`,
-            to: process.env.EMAIL_USER, // Send to self
-            subject: 'SMTP Connection Test',
-            text: 'If you receive this email, the SMTP configuration is working correctly!'
-        };
+        const data = await sendEmail({
+            to: process.env.EMAIL_USER || process.env.ADMIN_EMAILS.split(',')[0],
+            subject: 'Brevo API Connection Test',
+            htmlContent: '<p>If you receive this, Brevo API is working correctly! 🎉</p>'
+        });
 
-        await transporter.sendMail(testEmail);
         res.json({
             success: true,
-            message: 'Test email sent successfully! Check your inbox.',
-            sentTo: process.env.EMAIL_USER,
-            config: {
-                host: transporter.options.host,
-                port: transporter.options.port,
-                secure: transporter.options.secure
-            }
+            message: 'Test email sent successfully via Brevo!',
+            messageId: data.messageId
         });
     } catch (error) {
         res.json({
             success: false,
             error: error.message,
-            errorCode: error.code,
-            errorName: error.name,
-            details: 'Gmail may be blocking connections from this server IP address',
-            config: {
-                host: transporter.options.host,
-                port: transporter.options.port,
-                secure: transporter.options.secure
-            }
+            details: 'Failed to send via Brevo API'
         });
     }
 });
@@ -175,12 +188,14 @@ app.post('/api/contact', async (req, res) => {
         console.log(`\n🎯 Preparing to send email to: ${sangamEmail}`);
         console.log(`   From account: ${process.env.EMAIL_USER}`);
 
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
+        console.log('\n📤 Sending email via Brevo...');
+        await sendEmail({
             to: sangamEmail,
-            replyTo: email, // Allow direct reply to the person who submitted
+            senderName: name,
+            senderEmail: process.env.EMAIL_USER, // Use verified sender to avoid blocking, user email in reply-to
+            replyTo: email,
             subject: `Contact Form: ${subject}`,
-            html: `
+            htmlContent: `
                 <!DOCTYPE html>
                 <html>
                 <head>
@@ -210,6 +225,10 @@ app.post('/api/contact', async (req, res) => {
                             </p>
                         </div>
                         
+                        <div style="margin-top: 20px; padding: 10px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 5px; font-size: 12px; color: #856404;">
+                            Note: This email was sent via Brevo API to ensure delivery.
+                        </div>
+
                         <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
                         
                         <p style="text-align: center; color: #666; font-size: 12px;">
@@ -220,14 +239,9 @@ app.post('/api/contact', async (req, res) => {
                 </body>
                 </html>
             `
-        };
+        });
 
-        console.log('\n📤 Sending email...');
-        const info = await transporter.sendMail(mailOptions);
-
-        console.log('\n✅ EMAIL SENT SUCCESSFULLY!');
-        console.log(`   Message ID: ${info.messageId}`);
-        console.log(`   Response: ${info.response}`);
+        console.log('\n✅ EMAIL SENT SUCCESSFULLY VIA BREVO!');
         console.log(`   Recipient: ${sangamEmail}`);
         console.log(`   ⚠️  CHECK INBOX AND SPAM FOLDER at ${sangamEmail}\n`);
 
@@ -269,32 +283,30 @@ app.post('/api/guest/register', async (req, res) => {
         // SCENARIO 1: Send emails on registration
 
         // 1. Send notification to all 3 admins
-        const adminMailOptions = {
-            from: `"HNNSC Guest System" <${process.env.EMAIL_USER}>`,
-            to: adminEmails,
+        // 1. Send notification to all 3 admins
+        const adminEmailList = adminEmails.split(',').map(e => e.trim());
+
+        const sendAdminEmail = sendEmail({
+            to: adminEmailList,
             subject: 'New Guest Registration Request Received',
-            html: getAdminNotificationEmail(guestData),
-            attachments: logoAttachment
-        };
+            htmlContent: getAdminNotificationEmail(guestData),
+            attachment: logoAttachment
+        });
 
         // 2. Send acknowledgment to guest
-        const guestMailOptions = {
-            from: `"Hyderabad Nagarathar Sangam" <${process.env.EMAIL_USER}>`,
+        const sendGuestEmail = sendEmail({
             to: email,
             subject: 'Guest Registration Received – Pending Approval',
-            html: getGuestAcknowledgmentEmail(guestData),
-            attachments: logoAttachment
-        };
+            htmlContent: getGuestAcknowledgmentEmail(guestData),
+            attachment: logoAttachment
+        });
 
         // Send both emails
         console.log(`📧 Attempting to send guest registration emails for: ${name}`);
         console.log(`   Admin emails: ${adminEmails}`);
         console.log(`   Guest email: ${email}`);
 
-        await Promise.all([
-            transporter.sendMail(adminMailOptions),
-            transporter.sendMail(guestMailOptions)
-        ]);
+        await Promise.all([sendAdminEmail, sendGuestEmail]);
 
         console.log(`✅ Guest registration emails sent successfully for: ${name}`);
         res.status(200).json({ success: true, message: 'Registration submitted and emails sent successfully.' });
@@ -326,16 +338,13 @@ app.post('/api/guest/approve', async (req, res) => {
         }] : [];
 
         // Send approval email ONLY to guest (not to sangam email)
-        const guestApprovalMailOptions = {
-            from: `"Hyderabad Nagarathar Sangam" <${process.env.EMAIL_USER}>`,
+        // Send approval email ONLY to guest (not to sangam email)
+        await sendEmail({
             to: email,
             subject: 'Guest Request Approved – Welcome',
-            html: getGuestApprovalEmail(guestData),
-            attachments: logoAttachment
-        };
-
-        // Send email to guest only
-        await transporter.sendMail(guestApprovalMailOptions);
+            htmlContent: getGuestApprovalEmail(guestData),
+            attachment: logoAttachment
+        });
 
         console.log(`✅ Guest approval email sent to: ${email}`);
         res.status(200).json({ success: true, message: 'Approval email sent successfully.' });
