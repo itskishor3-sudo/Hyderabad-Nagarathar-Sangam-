@@ -362,32 +362,31 @@ app.post('/api/approve-guest', async (req, res) => {
             </div>
         `;
 
-        const mailOptions = {
-            from: `"HNNSC Sangam" <${process.env.EMAIL_USER}>`,
+        const htmlContent = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px;">
+                ${headerHtml}
+                <div style="padding: 30px; background-color: #ffffff; text-align: center;">
+                    <h2 style="color: #2e7d32; margin-top: 0;">Congratulations!</h2>
+                    <p style="font-size: 16px; color: #555;">Dear <strong>${name}</strong>,</p>
+                    <p style="font-size: 16px; color: #555; line-height: 1.5;">We are pleased to inform you that your guest request has been <strong>ACCEPTED</strong>.</p>
+                    
+                    <div style="background-color: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                        <h3 style="color: #2e7d32; margin: 0 0 10px 0;">✔ Visit Confirmed</h3>
+                        <p style="margin: 0; color: #555;">Your stay has been officially approved by the association. We are excited to welcome you.</p>
+                    </div>
+                    
+                    <p style="color: #777; font-size: 14px;">If you have any further questions, please contact the administration office.</p>
+                </div>
+                ${footerHtml}
+            </div>
+        `;
+
+        await sendEmail({
             to: email,
             subject: "Request Accepted - HNNSC Sangam",
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px;">
-                    ${headerHtml}
-                    <div style="padding: 30px; background-color: #ffffff; text-align: center;">
-                        <h2 style="color: #2e7d32; margin-top: 0;">Congratulations!</h2>
-                        <p style="font-size: 16px; color: #555;">Dear <strong>${name}</strong>,</p>
-                        <p style="font-size: 16px; color: #555; line-height: 1.5;">We are pleased to inform you that your guest request has been <strong>ACCEPTED</strong>.</p>
-                        
-                        <div style="background-color: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 8px; padding: 20px; margin: 25px 0;">
-                            <h3 style="color: #2e7d32; margin: 0 0 10px 0;">✔ Visit Confirmed</h3>
-                            <p style="margin: 0; color: #555;">Your stay has been officially approved by the association. We are excited to welcome you.</p>
-                        </div>
-                        
-                        <p style="color: #777; font-size: 14px;">If you have any further questions, please contact the administration office.</p>
-                    </div>
-                    ${footerHtml}
-                </div>
-            `,
-            attachments: [] // No attachments needed
-        };
+            htmlContent: htmlContent
+        });
 
-        await transporter.sendMail(mailOptions);
         res.status(200).json({ success: true, message: 'Approval email sent successfully.' });
     } catch (error) {
         console.error('❌ Error sending approval email:', error);
