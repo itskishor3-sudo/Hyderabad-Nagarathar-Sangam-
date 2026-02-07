@@ -4,11 +4,9 @@ const getEmailHeader = () => {
     return `
         <div style="background: linear-gradient(135deg, #003366 0%, #004d99 100%); padding: 40px 20px; text-align: center; border-radius: 12px 12px 0 0;">
             <div style="margin-bottom: 20px;">
-                <img src="cid:hnnsc_logo" 
-                     alt="🪔" 
-                     style="width: 120px; height: 120px; margin: 0 auto; display: block; border-radius: 50%; background: white; padding: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" 
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-                <div style="font-size: 64px; margin-bottom: 15px; display: none;">🪔</div>
+                <img src="https://hyderabad-nagarathar-sangam.vercel.app/image.png" 
+                     alt="Hyderabad Nagarathar Sangam Logo" 
+                     style="width: 120px; height: 120px; margin: 0 auto; display: block; border-radius: 50%; background: white; padding: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);" />
             </div>
             <h1 style="color: white; margin: 20px 0 10px 0; font-size: 28px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; font-family: 'Cinzel', serif;">
                 HYDERABAD NAGARATHAR SANGAM

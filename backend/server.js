@@ -272,14 +272,6 @@ app.post('/api/guest/register', async (req, res) => {
         // Get admin emails from environment variable
         const adminEmails = process.env.ADMIN_EMAILS || 'itskishor3@gmail.com,sramadasu1974@gmail.com,Sai.cpk@gmail.com';
 
-        // Logo attachment from backend folder
-        const logoPath = path.join(__dirname, 'public/image.png');
-        const logoAttachment = fs.existsSync(logoPath) ? [{
-            filename: 'logo.png',
-            path: logoPath,
-            cid: 'hnnsc_logo'
-        }] : [];
-
         // SCENARIO 1: Send emails on registration
 
         // 1. Send notification to all 3 admins
@@ -289,16 +281,14 @@ app.post('/api/guest/register', async (req, res) => {
         const sendAdminEmail = sendEmail({
             to: adminEmailList,
             subject: 'New Guest Registration Request Received',
-            htmlContent: getAdminNotificationEmail(guestData),
-            attachment: logoAttachment
+            htmlContent: getAdminNotificationEmail(guestData)
         });
 
         // 2. Send acknowledgment to guest
         const sendGuestEmail = sendEmail({
             to: email,
             subject: 'Guest Registration Received – Pending Approval',
-            htmlContent: getGuestAcknowledgmentEmail(guestData),
-            attachment: logoAttachment
+            htmlContent: getGuestAcknowledgmentEmail(guestData)
         });
 
         // Send both emails
@@ -329,21 +319,12 @@ app.post('/api/guest/approve', async (req, res) => {
 
         const notificationEmail = process.env.NOTIFICATION_EMAIL || 'nnscahyderabad@gmail.com';
 
-        // Logo attachment from backend folder
-        const logoPath = path.join(__dirname, 'public/image.png');
-        const logoAttachment = fs.existsSync(logoPath) ? [{
-            filename: 'logo.png',
-            path: logoPath,
-            cid: 'hnnsc_logo'
-        }] : [];
-
         // Send approval email ONLY to guest (not to sangam email)
         // Send approval email ONLY to guest (not to sangam email)
         await sendEmail({
             to: email,
             subject: 'Guest Request Approved – Welcome',
-            htmlContent: getGuestApprovalEmail(guestData),
-            attachment: logoAttachment
+            htmlContent: getGuestApprovalEmail(guestData)
         });
 
         console.log(`✅ Guest approval email sent to: ${email}`);
@@ -364,20 +345,8 @@ app.post('/api/approve-guest', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Email is required for approval notification.' });
         }
 
-        // Resolve Logo Path Safely
-        const logoPath = path.join(__dirname, '../frontend/src/assets/photo.jpg');
-        const hasLogo = fs.existsSync(logoPath);
-
-        const attachments = hasLogo ? [{
-            filename: 'logo.jpg',
-            path: logoPath,
-            cid: 'hnnsc_logo'
-        }] : [];
-
-        // Shared Template Styles (with conditional logo)
-        const logoHtml = hasLogo
-            ? `<img src="cid:hnnsc_logo" alt="HNNSC Logo" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 2px solid #DAA520;">`
-            : '';
+        // Shared Template Styles (with hosted logo)
+        const logoHtml = `<img src="https://hyderabad-nagarathar-sangam.vercel.app/image.png" alt="HNNSC Logo" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 2px solid #DAA520;">`;
 
         const headerHtml = `
             <div style="background-color: #0B2C4D; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
@@ -415,7 +384,7 @@ app.post('/api/approve-guest', async (req, res) => {
                     ${footerHtml}
                 </div>
             `,
-            attachments: attachments
+            attachments: [] // No attachments needed
         };
 
         await transporter.sendMail(mailOptions);
