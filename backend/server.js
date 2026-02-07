@@ -104,6 +104,20 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
 });
 
+// Email configuration diagnostic endpoint
+app.get('/api/email-status', (req, res) => {
+    const status = {
+        emailConfigured: !!(process.env.EMAIL_USER && process.env.EMAIL_PASS),
+        emailUser: process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 3)}***@${process.env.EMAIL_USER.split('@')[1]}` : 'NOT SET',
+        emailPass: process.env.EMAIL_PASS ? 'SET (hidden)' : 'NOT SET',
+        adminEmails: process.env.ADMIN_EMAILS ? 'SET' : 'NOT SET',
+        notificationEmail: process.env.NOTIFICATION_EMAIL || 'Using default',
+        smtpHost: 'smtp.gmail.com',
+        smtpPort: 587
+    };
+    res.json(status);
+});
+
 // Contact form submission endpoint - RESTRUCTURED FOR DIRECT DELIVERY
 app.post('/api/contact', async (req, res) => {
     try {
