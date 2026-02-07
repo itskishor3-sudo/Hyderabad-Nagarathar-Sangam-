@@ -66,23 +66,21 @@ const upload = multer({ storage: storage });
 // Configure Nodemailer transporter with Gmail SMTP - Explicit configuration for production
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // Use STARTTLS
+    port: 465,
+    secure: true, // Use SSL
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
+    // SSL configuration often needs this on some environments
     tls: {
+        // do not fail on invalid certs
         rejectUnauthorized: false
     },
-    pool: true,
-    maxConnections: 1,
-    maxMessages: 3,
-    rateDelta: 1000,
-    rateLimit: 3,
-    connectionTimeout: 60000,
-    greetingTimeout: 30000,
-    socketTimeout: 60000,
+    pool: false, // Usage of pool with Gmail can sometimes cause timeouts on free hosting
+    connectionTimeout: 10000, // Reduced timeout to fail faster
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
     logger: true, // Enable logging for debugging
     debug: true   // Show SMTP traffic in logs
 });
@@ -91,9 +89,8 @@ const transporter = nodemailer.createTransport({
 transporter.verify((error, success) => {
     if (error) {
         console.error('❌ Email transporter configuration error:', error);
-        console.log('\n⚠️  Please check your .env file and ensure EMAIL_USER and EMAIL_PASS are correct.');
-        console.log('   EMAIL_USER:', process.env.EMAIL_USER ? '✓ Set' : '✗ Missing');
-        console.log('   EMAIL_PASS:', process.env.EMAIL_PASS ? '✓ Set' : '✗ Missing');
+        console.log('\n⚠️  PORT 465 CONNECTION FAILED.');
+        console.log('   If this fails, Gmail is likely blocking the IP address.');
     } else {
         console.log('✅ Email server is ready to send messages');
     }
