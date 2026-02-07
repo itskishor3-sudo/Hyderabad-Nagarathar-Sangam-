@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
+import { API_BASE_URL } from '../config';
 import { collection, addDoc, getDocs, query, orderBy, where, deleteDoc, doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType } from 'docx';
 import { saveAs } from 'file-saver';
@@ -240,7 +241,6 @@ const AdminDashboard = () => {
                 formData.append('images', fileObj.file);
             });
 
-            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://hyderabad-nagarathar-sangam-backend.onrender.com';
             const response = await fetch(`${API_BASE_URL}/api/gallery/bulk-upload`, {
                 method: 'POST',
                 body: formData
@@ -285,7 +285,6 @@ const AdminDashboard = () => {
             const formData = new FormData();
             formData.append('image', file);
 
-            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://hyderabad-nagarathar-sangam-backend.onrender.com';
             const response = await fetch(`${API_BASE_URL}/api/gallery/upload`, {
                 method: 'POST',
                 body: formData
@@ -1469,7 +1468,7 @@ const AdminDashboard = () => {
 
         const worksheet = XLSX.utils.json_to_sheet(data);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, `Auction ${selectedYear}`);
+        XLSX.utils.book_append_sheet(workbook, workbook, `Auction ${selectedYear}`);
         XLSX.writeFile(workbook, `Auction_${selectedYear}_Records.xlsx`);
         showToast('Auction data exported successfully!', 'success');
     };
@@ -1622,1720 +1621,550 @@ const AdminDashboard = () => {
                 if (newStatus === 'approved') {
                     const guest = guests.find(g => g.id === guestId);
                     if (guest && guest.email) {
-                        if (guest && guest.email) {
-                            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://hyderabad-nagarathar-sangam-backend.onrender.com';
-                            fetch(`${API_BASE_URL}/api/guest/approve`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    name: guest.name || guest.fullName,
-                                    email: guest.email,
-                                    checkInDate: guest.checkInDate,
-                                    checkInTime: guest.checkInTime,
-                                    expectedCheckOutDate: guest.expectedCheckOutDate,
-                                    expectedCheckOutTime: guest.expectedCheckOutTime,
-                                    roomHall: guest.roomHall
-                                })
-                            }).catch(err => console.error('Error sending approval email:', err));
-                        }
+                        fetch(`${API_BASE_URL}/api/guest/approve`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name: guest.name || guest.fullName,
+                                email: guest.email,
+                                checkInDate: guest.checkInDate,
+                                checkInTime: guest.checkInTime,
+                                expectedCheckOutDate: guest.expectedCheckOutDate,
+                                expectedCheckOutTime: guest.expectedCheckOutTime,
+                                roomHall: guest.roomHall
+                            })
+                        }).catch(err => console.error('Error sending approval email:', err));
                     }
-
-                    showToast(`Guest ${newStatus} successfully!`, 'success');
-                    fetchGuests();
-                    setSelectedGuest(null);
-                } catch (error) {
-                    console.error('Error updating guest status:', error);
-                    showToast('Failed to update guest status', 'error');
                 }
-            };
 
-            const deleteGuest = async (guestId) => {
-                if (!window.confirm('Are you sure you want to delete this guest record?')) return;
-                try {
-                    await deleteDoc(doc(db, 'guests', guestId));
-                    showToast('Guest record deleted successfully!', 'success');
-                    fetchGuests();
-                    setSelectedGuest(null);
-                } catch (error) {
-                    console.error('Error deleting guest:', error);
-                    showToast('Failed to delete guest record', 'error');
-                }
-            };
-
-            if (loading) return <div className="loading">Loading guest records...</div>;
-
-            return (
-                <div className="guests-management">
-                    {/* Stats Cards - UPDATED */}
-                    <div className="stats-row" style={{ marginBottom: '2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                        <div className="stat-card" style={{ background: 'rgba(33, 150, 243, 0.2)', padding: '1.5rem', borderRadius: '10px', textAlign: 'center' }}>
-                            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem' }}>{guests.length}</h3>
-                            <p style={{ margin: 0, opacity: 0.8 }}>Total Guests</p>
-                        </div>
-                        <div className="stat-card" style={{ background: 'rgba(76, 175, 80, 0.2)', padding: '1.5rem', borderRadius: '10px', textAlign: 'center' }}>
-                            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem' }}>{guests.filter(g => g.status === 'approved').length}</h3>
-                            <p style={{ margin: 0, opacity: 0.8 }}>Approved</p>
-                        </div>
-                        <div className="stat-card" style={{ background: 'rgba(255, 152, 0, 0.2)', padding: '1.5rem', borderRadius: '10px', textAlign: 'center' }}>
-                            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem' }}>{guests.filter(g => g.status === 'pending').length}</h3>
-                            <p style={{ margin: 0, opacity: 0.8 }}>Pending</p>
-                        </div>
-                        <div className="stat-card" style={{ background: 'rgba(244, 67, 54, 0.2)', padding: '1.5rem', borderRadius: '10px', textAlign: 'center' }}>
-                            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem' }}>{guests.filter(g => g.status === 'rejected').length}</h3>
-                            <p style={{ margin: 0, opacity: 0.8 }}>Rejected</p>
-                        </div>
-                    </div>
-
-                    {guests.length === 0 ? (
-                        <p className="no-data">No guest records found.</p>
-                    ) : (
-                        <div className="guests-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem' }}>
-                            {guests.map(guest => (
-                                <div key={guest.id} className="guest-card" style={{
-                                    background: '#1e1e1e',
-                                    padding: '1.5rem',
-                                    borderRadius: '12px',
-                                    border: '1px solid #333',
-                                    cursor: 'pointer',
-                                    transition: 'transform 0.2s'
-                                }}
-                                    onClick={() => setSelectedGuest(guest)}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-                                        {/* ✅ FIXED: Handles both old 'fullName' AND new 'name' */}
-                                        <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{guest.name || guest.fullName || 'N/A'}</h3>
-                                        <span className={`status-badge ${guest.status}`} style={{
-                                            padding: '0.25rem 0.75rem',
-                                            borderRadius: '20px',
-                                            fontSize: '0.75rem',
-                                            fontWeight: 'bold',
-                                            background: guest.status === 'approved' ? 'rgba(76, 175, 80, 0.3)' :
-                                                guest.status === 'rejected' ? 'rgba(244, 67, 54, 0.3)' :
-                                                    'rgba(255, 152, 0, 0.3)',
-                                            color: guest.status === 'approved' ? '#4caf50' :
-                                                guest.status === 'rejected' ? '#f44336' : '#ff9800'
-                                        }}>
-                                            {guest.status?.toUpperCase() || 'PENDING'}
-                                        </span>
-                                    </div>
-                                    <div style={{ marginBottom: '0.5rem' }}>
-                                        {/* ✅ FIXED: New field names from GuestDashboard */}
-                                        <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', opacity: 0.8 }}>
-                                            📧 {guest.email || 'No email'}
-                                        </p>
-                                        <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', opacity: 0.8 }}>
-                                            📱 {guest.phoneNumber || guest.phone || 'No phone'}
-                                        </p>
-                                        <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', opacity: 0.8 }}>
-                                            📍 {guest.permanentAddress || guest.address || 'No address'}
-                                        </p>
-                                        <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', opacity: 0.8 }}>
-                                            🎂 Age: {guest.age || 'N/A'}
-                                        </p>
-                                    </div>
-                                    <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', opacity: 0.6 }}>
-                                        Registered: {new Date(guest.createdAt).toLocaleDateString()}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* ✅ DETAILED MODAL - SHOWS ALL 17 NEW FIELDS */}
-                    {selectedGuest && (
-                        <div style={{
-                            position: 'fixed',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            background: 'rgba(0, 0, 0, 0.8)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            zIndex: 9999, padding: '2rem'
-                        }} onClick={() => setSelectedGuest(null)}>
-                            <div style={{
-                                background: 'linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%)',
-                                borderRadius: '16px', maxWidth: '900px', width: '100%',
-                                maxHeight: '90vh', overflow: 'auto', padding: '2rem',
-                                position: 'relative', border: '1px solid #333'
-                            }} onClick={(e) => e.stopPropagation()}>
-                                {/* Close Button */}
-                                <button onClick={() => setSelectedGuest(null)} style={{
-                                    position: 'absolute', top: '1rem', right: '1rem',
-                                    background: 'rgba(255, 0, 0, 0.2)', border: 'none', color: 'white',
-                                    width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer',
-                                    fontSize: '1.5rem'
-                                }}>×</button>
-
-                                {/* Header */}
-                                <h2 style={{ marginTop: 0, color: '#F4B41A', marginBottom: '1.5rem' }}>
-                                    👤 Guest Details: {selectedGuest.name || selectedGuest.fullName || 'N/A'}
-                                </h2>
-
-                                {/* Status & Actions */}
-                                <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', alignItems: 'center' }}>
-                                    <div style={{
-                                        padding: '0.5rem 1rem', borderRadius: '25px', fontSize: '0.9rem',
-                                        fontWeight: 'bold',
-                                        background: selectedGuest.status === 'approved' ? 'rgba(76, 175, 80, 0.3)' :
-                                            selectedGuest.status === 'rejected' ? 'rgba(244, 67, 54, 0.3)' :
-                                                'rgba(255, 152, 0, 0.3)',
-                                        color: selectedGuest.status === 'approved' ? '#4caf50' :
-                                            selectedGuest.status === 'rejected' ? '#f44336' : '#ff9800'
-                                    }}>
-                                        Status: {selectedGuest.status?.toUpperCase() || 'PENDING'}
-                                    </div>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <button onClick={() => updateGuestStatus(selectedGuest.id, 'approved')}
-                                            style={{ padding: '0.5rem 1rem', background: '#4caf50', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-                                            ✅ Approve
-                                        </button>
-                                        <button onClick={() => updateGuestStatus(selectedGuest.id, 'rejected')}
-                                            style={{ padding: '0.5rem 1rem', background: '#f44336', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-                                            ❌ Reject
-                                        </button>
-                                        <button onClick={() => deleteGuest(selectedGuest.id)}
-                                            style={{ padding: '0.5rem 1rem', background: '#666', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-                                            🗑️ Delete
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* ALL 17 FIELDS DISPLAY */}
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-                                    {/* Personal Info */}
-                                    <div>
-                                        <h3 style={{ color: '#F4B41A', marginBottom: '1rem' }}>👤 Personal Information</h3>
-                                        <p><strong>Name:</strong> {selectedGuest.name || selectedGuest.fullName || 'N/A'}</p>
-                                        <p><strong>Age:</strong> {selectedGuest.age || 'N/A'}</p>
-                                        <p><strong>Native Place:</strong> {selectedGuest.nativePlace || 'N/A'}</p>
-                                        <p><strong>Kovil:</strong> {selectedGuest.kovil || 'N/A'}</p>
-                                        <p><strong>Pirivu:</strong> {selectedGuest.pirivu || 'N/A'}</p>
-                                        <p><strong>House Name:</strong> {selectedGuest.houseNamePattaiPeyar || 'N/A'}</p>
-                                        <p><strong>Father's Name:</strong> {selectedGuest.fathersName || 'N/A'}</p>
-                                        <p><strong>Phone:</strong> {selectedGuest.phoneNumber || selectedGuest.phone || 'N/A'}</p>
-                                        <p><strong>Email:</strong> {selectedGuest.email || 'N/A'}</p>
-                                        <p><strong>Address:</strong> {selectedGuest.permanentAddress || selectedGuest.address || 'N/A'}</p>
-                                    </div>
-
-                                    {/* Visit & Accommodation */}
-                                    <div>
-                                        <h3 style={{ color: '#F4B41A', marginBottom: '1rem' }}>📅 Visit Details</h3>
-                                        <p><strong>Check-in:</strong> {selectedGuest.checkInDate || 'N/A'} at {selectedGuest.checkInTime || 'N/A'}</p>
-                                        <p><strong>Check-out:</strong> {selectedGuest.expectedCheckOutDate || 'N/A'} at {selectedGuest.expectedCheckOutTime || 'N/A'}</p>
-                                        <p><strong>Total Guests:</strong> {selectedGuest.totalNumberOfGuests || 'N/A'}</p>
-                                        <p><strong>Room/Hall:</strong> {selectedGuest.roomHall || 'N/A'}</p>
-                                        <p><strong>Aadhar:</strong> {selectedGuest.aadharNumber || 'N/A'}</p>
-                                    </div>
-                                </div>
-
-                                <p style={{ marginTop: '2rem', fontSize: '0.8rem', opacity: 0.6 }}>
-                                    Registered: {new Date(selectedGuest.createdAt).toLocaleDateString()} |
-                                    User ID: {selectedGuest.userId || 'N/A'}
-                                </p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
+                showToast(`Guest ${newStatus} successfully!`, 'success');
+                fetchGuests();
+                setSelectedGuest(null);
+            } catch (error) {
+                console.error('Error updating guest status:', error);
+                showToast('Failed to update guest status', 'error');
+            }
         };
 
+        const deleteGuest = async (guestId) => {
+            if (!window.confirm('Are you sure you want to delete this guest record?')) return;
+            try {
+                await deleteDoc(doc(db, 'guests', guestId));
+                showToast('Guest record deleted successfully!', 'success');
+                fetchGuests();
+                setSelectedGuest(null);
+            } catch (error) {
+                console.error('Error deleting guest:', error);
+                showToast('Failed to delete guest record', 'error');
+            }
+        };
+
+        if (loading) return <div className="loading">Loading guest records...</div>;
+
         return (
-            <div className="admin-dashboard">
-
-
-                <div className="dashboard-header">
-                    <h1>🎯 Admin Dashboard</h1>
-                    <button onClick={() => { auth.signOut(); navigate('/'); }} className="logout-btn">
-                        Logout
-                    </button>
+            <div className="guests-management">
+                {/* Stats Cards - UPDATED */}
+                <div className="stats-row" style={{ marginBottom: '2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                    <div className="stat-card" style={{ background: 'rgba(33, 150, 243, 0.2)', padding: '1.5rem', borderRadius: '10px', textAlign: 'center' }}>
+                        <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem' }}>{guests.length}</h3>
+                        <p style={{ margin: 0, opacity: 0.8 }}>Total Guests</p>
+                    </div>
+                    <div className="stat-card" style={{ background: 'rgba(76, 175, 80, 0.2)', padding: '1.5rem', borderRadius: '10px', textAlign: 'center' }}>
+                        <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem' }}>{guests.filter(g => g.status === 'approved').length}</h3>
+                        <p style={{ margin: 0, opacity: 0.8 }}>Approved</p>
+                    </div>
+                    <div className="stat-card" style={{ background: 'rgba(255, 152, 0, 0.2)', padding: '1.5rem', borderRadius: '10px', textAlign: 'center' }}>
+                        <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem' }}>{guests.filter(g => g.status === 'pending').length}</h3>
+                        <p style={{ margin: 0, opacity: 0.8 }}>Pending</p>
+                    </div>
+                    <div className="stat-card" style={{ background: 'rgba(244, 67, 54, 0.2)', padding: '1.5rem', borderRadius: '10px', textAlign: 'center' }}>
+                        <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem' }}>{guests.filter(g => g.status === 'rejected').length}</h3>
+                        <p style={{ margin: 0, opacity: 0.8 }}>Rejected</p>
+                    </div>
                 </div>
 
-                <div className="dashboard-tabs">
-                    <button className={activeTab === 'create' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('create')}>
-                        📝 Create Event
-                    </button>
-                    <button className={activeTab === 'view' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('view')}>
-                        👁️ View Registrations
-                    </button>
-                    <button className={activeTab === 'members' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('members')}>
-                        👥 All Members
-                    </button>
-                    <button className={activeTab === 'guests' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('guests')}>
-                        🎫 Guest Records
-                    </button>
-                    <button className={activeTab === 'voting' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('voting')}>
-                        🗳️ Voting
-                    </button>
-                    <button className={activeTab === 'moms' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('moms')}>
-                        📋 MOMs
-                    </button>
-                    <button className={activeTab === 'caretakers' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('caretakers')}>
-                        👷 Caretakers
-                    </button>
-                    <button className={activeTab === 'budget' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('budget')}>
-                        💰 Budget
-                    </button>
-                    <button className={activeTab === 'stock' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('stock')}>
-                        📦 Stock
-                    </button>
-                    <button className={activeTab === 'new_members' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('new_members')}>
-                        🆕 New Member Registered Details
-                    </button>
-                    <button className={activeTab === 'gallery' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('gallery')}>
-                        🖼️ Gallery Handling
-                    </button>
-                    <button className={activeTab === 'auction' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('auction')}>
-                        🔨 Auction Records
-                    </button>
-                </div>
-
-                <div className="dashboard-content">
-                    {/* CREATE EVENT TAB */}
-                    {activeTab === 'create' && (
-                        <div className="create-event-section">
-                            <h2>📝 Create New Event</h2>
-                            <form onSubmit={handleCreateEvent} className="event-form">
-                                <div className="form-group">
-                                    <label>Event Name</label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={eventForm.name}
-                                        onChange={handleInputChange}
-                                        required
-                                        placeholder="Enter event name"
-                                    />
+                {guests.length === 0 ? (
+                    <p className="no-data">No guest records found.</p>
+                ) : (
+                    <div className="guests-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem' }}>
+                        {guests.map(guest => (
+                            <div key={guest.id} className="guest-card" style={{
+                                background: '#1e1e1e',
+                                padding: '1.5rem',
+                                borderRadius: '12px',
+                                border: '1px solid #333',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s'
+                            }}
+                                onClick={() => setSelectedGuest(guest)}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+                                    {/* ✅ FIXED: Handles both old 'fullName' AND new 'name' */}
+                                    <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{guest.name || guest.fullName || 'N/A'}</h3>
+                                    <span className={`status-badge ${guest.status}`} style={{
+                                        padding: '0.25rem 0.75rem',
+                                        borderRadius: '20px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 'bold',
+                                        background: guest.status === 'approved' ? 'rgba(76, 175, 80, 0.3)' :
+                                            guest.status === 'rejected' ? 'rgba(244, 67, 54, 0.3)' :
+                                                'rgba(255, 152, 0, 0.3)',
+                                        color: guest.status === 'approved' ? '#4caf50' :
+                                            guest.status === 'rejected' ? '#f44336' : '#ff9800'
+                                    }}>
+                                        {guest.status?.toUpperCase() || 'PENDING'}
+                                    </span>
                                 </div>
-                                <div className="form-group">
-                                    <label>Description</label>
-                                    <textarea
-                                        name="description"
-                                        value={eventForm.description}
-                                        onChange={handleInputChange}
-                                        required
-                                        placeholder="Enter event description"
-                                        rows="4"
-                                    />
+                                <div style={{ marginBottom: '0.5rem' }}>
+                                    {/* ✅ FIXED: New field names from GuestDashboard */}
+                                    <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', opacity: 0.8 }}>
+                                        📧 {guest.email || 'No email'}
+                                    </p>
+                                    <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', opacity: 0.8 }}>
+                                        📱 {guest.phoneNumber || guest.phone || 'No phone'}
+                                    </p>
+                                    <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', opacity: 0.8 }}>
+                                        📍 {guest.permanentAddress || guest.address || 'No address'}
+                                    </p>
+                                    <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', opacity: 0.8 }}>
+                                        🎂 Age: {guest.age || 'N/A'}
+                                    </p>
                                 </div>
-                                <div className="form-group">
-                                    <label>Location</label>
-                                    <input
-                                        type="text"
-                                        name="location"
-                                        value={eventForm.location}
-                                        onChange={handleInputChange}
-                                        required
-                                        placeholder="Enter event location"
-                                    />
-                                </div>
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label>Date</label>
-                                        <input
-                                            type="date"
-                                            name="date"
-                                            value={eventForm.date}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Time</label>
-                                        <input
-                                            type="time"
-                                            name="time"
-                                            value={eventForm.time}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div className="form-group">
-                                    <label>Event Image (Logo/Poster)</label>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleEventImageUpload}
-                                        className="file-input"
-                                    />
-                                    {eventForm.image && (
-                                        <div className="image-preview" style={{ marginTop: '10px' }}>
-                                            <img src={eventForm.image} alt="Preview" style={{ width: '100%', maxWidth: '200px', borderRadius: '8px', border: '2px solid #F4B41A' }} />
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="form-group">
-                                    <label>Additional Notes (Optional)</label>
-                                    <textarea
-                                        name="notes"
-                                        value={eventForm.notes}
-                                        onChange={handleInputChange}
-                                        placeholder="Any extra note for invite (dress code, RSVP, instructions, etc.)"
-                                        rows="3"
-                                    />
-                                </div>
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    <button type="submit" className="submit-btn" style={{ flex: 1 }}>Create Event</button>
-                                    <button
-                                        type="button"
-                                        className="preview-btn"
-                                        style={{ background: '#F4B41A', color: 'black', border: 'none', borderRadius: '8px', padding: '0 20px', fontWeight: 'bold' }}
-                                        onClick={() => {
-                                            if (!eventForm.name || !eventForm.date) {
-                                                showToast('Please fill at least Name and Date for preview', 'error');
-                                                return;
-                                            }
-                                            generatePDFInvitation(eventForm);
-                                        }}
-                                    >
-                                        Download PDF Invitation
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    )}
-
-                    {/* VIEW REGISTRATIONS TAB */}
-                    {activeTab === 'view' && (
-                        <div className="view-registrations-section">
-                            <h2>👁️ Event Registrations</h2>
-                            <div className="events-list">
-                                <h3>Select an Event</h3>
-                                {events.length === 0 ? (
-                                    <p>No events created yet.</p>
-                                ) : (
-                                    <div className="events-grid">
-                                        {events.map(event => (
-                                            <div key={event.id} className={`event-card ${selectedEvent?.id === event.id ? 'selected' : ''}`}>
-                                                <div onClick={() => setSelectedEvent(event)} style={{ flex: 1, cursor: 'pointer' }}>
-                                                    {event.image && (
-                                                        <img src={event.image} alt={event.name} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px', marginBottom: '10px' }} />
-                                                    )}
-                                                    <h4>{event.name}</h4>
-                                                    <p>📅 {event.date} at {event.time}</p>
-                                                    <p>📍 {event.location}</p>
-                                                </div>
-                                                <div className="event-card-actions" style={{ display: 'flex', gap: '10px' }}>
-                                                    <button
-                                                        onClick={() => generatePDFInvitation(event)}
-                                                        className="pdf-btn"
-                                                        title="Download PDF Invitation"
-                                                        style={{ background: '#F4B41A', border: 'none', borderRadius: '4px', cursor: 'pointer', padding: '5px' }}
-                                                    >
-                                                        📄
-                                                    </button>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDeleteEvent(event.id);
-                                                        }}
-                                                        className="delete-event-btn"
-                                                        title="Delete Event"
-                                                    >
-                                                        🗑️
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            {selectedEvent && (
-                                <div className="registrations-details">
-                                    <div className="registrations-header">
-                                        <div>
-                                            <h3>Registrations for {selectedEvent.name}</h3>
-                                            <p>Total Registrations: {registrations.length}</p>
-                                            <p>Total Headcount: {calculateTotalHeadcount()}</p>
-                                        </div>
-                                        <button onClick={exportToWord} className="export-btn">
-                                            📄 Export to Word
-                                        </button>
-                                    </div>
-
-                                    {registrations.length === 0 ? (
-                                        <p className="no-registrations">No registrations yet for this event.</p>
-                                    ) : (
-                                        <div className="registrations-table">
-                                            <table>
-                                                <thead>
-                                                    <tr>
-                                                        <th>Member Name</th>
-                                                        <th>Email</th>
-                                                        <th>Phone</th>
-                                                        <th>Family Members</th>
-                                                        <th>Total Count</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {registrations.map(reg => (
-                                                        <tr key={reg.id}>
-                                                            <td>{reg.memberName}</td>
-                                                            <td>{reg.memberEmail}</td>
-                                                            <td>{reg.memberPhone}</td>
-                                                            <td>
-                                                                {reg.familyMembers && reg.familyMembers.length > 0 ? (
-                                                                    <ul className="family-list">
-                                                                        {reg.familyMembers.map((fm, idx) => (
-                                                                            <li key={idx}>
-                                                                                {fm.name} ({fm.relation}, {fm.age} yrs)
-                                                                            </li>
-                                                                        ))}
-                                                                    </ul>
-                                                                ) : 'None'}
-                                                            </td>
-                                                            <td>{1 + (reg.familyMembers ? reg.familyMembers.length : 0)}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    )}
-                    {/* MEMBERS TAB */}
-                    {activeTab === 'members' && (
-                        <div className="members-section">
-                            <div className="members-header">
-                                <h2>👥 All Registered Members ({filteredMembers.length})</h2>
-                                {members.length > 0 && (
-                                    <button onClick={exportMembersToExcel} className="export-btn">
-                                        📊 Export to Excel
-                                    </button>
-                                )}
-                            </div>
-
-                            {members.length > 0 && (
-                                <div className="search-bar-container">
-                                    <input
-                                        type="text"
-                                        placeholder="🔍 Search by name, email, phone, kovil, pirivu, native place, patta per, hyderabad area..."
-                                        className="member-search-input"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                    {searchTerm && (
-                                        <button className="clear-search-btn" onClick={() => setSearchTerm('')}>
-                                            Clear
-                                        </button>
-                                    )}
-                                </div>
-                            )}
-
-                            {filteredMembers.length === 0 ? (
-                                <p className="no-data">
-                                    {searchTerm ? `No members found matching "${searchTerm}"` : 'No members registered yet.'}
+                                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', opacity: 0.6 }}>
+                                    Registered: {new Date(guest.createdAt).toLocaleDateString()}
                                 </p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* ✅ DETAILED MODAL - SHOWS ALL 17 NEW FIELDS */}
+                {selectedGuest && (
+                    <div style={{
+                        position: 'fixed',
+                        top: 0, left: 0, right: 0, bottom: 0,
+                        background: 'rgba(0, 0, 0, 0.8)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        zIndex: 9999, padding: '2rem'
+                    }} onClick={() => setSelectedGuest(null)}>
+                        <div style={{
+                            background: 'linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%)',
+                            borderRadius: '16px', maxWidth: '900px', width: '100%',
+                            maxHeight: '90vh', overflow: 'auto', padding: '2rem',
+                            position: 'relative', border: '1px solid #333'
+                        }} onClick={(e) => e.stopPropagation()}>
+                            {/* Close Button */}
+                            <button onClick={() => setSelectedGuest(null)} style={{
+                                position: 'absolute', top: '1rem', right: '1rem',
+                                background: 'rgba(255, 0, 0, 0.2)', border: 'none', color: 'white',
+                                width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer',
+                                fontSize: '1.5rem'
+                            }}>×</button>
+
+                            {/* Header */}
+                            <h2 style={{ marginTop: 0, color: '#F4B41A', marginBottom: '1.5rem' }}>
+                                👤 Guest Details: {selectedGuest.name || selectedGuest.fullName || 'N/A'}
+                            </h2>
+
+                            {/* Status & Actions */}
+                            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', alignItems: 'center' }}>
+                                <div style={{
+                                    padding: '0.5rem 1rem', borderRadius: '25px', fontSize: '0.9rem',
+                                    fontWeight: 'bold',
+                                    background: selectedGuest.status === 'approved' ? 'rgba(76, 175, 80, 0.3)' :
+                                        selectedGuest.status === 'rejected' ? 'rgba(244, 67, 54, 0.3)' :
+                                            'rgba(255, 152, 0, 0.3)',
+                                    color: selectedGuest.status === 'approved' ? '#4caf50' :
+                                        selectedGuest.status === 'rejected' ? '#f44336' : '#ff9800'
+                                }}>
+                                    Status: {selectedGuest.status?.toUpperCase() || 'PENDING'}
+                                </div>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button onClick={() => updateGuestStatus(selectedGuest.id, 'approved')}
+                                        style={{ padding: '0.5rem 1rem', background: '#4caf50', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+                                        ✅ Approve
+                                    </button>
+                                    <button onClick={() => updateGuestStatus(selectedGuest.id, 'rejected')}
+                                        style={{ padding: '0.5rem 1rem', background: '#f44336', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+                                        ❌ Reject
+                                    </button>
+                                    <button onClick={() => deleteGuest(selectedGuest.id)}
+                                        style={{ padding: '0.5rem 1rem', background: '#666', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+                                        🗑️ Delete
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* ALL 17 FIELDS DISPLAY */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+                                {/* Personal Info */}
+                                <div>
+                                    <h3 style={{ color: '#F4B41A', marginBottom: '1rem' }}>👤 Personal Information</h3>
+                                    <p><strong>Name:</strong> {selectedGuest.name || selectedGuest.fullName || 'N/A'}</p>
+                                    <p><strong>Age:</strong> {selectedGuest.age || 'N/A'}</p>
+                                    <p><strong>Native Place:</strong> {selectedGuest.nativePlace || 'N/A'}</p>
+                                    <p><strong>Kovil:</strong> {selectedGuest.kovil || 'N/A'}</p>
+                                    <p><strong>Pirivu:</strong> {selectedGuest.pirivu || 'N/A'}</p>
+                                    <p><strong>House Name:</strong> {selectedGuest.houseNamePattaiPeyar || 'N/A'}</p>
+                                    <p><strong>Father's Name:</strong> {selectedGuest.fathersName || 'N/A'}</p>
+                                    <p><strong>Phone:</strong> {selectedGuest.phoneNumber || selectedGuest.phone || 'N/A'}</p>
+                                    <p><strong>Email:</strong> {selectedGuest.email || 'N/A'}</p>
+                                    <p><strong>Address:</strong> {selectedGuest.permanentAddress || selectedGuest.address || 'N/A'}</p>
+                                </div>
+
+                                {/* Visit & Accommodation */}
+                                <div>
+                                    <h3 style={{ color: '#F4B41A', marginBottom: '1rem' }}>📅 Visit Details</h3>
+                                    <p><strong>Check-in:</strong> {selectedGuest.checkInDate || 'N/A'} at {selectedGuest.checkInTime || 'N/A'}</p>
+                                    <p><strong>Check-out:</strong> {selectedGuest.expectedCheckOutDate || 'N/A'} at {selectedGuest.expectedCheckOutTime || 'N/A'}</p>
+                                    <p><strong>Total Guests:</strong> {selectedGuest.totalNumberOfGuests || 'N/A'}</p>
+                                    <p><strong>Room/Hall:</strong> {selectedGuest.roomHall || 'N/A'}</p>
+                                    <p><strong>Aadhar:</strong> {selectedGuest.aadharNumber || 'N/A'}</p>
+                                </div>
+                            </div>
+
+                            <p style={{ marginTop: '2rem', fontSize: '0.8rem', opacity: 0.6 }}>
+                                Registered: {new Date(selectedGuest.createdAt).toLocaleDateString()} |
+                                User ID: {selectedGuest.userId || 'N/A'}
+                            </p>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    return (
+        <div className="admin-dashboard">
+
+
+            <div className="dashboard-header">
+                <h1>🎯 Admin Dashboard</h1>
+                <button onClick={() => { auth.signOut(); navigate('/'); }} className="logout-btn">
+                    Logout
+                </button>
+            </div>
+
+            <div className="dashboard-tabs">
+                <button className={activeTab === 'create' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('create')}>
+                    📝 Create Event
+                </button>
+                <button className={activeTab === 'view' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('view')}>
+                    👁️ View Registrations
+                </button>
+                <button className={activeTab === 'members' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('members')}>
+                    👥 All Members
+                </button>
+                <button className={activeTab === 'guests' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('guests')}>
+                    🎫 Guest Records
+                </button>
+                <button className={activeTab === 'voting' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('voting')}>
+                    🗳️ Voting
+                </button>
+                <button className={activeTab === 'moms' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('moms')}>
+                    📋 MOMs
+                </button>
+                <button className={activeTab === 'caretakers' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('caretakers')}>
+                    👷 Caretakers
+                </button>
+                <button className={activeTab === 'budget' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('budget')}>
+                    💰 Budget
+                </button>
+                <button className={activeTab === 'stock' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('stock')}>
+                    📦 Stock
+                </button>
+                <button className={activeTab === 'new_members' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('new_members')}>
+                    🆕 New Member Registered Details
+                </button>
+                <button className={activeTab === 'gallery' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('gallery')}>
+                    🖼️ Gallery Handling
+                </button>
+                <button className={activeTab === 'auction' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('auction')}>
+                    🔨 Auction Records
+                </button>
+            </div>
+
+            <div className="dashboard-content">
+                {/* CREATE EVENT TAB */}
+                {activeTab === 'create' && (
+                    <div className="create-event-section">
+                        <h2>📝 Create New Event</h2>
+                        <form onSubmit={handleCreateEvent} className="event-form">
+                            <div className="form-group">
+                                <label>Event Name</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={eventForm.name}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="Enter event name"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Description</label>
+                                <textarea
+                                    name="description"
+                                    value={eventForm.description}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="Enter event description"
+                                    rows="4"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Location</label>
+                                <input
+                                    type="text"
+                                    name="location"
+                                    value={eventForm.location}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="Enter event location"
+                                />
+                            </div>
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Date</label>
+                                    <input
+                                        type="date"
+                                        name="date"
+                                        value={eventForm.date}
+                                        onChange={handleInputChange}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Time</label>
+                                    <input
+                                        type="time"
+                                        name="time"
+                                        value={eventForm.time}
+                                        onChange={handleInputChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label>Event Image (Logo/Poster)</label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleEventImageUpload}
+                                    className="file-input"
+                                />
+                                {eventForm.image && (
+                                    <div className="image-preview" style={{ marginTop: '10px' }}>
+                                        <img src={eventForm.image} alt="Preview" style={{ width: '100%', maxWidth: '200px', borderRadius: '8px', border: '2px solid #F4B41A' }} />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="form-group">
+                                <label>Additional Notes (Optional)</label>
+                                <textarea
+                                    name="notes"
+                                    value={eventForm.notes}
+                                    onChange={handleInputChange}
+                                    placeholder="Any extra note for invite (dress code, RSVP, instructions, etc.)"
+                                    rows="3"
+                                />
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <button type="submit" className="submit-btn" style={{ flex: 1 }}>Create Event</button>
+                                <button
+                                    type="button"
+                                    className="preview-btn"
+                                    style={{ background: '#F4B41A', color: 'black', border: 'none', borderRadius: '8px', padding: '0 20px', fontWeight: 'bold' }}
+                                    onClick={() => {
+                                        if (!eventForm.name || !eventForm.date) {
+                                            showToast('Please fill at least Name and Date for preview', 'error');
+                                            return;
+                                        }
+                                        generatePDFInvitation(eventForm);
+                                    }}
+                                >
+                                    Download PDF Invitation
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                )}
+
+                {/* VIEW REGISTRATIONS TAB */}
+                {activeTab === 'view' && (
+                    <div className="view-registrations-section">
+                        <h2>👁️ Event Registrations</h2>
+                        <div className="events-list">
+                            <h3>Select an Event</h3>
+                            {events.length === 0 ? (
+                                <p>No events created yet.</p>
                             ) : (
-                                <div className="members-grid">
-                                    {filteredMembers.map(member => (
-                                        <div key={member.id} className="member-detail-card">
-                                            <div className="member-card-header">
-                                                <div className="member-avatar-section">
-                                                    {member.profileImage ? (
-                                                        <img
-                                                            src={member.profileImage}
-                                                            alt={member.name}
-                                                            className="member-avatar-img"
-                                                        />
-                                                    ) : (
-                                                        <div className="member-avatar-placeholder">
-                                                            {member.name ? member.name.charAt(0).toUpperCase() : '?'}
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                <div className="member-name-section">
-                                                    <h3>{member.name} <span className="age-badge">({member.age} yrs)</span></h3>
-                                                    <div className="status-container">
-                                                        <span className={`status-badge ${member.atHyderabad ? 'in-hyd' : 'out-hyd'}`}>
-                                                            {member.atHyderabad ? '📍 Hyderabad' : '🏠 Other'}
-                                                        </span>
-                                                        {member.atHyderabad && member.hyderabadArea && (
-                                                            <span className="area-badge">
-                                                                🏙️ {member.hyderabadArea}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                {/* --- DELETE BUTTON --- */}
+                                <div className="events-grid">
+                                    {events.map(event => (
+                                        <div key={event.id} className={`event-card ${selectedEvent?.id === event.id ? 'selected' : ''}`}>
+                                            <div onClick={() => setSelectedEvent(event)} style={{ flex: 1, cursor: 'pointer' }}>
+                                                {event.image && (
+                                                    <img src={event.image} alt={event.name} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px', marginBottom: '10px' }} />
+                                                )}
+                                                <h4>{event.name}</h4>
+                                                <p>📅 {event.date} at {event.time}</p>
+                                                <p>📍 {event.location}</p>
+                                            </div>
+                                            <div className="event-card-actions" style={{ display: 'flex', gap: '10px' }}>
                                                 <button
-                                                    className="delete-icon-btn"
+                                                    onClick={() => generatePDFInvitation(event)}
+                                                    className="pdf-btn"
+                                                    title="Download PDF Invitation"
+                                                    style={{ background: '#F4B41A', border: 'none', borderRadius: '4px', cursor: 'pointer', padding: '5px' }}
+                                                >
+                                                    📄
+                                                </button>
+                                                <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        handleDeleteMember(member.id);
+                                                        handleDeleteEvent(event.id);
                                                     }}
-                                                    title="Delete Member"
-                                                    style={{
-                                                        background: 'rgba(255, 0, 0, 0.1)',
-                                                        border: 'none',
-                                                        borderRadius: '50%',
-                                                        width: '35px',
-                                                        height: '35px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        cursor: 'pointer',
-                                                        marginLeft: 'auto',
-                                                        fontSize: '1.2rem'
-                                                    }}
+                                                    className="delete-event-btn"
+                                                    title="Delete Event"
                                                 >
                                                     🗑️
                                                 </button>
-                                            </div>
-
-                                            <div className="member-info">
-                                                <p><strong>📧 Email:</strong> {member.email}</p>
-                                                <p><strong>📱 Phone:</strong> {member.phone}</p>
-                                                <p><strong>🛕 Kovil:</strong> {member.kovil}</p>
-                                                <p><strong>🔖 Pirivu:</strong> {member.pirivu}</p>
-                                                <p><strong>🏘️ Native:</strong> {member.nativePlace}</p>
-                                                <p><strong>📋 Patta Per:</strong> {member.pattaPer}</p>
-                                            </div>
-
-                                            {/* Family Members Section */}
-                                            <div className="family-section">
-                                                <h4>👥 Family Members ({member.familyMembers?.length || 0}):</h4>
-                                                {member.familyMembers && member.familyMembers.length > 0 ? (
-                                                    <div className="family-list">
-                                                        {member.familyMembers.map((fm, idx) => (
-                                                            <div key={idx} className="family-member-tag">
-                                                                {fm.name} ({fm.relation}, {fm.age} yrs)
-                                                                {fm.phone && ` 📱 ${fm.phone}`}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                ) : (
-                                                    <p className="no-family">No family members added</p>
-                                                )}
-                                            </div>
-
-                                            <div className="member-footer">
-                                                <small>Joined: {member.createdAt ? new Date(member.createdAt).toLocaleDateString() : 'N/A'}</small>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
                         </div>
-                    )}
 
-
-                    {/* GUEST RECORDS TAB - NEW FEATURE */}
-                    {activeTab === 'guests' && (
-                        <div className="guest-records-section">
-                            <h2>🎫 Guest Registration Records</h2>
-                            <GuestRecordsContent />
-                        </div>
-                    )}
-                    {/* VOTING TAB */}
-                    {activeTab === 'voting' && (
-                        <div className="voting-section">
-                            <h2>🗳️ Voting Management</h2>
-
-                            <div className="create-poll-section">
-                                <h3>Create New Poll</h3>
-                                <form onSubmit={handleCreatePoll} className="poll-form">
-                                    <div className="form-group">
-                                        <label>Poll Title</label>
-                                        <input
-                                            type="text"
-                                            value={pollForm.title}
-                                            onChange={(e) => setPollForm({ ...pollForm, title: e.target.value })}
-                                            required
-                                            placeholder="e.g., Committee Election 2026"
-                                        />
+                        {selectedEvent && (
+                            <div className="registrations-details">
+                                <div className="registrations-header">
+                                    <div>
+                                        <h3>Registrations for {selectedEvent.name}</h3>
+                                        <p>Total Registrations: {registrations.length}</p>
+                                        <p>Total Headcount: {calculateTotalHeadcount()}</p>
                                     </div>
-                                    <div className="form-group">
-                                        <label>Description</label>
-                                        <textarea
-                                            value={pollForm.description}
-                                            onChange={(e) => setPollForm({ ...pollForm, description: e.target.value })}
-                                            placeholder="Poll description..."
-                                            rows="3"
-                                        />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>End Date</label>
-                                        <input
-                                            type="datetime-local"
-                                            value={pollForm.endDate}
-                                            onChange={(e) => setPollForm({ ...pollForm, endDate: e.target.value })}
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="role-builder">
-                                        <h4>Add Roles & Candidates</h4>
-                                        <div className="form-group">
-                                            <label>Role Name (e.g., President, Secretary)</label>
-                                            <input
-                                                type="text"
-                                                value={roleForm.roleName}
-                                                onChange={(e) => setRoleForm({ ...roleForm, roleName: e.target.value })}
-                                                placeholder="Enter role name"
-                                            />
-                                        </div>
-
-                                        <div className="candidates-builder">
-                                            <label>Candidates for {roleForm.roleName || 'this role'}</label>
-                                            <div className="candidate-input-row">
-                                                <input
-                                                    type="text"
-                                                    value={candidateName}
-                                                    onChange={(e) => setCandidateName(e.target.value)}
-                                                    placeholder="Candidate name"
-                                                    onKeyPress={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            e.preventDefault();
-                                                            handleAddCandidate();
-                                                        }
-                                                    }}
-                                                />
-                                                <button type="button" onClick={handleAddCandidate} className="add-btn">
-                                                    ➕ Add Candidate
-                                                </button>
-                                            </div>
-
-                                            {roleForm.candidates.length > 0 && (
-                                                <div className="candidates-list">
-                                                    {roleForm.candidates.map((candidate, idx) => (
-                                                        <div key={idx} className="candidate-item">
-                                                            <span>{candidate.name}</span>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleRemoveCandidate(idx)}
-                                                                className="remove-btn-small"
-                                                            >
-                                                                ✕
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <button type="button" onClick={handleAddRole} className="add-role-btn">
-                                            ➕ Add Role to Poll
-                                        </button>
-                                    </div>
-
-                                    {pollForm.roles.length > 0 && (
-                                        <div className="roles-preview">
-                                            <h4>Roles in This Poll ({pollForm.roles.length})</h4>
-                                            {pollForm.roles.map((role, idx) => (
-                                                <div key={idx} className="role-preview-card">
-                                                    <div className="role-preview-header">
-                                                        <strong>{role.roleName}</strong>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleRemoveRole(idx)}
-                                                            className="remove-btn-small"
-                                                        >
-                                                            ✕
-                                                        </button>
-                                                    </div>
-                                                    <div className="candidates-preview">
-                                                        {role.candidates.map((c, i) => (
-                                                            <span key={i} className="candidate-tag">{c.name}</span>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    <button type="submit" className="submit-btn">Create Poll</button>
-                                </form>
-                            </div>
-
-                            <div className="polls-list-section">
-                                <h3>All Polls</h3>
-                                {polls.length === 0 ? (
-                                    <p className="no-data">No polls created yet.</p>
-                                ) : (
-                                    <div className="polls-grid">
-                                        {polls.map(poll => (
-                                            <div key={poll.id} className={`poll-card ${poll.status}`}>
-                                                <div className="poll-card-header">
-                                                    <h4>{poll.title}</h4>
-                                                    <span className={`status-badge ${poll.status}`}>
-                                                        {poll.status === 'active' ? '🟢 Active' : '🔴 Closed'}
-                                                    </span>
-                                                </div>
-                                                <p>{poll.description}</p>
-                                                <p><strong>End Date:</strong> {new Date(poll.endDate).toLocaleString()}</p>
-                                                <p><strong>Roles:</strong> {poll.roles.length}</p>
-                                                <div className="poll-actions">
-                                                    <button onClick={() => handleViewResults(poll)} className="view-results-btn">
-                                                        📊 View Results
-                                                    </button>
-                                                    <button onClick={() => exportPollResults(poll)} className="export-btn">
-                                                        📥 Export Excel
-                                                    </button>
-                                                    {poll.status === 'active' && (
-                                                        <button onClick={() => handleClosePoll(poll.id)} className="close-poll-btn">
-                                                            🔒 Close Poll
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        onClick={() => handleDeletePoll(poll.id)}
-                                                        className="delete-poll-btn"
-                                                        style={{ backgroundColor: '#dc3545', color: 'white', marginTop: '10px' }}
-                                                    >
-                                                        🗑️ Delete Poll
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            {selectedPoll && (
-                                <div className="results-modal">
-                                    <div className="results-modal-content">
-                                        <button onClick={() => setSelectedPoll(null)} className="close-modal-btn">✕</button>
-                                        <h3>Results: {selectedPoll.title}</h3>
-                                        <p>Total Voters: {selectedPoll.votes.length}</p>
-
-                                        {selectedPoll.roles.map((role, idx) => {
-                                            const roleCandidates = role.candidates.map(candidate => {
-                                                const votes = selectedPoll.votes.filter(v =>
-                                                    v.votes.some(vote => vote.roleName === role.roleName && vote.candidateName === candidate.name)
-                                                ).length;
-                                                return { ...candidate, votes };
-                                            });
-
-                                            const totalRoleVotes = roleCandidates.reduce((sum, c) => sum + c.votes, 0);
-
-                                            return (
-                                                <div key={idx} className="role-results">
-                                                    <h4>{role.roleName}</h4>
-                                                    <div className="candidates-results">
-                                                        {roleCandidates.map((candidate, i) => {
-                                                            const percentage = totalRoleVotes > 0 ? ((candidate.votes / totalRoleVotes) * 100).toFixed(2) : '0';
-                                                            return (
-                                                                <div key={i} className="candidate-result">
-                                                                    <div className="candidate-result-header">
-                                                                        <span>{candidate.name}</span>
-                                                                        <span>{candidate.votes} votes ({percentage}%)</span>
-                                                                    </div>
-                                                                    <div className="result-bar">
-                                                                        <div className="result-bar-fill" style={{ width: `${percentage}%` }}></div>
-                                                                    </div>
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                    {/* MOMs TAB */}
-                    {activeTab === 'moms' && (
-                        <div className="moms-section">
-                            <h2>📋 Minutes of Meeting (MOMs)</h2>
-
-                            <div className="moms-form-section">
-                                <h3>{editingMom ? '✏️ Edit MOM' : '➕ Create New MOM'}</h3>
-                                <form onSubmit={editingMom ? handleUpdateMom : handleCreateMom} className="mom-form">
-                                    <div className="form-row">
-                                        <div className="form-group">
-                                            <label>Date</label>
-                                            <input
-                                                type="date"
-                                                value={momForm.date}
-                                                onChange={(e) => setMomForm({ ...momForm, date: e.target.value })}
-                                                required
-                                            />
-                                        </div>
-                                        <div className="form-group">
-                                            <label>Time</label>
-                                            <input
-                                                type="time"
-                                                value={momForm.time}
-                                                onChange={(e) => setMomForm({ ...momForm, time: e.target.value })}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label>Venue Type</label>
-                                        <div className="radio-group">
-                                            <label className="radio-label">
-                                                <input
-                                                    type="radio"
-                                                    value="online"
-                                                    checked={momForm.venueType === 'online'}
-                                                    onChange={(e) => setMomForm({ ...momForm, venueType: e.target.value, venueLocation: '' })}
-                                                />
-                                                <span>💻 Online</span>
-                                            </label>
-                                            <label className="radio-label">
-                                                <input
-                                                    type="radio"
-                                                    value="offline"
-                                                    checked={momForm.venueType === 'offline'}
-                                                    onChange={(e) => setMomForm({ ...momForm, venueType: e.target.value })}
-                                                />
-                                                <span>🏢 Offline</span>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    {momForm.venueType === 'offline' && (
-                                        <div className="form-group">
-                                            <label>Venue Location</label>
-                                            <input
-                                                type="text"
-                                                value={momForm.venueLocation}
-                                                onChange={(e) => setMomForm({ ...momForm, venueLocation: e.target.value })}
-                                                required
-                                                placeholder="Enter venue location"
-                                            />
-                                        </div>
-                                    )}
-
-                                    <div className="form-group">
-                                        <label>Participants</label>
-                                        <textarea
-                                            value={momForm.participants}
-                                            onChange={(e) => setMomForm({ ...momForm, participants: e.target.value })}
-                                            required
-                                            placeholder="Enter participant names (comma separated)"
-                                            rows="3"
-                                        />
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label>Meeting Summary</label>
-                                        <textarea
-                                            value={momForm.summary}
-                                            onChange={(e) => setMomForm({ ...momForm, summary: e.target.value })}
-                                            required
-                                            placeholder="Enter meeting summary and key points discussed..."
-                                            rows="6"
-                                        />
-                                    </div>
-
-                                    <div className="form-actions">
-                                        <button type="submit" className="submit-btn">
-                                            {editingMom ? '💾 Update MOM' : '➕ Create MOM'}
-                                        </button>
-                                        {editingMom && (
-                                            <button
-                                                type="button"
-                                                className="cancel-btn"
-                                                onClick={() => {
-                                                    setEditingMom(null);
-                                                    setMomForm({
-                                                        date: '',
-                                                        time: '',
-                                                        venueType: 'online',
-                                                        venueLocation: '',
-                                                        participants: '',
-                                                        summary: ''
-                                                    });
-                                                }}
-                                            >
-                                                ❌ Cancel
-                                            </button>
-                                        )}
-                                    </div>
-                                </form>
-                            </div>
-
-                            <div className="moms-list-section">
-                                <h3>All MOMs</h3>
-                                {moms.length === 0 ? (
-                                    <p className="no-data">No MOMs created yet.</p>
-                                ) : (
-                                    <div className="moms-grid">
-                                        {moms.map(mom => (
-                                            <div key={mom.id} className="mom-card">
-                                                <div className="mom-header">
-                                                    <h4>📅 {mom.date} • ⏰ {mom.time}</h4>
-                                                    <span className="venue-badge">
-                                                        {mom.venueType === 'online' ? '💻 Online' : `🏢 ${mom.venueLocation}`}
-                                                    </span>
-                                                </div>
-                                                <div className="mom-content">
-                                                    <p><strong>👥 Participants:</strong> {mom.participants}</p>
-                                                    <p><strong>📝 Summary:</strong></p>
-                                                    <p className="mom-summary">{mom.summary}</p>
-                                                </div>
-                                                <div className="mom-actions">
-                                                    <button onClick={() => handleEditMom(mom)} className="edit-btn">
-                                                        ✏️ Edit
-                                                    </button>
-                                                    <button onClick={() => handleDeleteMom(mom.id)} className="delete-btn">
-                                                        🗑️ Delete
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                    {/* CARETAKERS TAB */}
-                    {activeTab === 'caretakers' && (
-                        <div className="caretakers-section">
-                            <h2>👷 Caretakers Management</h2>
-
-                            <div className="caretakers-form-section">
-                                <h3>{editingCaretaker ? '✏️ Edit Caretaker' : '➕ Add New Caretaker'}</h3>
-                                <form onSubmit={editingCaretaker ? handleUpdateCaretaker : handleCreateCaretaker} className="caretaker-form">
-                                    <div className="form-group">
-                                        <label>Name</label>
-                                        <input
-                                            type="text"
-                                            value={caretakerForm.name}
-                                            onChange={(e) => setCaretakerForm({ ...caretakerForm, name: e.target.value })}
-                                            required
-                                            placeholder="Enter caretaker name"
-                                        />
-                                    </div>
-
-                                    <div className="form-row">
-                                        <div className="form-group">
-                                            <label>Phone</label>
-                                            <input
-                                                type="tel"
-                                                value={caretakerForm.phone}
-                                                onChange={(e) => setCaretakerForm({ ...caretakerForm, phone: e.target.value })}
-                                                required
-                                                placeholder="Enter phone number"
-                                            />
-                                        </div>
-                                        <div className="form-group">
-                                            <label>Email</label>
-                                            <input
-                                                type="email"
-                                                value={caretakerForm.email}
-                                                onChange={(e) => setCaretakerForm({ ...caretakerForm, email: e.target.value })}
-                                                placeholder="Enter email (optional)"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label>Address</label>
-                                        <textarea
-                                            value={caretakerForm.address}
-                                            onChange={(e) => setCaretakerForm({ ...caretakerForm, address: e.target.value })}
-                                            required
-                                            placeholder="Enter address"
-                                            rows="2"
-                                        />
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label>Responsibility</label>
-                                        <input
-                                            type="text"
-                                            value={caretakerForm.responsibility}
-                                            onChange={(e) => setCaretakerForm({ ...caretakerForm, responsibility: e.target.value })}
-                                            required
-                                            placeholder="e.g., Temple Cleaning, Security"
-                                        />
-                                    </div>
-
-                                    <div className="form-row">
-                                        <div className="form-group">
-                                            <label>Joining Date</label>
-                                            <input
-                                                type="date"
-                                                value={caretakerForm.joiningDate}
-                                                onChange={(e) => setCaretakerForm({ ...caretakerForm, joiningDate: e.target.value })}
-                                                required
-                                            />
-                                        </div>
-                                        <div className="form-group">
-                                            <label>Salary (₹)</label>
-                                            <input
-                                                type="number"
-                                                value={caretakerForm.salary}
-                                                onChange={(e) => setCaretakerForm({ ...caretakerForm, salary: e.target.value })}
-                                                required
-                                                placeholder="Enter monthly salary"
-                                                min="0"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="form-actions">
-                                        <button type="submit" className="submit-btn">
-                                            {editingCaretaker ? '💾 Update Caretaker' : '➕ Add Caretaker'}
-                                        </button>
-                                        {editingCaretaker && (
-                                            <button
-                                                type="button"
-                                                className="cancel-btn"
-                                                onClick={() => {
-                                                    setEditingCaretaker(null);
-                                                    setCaretakerForm({
-                                                        name: '',
-                                                        phone: '',
-                                                        email: '',
-                                                        address: '',
-                                                        responsibility: '',
-                                                        joiningDate: '',
-                                                        salary: ''
-                                                    });
-                                                }}
-                                            >
-                                                ❌ Cancel
-                                            </button>
-                                        )}
-                                    </div>
-                                </form>
-                            </div>
-
-                            <div className="caretakers-list-section">
-                                <h3>All Caretakers</h3>
-                                {caretakers.length === 0 ? (
-                                    <p className="no-data">No caretakers added yet.</p>
-                                ) : (
-                                    <div className="caretakers-grid">
-                                        {caretakers.map(caretaker => (
-                                            <div key={caretaker.id} className="caretaker-card">
-                                                <div className="caretaker-header">
-                                                    <h4>👤 {caretaker.name}</h4>
-                                                    <span className="salary-badge">💰 ₹{caretaker.salary}/month</span>
-                                                </div>
-                                                <div className="caretaker-info">
-                                                    <p><strong>📱 Phone:</strong> {caretaker.phone}</p>
-                                                    {caretaker.email && <p><strong>📧 Email:</strong> {caretaker.email}</p>}
-                                                    <p><strong>📍 Address:</strong> {caretaker.address}</p>
-                                                    <p><strong>💼 Responsibility:</strong> {caretaker.responsibility}</p>
-                                                    <p><strong>📅 Joined:</strong> {new Date(caretaker.joiningDate).toLocaleDateString()}</p>
-                                                </div>
-                                                <div className="caretaker-actions">
-                                                    <button onClick={() => handleEditCaretaker(caretaker)} className="edit-btn">
-                                                        ✏️ Edit
-                                                    </button>
-                                                    <button onClick={() => handleDeleteCaretaker(caretaker.id)} className="delete-btn">
-                                                        🗑️ Delete
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                    {/* BUDGET TAB */}
-                    {activeTab === 'budget' && (
-                        <div className="budget-section">
-                            <div className="section-header">
-                                <h2 className="section-title">💰 Budget Planning</h2>
-                                <p className="section-subtitle">Plan and manage event budgets efficiently</p>
-                            </div>
-
-                            <div className="budget-form-section">
-                                <div className="form-card">
-                                    <div className="form-card-header">
-                                        <h3>➕ Create New Budget Plan</h3>
-                                    </div>
-
-                                    <form onSubmit={handleCreateBudget} className="budget-form">
-                                        <div className="form-section">
-                                            <h4 className="form-section-title">Event Details</h4>
-                                            <div className="form-row">
-                                                <div className="form-group">
-                                                    <label>Event Name *</label>
-                                                    <input
-                                                        type="text"
-                                                        value={budgetForm.eventName}
-                                                        onChange={(e) => setBudgetForm({ ...budgetForm, eventName: e.target.value })}
-                                                        required
-                                                        placeholder="Enter event name"
-                                                    />
-                                                </div>
-                                                <div className="form-group">
-                                                    <label>Event Date *</label>
-                                                    <input
-                                                        type="date"
-                                                        value={budgetForm.eventDate}
-                                                        onChange={(e) => setBudgetForm({ ...budgetForm, eventDate: e.target.value })}
-                                                        required
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="form-section category-builder">
-                                            <h4 className="form-section-title">Add Budget Category</h4>
-                                            <div className="form-group">
-                                                <label>Category Name</label>
-                                                <input
-                                                    type="text"
-                                                    value={budgetCategory.categoryName}
-                                                    onChange={(e) => setBudgetCategory({ ...budgetCategory, categoryName: e.target.value })}
-                                                    placeholder="e.g., Food, Decoration, Transport"
-                                                />
-                                            </div>
-
-                                            <div className="items-builder">
-                                                <h5 className="items-subtitle">Add Items to Category</h5>
-                                                <div className="item-input-grid">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Item name"
-                                                        value={budgetItem.itemName}
-                                                        onChange={(e) => setBudgetItem({ ...budgetItem, itemName: e.target.value })}
-                                                        className="item-input"
-                                                    />
-                                                    <input
-                                                        type="number"
-                                                        placeholder="Quantity"
-                                                        value={budgetItem.quantity}
-                                                        onChange={(e) => setBudgetItem({ ...budgetItem, quantity: e.target.value })}
-                                                        min="0"
-                                                        step="0.01"
-                                                        className="item-input"
-                                                    />
-                                                    <input
-                                                        type="number"
-                                                        placeholder="Unit Price (₹)"
-                                                        value={budgetItem.unitPrice}
-                                                        onChange={(e) => setBudgetItem({ ...budgetItem, unitPrice: e.target.value })}
-                                                        min="0"
-                                                        step="0.01"
-                                                        className="item-input"
-                                                    />
-                                                    <button type="button" onClick={handleAddBudgetItem} className="add-item-btn">
-                                                        ➕ Add Item
-                                                    </button>
-                                                </div>
-
-                                                {budgetCategory.items.length > 0 && (
-                                                    <div className="items-list">
-                                                        <table className="items-table">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Item</th>
-                                                                    <th>Quantity</th>
-                                                                    <th>Unit Price</th>
-                                                                    <th>Total</th>
-                                                                    <th>Action</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {budgetCategory.items.map((item, idx) => (
-                                                                    <tr key={idx}>
-                                                                        <td>{item.itemName}</td>
-                                                                        <td>{item.quantity}</td>
-                                                                        <td>₹{parseFloat(item.unitPrice).toFixed(2)}</td>
-                                                                        <td className="total-cell">₹{parseFloat(item.totalPrice).toFixed(2)}</td>
-                                                                        <td>
-                                                                            <button
-                                                                                type="button"
-                                                                                onClick={() => {
-                                                                                    const updatedItems = budgetCategory.items.filter((_, i) => i !== idx);
-                                                                                    setBudgetCategory({ ...budgetCategory, items: updatedItems });
-                                                                                }}
-                                                                                className="remove-item-btn"
-                                                                            >
-                                                                                ✕
-                                                                            </button>
-                                                                        </td>
-                                                                    </tr>
-                                                                ))}
-                                                            </tbody>
-                                                            <tfoot>
-                                                                <tr className="total-row">
-                                                                    <td colSpan="3"><strong>Category Total</strong></td>
-                                                                    <td className="total-cell">
-                                                                        <strong>₹{budgetCategory.items.reduce((sum, item) => sum + item.totalPrice, 0).toFixed(2)}</strong>
-                                                                    </td>
-                                                                    <td></td>
-                                                                </tr>
-                                                            </tfoot>
-                                                        </table>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <button
-                                                type="button"
-                                                onClick={handleAddBudgetCategory}
-                                                className="add-category-btn"
-                                                disabled={!budgetCategory.categoryName || budgetCategory.items.length === 0}
-                                            >
-                                                ➕ Add Category to Budget
-                                            </button>
-                                        </div>
-
-                                        {budgetForm.categories.length > 0 && (
-                                            <div className="categories-preview">
-                                                <h4 className="preview-title">Budget Categories ({budgetForm.categories.length})</h4>
-                                                <div className="categories-preview-grid">
-                                                    {budgetForm.categories.map((cat, idx) => (
-                                                        <div key={idx} className="category-preview-card">
-                                                            <div className="category-preview-header">
-                                                                <h5>{cat.categoryName}</h5>
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleRemoveBudgetCategory(idx)}
-                                                                    className="remove-category-btn"
-                                                                >
-                                                                    ✕
-                                                                </button>
-                                                            </div>
-                                                            <div className="category-preview-body">
-                                                                <p className="items-count">{cat.items.length} items</p>
-                                                                <p className="category-total-amount">
-                                                                    ₹{cat.items.reduce((sum, item) => sum + item.totalPrice, 0).toFixed(2)}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                <div className="grand-total-preview">
-                                                    <strong>Grand Total:</strong>
-                                                    <span className="grand-total-amount">
-                                                        ₹{budgetForm.categories.reduce((total, cat) =>
-                                                            total + cat.items.reduce((sum, item) => sum + item.totalPrice, 0), 0
-                                                        ).toFixed(2)}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        <button type="submit" className="submit-btn budget-submit-btn" disabled={budgetForm.categories.length === 0}>
-                                            💾 Create Budget Plan
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div className="budgets-list-section">
-                                <h3 className="list-title">📋 All Budget Plans</h3>
-                                {budgets.length === 0 ? (
-                                    <div className="no-data-card">
-                                        <div className="no-data-icon">📊</div>
-                                        <p className="no-data-text">No budget plans created yet.</p>
-                                        <p className="no-data-subtext">Create your first budget plan above to get started.</p>
-                                    </div>
-                                ) : (
-                                    <div className="budgets-grid">
-                                        {budgets.map(budget => (
-                                            <div key={budget.id} className="budget-card">
-                                                <div className="budget-card-header">
-                                                    <div className="budget-title-section">
-                                                        <h4>🎯 {budget.eventName}</h4>
-                                                        <span className="budget-date">📅 {budget.eventDate}</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="budget-card-body">
-                                                    <div className="budget-stats">
-                                                        <div className="stat-item">
-                                                            <span className="stat-label">Categories</span>
-                                                            <span className="stat-value">{budget.categories.length}</span>
-                                                        </div>
-                                                        <div className="stat-item">
-                                                            <span className="stat-label">Total Items</span>
-                                                            <span className="stat-value">
-                                                                {budget.categories.reduce((sum, cat) => sum + cat.items.length, 0)}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="budget-categories-list">
-                                                        {budget.categories.map((cat, idx) => (
-                                                            <div key={idx} className="budget-category-row">
-                                                                <span className="category-name-badge">{cat.categoryName}</span>
-                                                                <span className="category-amount-badge">
-                                                                    ₹{cat.items.reduce((sum, item) => sum + item.totalPrice, 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                                </span>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-
-                                                <div className="budget-card-footer">
-                                                    <div className="budget-total-section">
-                                                        <span className="total-label">Total Budget</span>
-                                                        <span className="total-amount">₹{calculateBudgetTotal(budget).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                                    </div>
-                                                    <div className="budget-actions">
-                                                        <button onClick={() => exportBudgetToExcel(budget)} className="action-btn export-btn">
-                                                            📊 Export
-                                                        </button>
-                                                        <button onClick={() => handleDeleteBudget(budget.id)} className="action-btn delete-btn">
-                                                            🗑️ Delete
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                    {/* STOCK TAB */}
-                    {activeTab === 'stock' && (
-                        <div className="stock-section">
-                            <h2>📦 Stock Management</h2>
-
-                            <div className="stock-header-actions">
-                                {stocks.length > 0 && (
-                                    <button onClick={exportStocksToExcel} className="export-btn">
-                                        📊 Export to Excel
+                                    <button onClick={exportToWord} className="export-btn">
+                                        📄 Export to Word
                                     </button>
-                                )}
-                            </div>
-
-                            <div className="stock-form-section">
-                                <h3>{editingStock ? '✏️ Edit Stock Item' : '➕ Add New Stock Item'}</h3>
-                                <form onSubmit={editingStock ? handleUpdateStock : handleCreateStock} className="stock-form">
-                                    <div className="form-group">
-                                        <label>Item Name</label>
-                                        <input
-                                            type="text"
-                                            value={stockForm.itemName}
-                                            onChange={(e) => setStockForm({ ...stockForm, itemName: e.target.value })}
-                                            required
-                                            placeholder="Enter item name"
-                                        />
-                                    </div>
-
-                                    <div className="form-row">
-                                        <div className="form-group">
-                                            <label>Quantity</label>
-                                            <input
-                                                type="number"
-                                                value={stockForm.quantity}
-                                                onChange={(e) => setStockForm({ ...stockForm, quantity: e.target.value })}
-                                                required
-                                                placeholder="Enter quantity"
-                                                min="0"
-                                                step="0.01"
-                                            />
-                                        </div>
-                                        <div className="form-group">
-                                            <label>Unit</label>
-                                            <input
-                                                type="text"
-                                                value={stockForm.unit}
-                                                onChange={(e) => setStockForm({ ...stockForm, unit: e.target.value })}
-                                                required
-                                                placeholder="e.g., kg, pieces, liters"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="form-row">
-                                        <div className="form-group">
-                                            <label>Category</label>
-                                            <input
-                                                type="text"
-                                                value={stockForm.category}
-                                                onChange={(e) => setStockForm({ ...stockForm, category: e.target.value })}
-                                                required
-                                                placeholder="e.g., Food, Equipment, Decorations"
-                                            />
-                                        </div>
-                                        <div className="form-group">
-                                            <label>Storage Location</label>
-                                            <input
-                                                type="text"
-                                                value={stockForm.location}
-                                                onChange={(e) => setStockForm({ ...stockForm, location: e.target.value })}
-                                                required
-                                                placeholder="Enter storage location"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="form-actions">
-                                        <button type="submit" className="submit-btn">
-                                            {editingStock ? '💾 Update Stock' : '➕ Add Stock'}
-                                        </button>
-                                        {editingStock && (
-                                            <button
-                                                type="button"
-                                                className="cancel-btn"
-                                                onClick={() => {
-                                                    setEditingStock(null);
-                                                    setStockForm({ itemName: '', quantity: '', unit: '', category: '', location: '' });
-                                                }}
-                                            >
-                                                ❌ Cancel
-                                            </button>
-                                        )}
-                                    </div>
-                                </form>
-                            </div>
-
-                            <div className="stocks-list-section">
-                                <h3>All Stock Items</h3>
-                                {stocks.length === 0 ? (
-                                    <p className="no-data">No stock items added yet.</p>
-                                ) : (
-                                    <div className="stocks-grid">
-                                        {stocks.map(stock => (
-                                            <div key={stock.id} className="stock-card">
-                                                <div className="stock-header">
-                                                    <h4>📦 {stock.itemName}</h4>
-                                                    <span className="stock-quantity">
-                                                        {stock.quantity} {stock.unit}
-                                                    </span>
-                                                </div>
-                                                <div className="stock-body">
-                                                    <p><strong>🏷️ Category:</strong> {stock.category}</p>
-                                                    <p><strong>📍 Location:</strong> {stock.location}</p>
-                                                    <p><strong>📅 Added:</strong> {new Date(stock.createdAt).toLocaleDateString()}</p>
-                                                </div>
-
-                                                {stock.usageHistory && stock.usageHistory.length > 0 && (
-                                                    <div className="usage-history">
-                                                        <strong>📋 Usage History ({stock.usageHistory.length})</strong>
-                                                        <ul>
-                                                            {stock.usageHistory.map((usage, idx) => (
-                                                                <li key={idx} className={usage.returned ? 'returned' : ''}>
-                                                                    <div>
-                                                                        <strong>{usage.eventName}</strong>
-                                                                        <span> - {usage.usedQuantity} {stock.unit}</span>
-                                                                        <div style={{ fontSize: '0.85rem', opacity: 0.7 }}>
-                                                                            {new Date(usage.usageDate).toLocaleDateString()}
-                                                                            {usage.returned && ` • Returned: ${usage.returnedQuantity} ${stock.unit}`}
-                                                                        </div>
-                                                                    </div>
-                                                                    {!usage.returned && (
-                                                                        <button
-                                                                            onClick={() => handleStockReturn(stock, idx)}
-                                                                            className="return-btn-small"
-                                                                        >
-                                                                            ↩️ Return
-                                                                        </button>
-                                                                    )}
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    </div>
-                                                )}
-
-                                                <div className="stock-actions">
-                                                    <button onClick={() => handleStockUsage(stock)} className="usage-btn">
-                                                        📤 Use Stock
-                                                    </button>
-                                                    <button onClick={() => handleEditStock(stock)} className="edit-btn">
-                                                        ✏️ Edit
-                                                    </button>
-                                                    <button onClick={() => handleDeleteStock(stock.id)} className="delete-btn">
-                                                        🗑️ Delete
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-
-                    {/* AUCTION TAB */}
-                    {activeTab === 'auction' && (
-                        <div className="auction-section">
-                            <h2>🔨 Auction Records</h2>
-
-                            <div className="year-selector-container">
-                                <label className="year-selector-label">📅 SELECT YEAR:</label>
-                                <div className="year-selector-wrapper">
-                                    <select
-                                        value={selectedYear}
-                                        onChange={(e) => {
-                                            const newYear = parseInt(e.target.value);
-                                            setSelectedYear(newYear);           // 1️⃣ Change the year
-                                            fetchAuctionItems(newYear);         // 2️⃣ Load items for that year
-                                        }}
-                                        className="year-select-professional"
-                                    >
-
-                                        {Array.from({ length: 101 }, (_, i) => 2000 + i).map(year => (
-                                            <option key={year} value={year}>
-                                                {year}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <div className="year-dropdown-icon">▼</div>
-                                </div>
-                            </div>
-
-
-                            <div className="auction-form-section">
-                                <h3>➕ Add Auction Item for {selectedYear}</h3>
-                                <form onSubmit={handleAddAuctionItem} className="auction-form">
-                                    <div className="form-group">
-                                        <label>Item Name</label>
-                                        <input
-                                            type="text"
-                                            name="itemName"
-                                            value={auctionForm.itemName}
-                                            onChange={handleAuctionInputChange}
-                                            required
-                                            placeholder="Enter item name"
-                                        />
-                                    </div>
-                                    <div className="form-row">
-                                        <div className="form-group">
-                                            <label>Buyer Name</label>
-                                            <input
-                                                type="text"
-                                                name="buyerName"
-                                                value={auctionForm.buyerName}
-                                                onChange={handleAuctionInputChange}
-                                                required
-                                                placeholder="Enter buyer name"
-                                            />
-                                        </div>
-                                        <div className="form-group">
-                                            <label>Price (₹)</label>
-                                            <input
-                                                type="number"
-                                                name="price"
-                                                value={auctionForm.price}
-                                                onChange={handleAuctionInputChange}
-                                                required
-                                                placeholder="Enter price"
-                                                min="0"
-                                                step="0.01"
-                                            />
-                                        </div>
-                                    </div>
-                                    <button type="submit" className="submit-btn">Add Auction Item</button>
-                                </form>
-                            </div>
-
-                            <div className="auction-list-section">
-                                <div className="auction-header">
-                                    <h3>Auction Items - {selectedYear}</h3>
-                                    {auctionItems.length > 0 && (
-                                        <button onClick={exportAuctionToExcel} className="export-btn">
-                                            📊 Export to Excel
-                                        </button>
-                                    )}
                                 </div>
 
-                                {auctionItems.length === 0 ? (
-                                    <p className="no-data">No auction items for {selectedYear}.</p>
+                                {registrations.length === 0 ? (
+                                    <p className="no-registrations">No registrations yet for this event.</p>
                                 ) : (
-                                    <div className="auction-table-container">
-                                        <table className="auction-table">
+                                    <div className="registrations-table">
+                                        <table>
                                             <thead>
                                                 <tr>
-                                                    <th>S.No</th>
-                                                    <th>Item Name</th>
-                                                    <th>Buyer Name</th>
-                                                    <th>Price (₹)</th>
-                                                    <th>Payment Status</th>
-                                                    <th>Actions</th>
+                                                    <th>Member Name</th>
+                                                    <th>Email</th>
+                                                    <th>Phone</th>
+                                                    <th>Family Members</th>
+                                                    <th>Total Count</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {auctionItems.map((item, index) => (
-                                                    <tr key={item.id}>
-                                                        <td>{index + 1}</td>
-                                                        <td>{item.itemName}</td>
-                                                        <td>{item.buyerName}</td>
-                                                        <td>₹{item.price.toLocaleString('en-IN')}</td>
+                                                {registrations.map(reg => (
+                                                    <tr key={reg.id}>
+                                                        <td>{reg.memberName}</td>
+                                                        <td>{reg.memberEmail}</td>
+                                                        <td>{reg.memberPhone}</td>
                                                         <td>
-                                                            <label className="payment-toggle">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    checked={item.isPaid}
-                                                                    onChange={() => handleTogglePayment(item.id, item.isPaid)}
-                                                                />
-                                                                <span className={`payment-status ${item.isPaid ? 'paid' : 'unpaid'}`}>
-                                                                    {item.isPaid ? '✅ Paid' : '⏳ Unpaid'}
-                                                                </span>
-                                                            </label>
-                                                            {item.isPaid && item.paidAt && (
-                                                                <small className="paid-date">
-                                                                    {new Date(item.paidAt).toLocaleDateString()}
-                                                                </small>
-                                                            )}
+                                                            {reg.familyMembers && reg.familyMembers.length > 0 ? (
+                                                                <ul className="family-list">
+                                                                    {reg.familyMembers.map((fm, idx) => (
+                                                                        <li key={idx}>
+                                                                            {fm.name} ({fm.relation}, {fm.age} yrs)
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            ) : 'None'}
                                                         </td>
-                                                        <td>
-                                                            <button
-                                                                className="delete-btn"
-                                                                onClick={() => handleDeleteAuctionItem(item.id)}
-                                                            >
-                                                                🗑️ Delete
-                                                            </button>
-                                                        </td>
-
+                                                        <td>{1 + (reg.familyMembers ? reg.familyMembers.length : 0)}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>
-                                            <tfoot>
-                                                <tr className="total-row">
-                                                    <td colSpan="3"><strong>TOTAL AMOUNT</strong></td>
-                                                    <td><strong>₹{calculateTotalAmount().toLocaleString('en-IN')}</strong></td>
-                                                    <td colSpan="2">
-                                                        <span className="payment-summary">
-                                                            Paid: ₹{auctionItems.filter(i => i.isPaid).reduce((sum, i) => sum + i.price, 0).toLocaleString('en-IN')}
-                                                            {' | '}
-                                                            Pending: ₹{auctionItems.filter(i => !i.isPaid).reduce((sum, i) => sum + i.price, 0).toLocaleString('en-IN')}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            </tfoot>
                                         </table>
                                     </div>
                                 )}
                             </div>
+                        )}
+                    </div>
+                )}
+                {/* MEMBERS TAB */}
+                {activeTab === 'members' && (
+                    <div className="members-section">
+                        <div className="members-header">
+                            <h2>👥 All Registered Members ({filteredMembers.length})</h2>
+                            {members.length > 0 && (
+                                <button onClick={exportMembersToExcel} className="export-btn">
+                                    📊 Export to Excel
+                                </button>
+                            )}
                         </div>
-                    )}
-                    {/* NEW MEMBER REGISTRATIONS TAB */}
-                    {activeTab === 'new_members' && (
-                        <div className="new-members-section" style={{ padding: '2rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                                <h2 style={{ margin: 0, color: '#F4B41A' }}>🆕 New Member Registered Details ({newMemberRegistrations.length})</h2>
-                            </div>
 
-                            {newMemberRegistrations.length === 0 ? (
-                                <p className="no-data">No new member registrations found.</p>
-                            ) : (
-                                <div className="registrations-grid" style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-                                    gap: '1.5rem'
-                                }}>
-                                    {newMemberRegistrations.map(reg => (
-                                        <div key={reg.id} className="member-detail-card" style={{
-                                            background: 'rgba(255, 255, 255, 0.05)',
-                                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                                            borderRadius: '12px',
-                                            padding: '1.5rem',
-                                            position: 'relative'
-                                        }}>
+                        {members.length > 0 && (
+                            <div className="search-bar-container">
+                                <input
+                                    type="text"
+                                    placeholder="🔍 Search by name, email, phone, kovil, pirivu, native place, patta per, hyderabad area..."
+                                    className="member-search-input"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                                {searchTerm && (
+                                    <button className="clear-search-btn" onClick={() => setSearchTerm('')}>
+                                        Clear
+                                    </button>
+                                )}
+                            </div>
+                        )}
+
+                        {filteredMembers.length === 0 ? (
+                            <p className="no-data">
+                                {searchTerm ? `No members found matching "${searchTerm}"` : 'No members registered yet.'}
+                            </p>
+                        ) : (
+                            <div className="members-grid">
+                                {filteredMembers.map(member => (
+                                    <div key={member.id} className="member-detail-card">
+                                        <div className="member-card-header">
+                                            <div className="member-avatar-section">
+                                                {member.profileImage ? (
+                                                    <img
+                                                        src={member.profileImage}
+                                                        alt={member.name}
+                                                        className="member-avatar-img"
+                                                    />
+                                                ) : (
+                                                    <div className="member-avatar-placeholder">
+                                                        {member.name ? member.name.charAt(0).toUpperCase() : '?'}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="member-name-section">
+                                                <h3>{member.name} <span className="age-badge">({member.age} yrs)</span></h3>
+                                                <div className="status-container">
+                                                    <span className={`status-badge ${member.atHyderabad ? 'in-hyd' : 'out-hyd'}`}>
+                                                        {member.atHyderabad ? '📍 Hyderabad' : '🏠 Other'}
+                                                    </span>
+                                                    {member.atHyderabad && member.hyderabadArea && (
+                                                        <span className="area-badge">
+                                                            🏙️ {member.hyderabadArea}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* --- DELETE BUTTON --- */}
                                             <button
                                                 className="delete-icon-btn"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    handleDeleteNewMemberRegistration(reg.id);
+                                                    handleDeleteMember(member.id);
                                                 }}
-                                                title="Delete Registration"
+                                                title="Delete Member"
                                                 style={{
-                                                    position: 'absolute',
-                                                    top: '1rem',
-                                                    right: '1rem',
                                                     background: 'rgba(255, 0, 0, 0.1)',
                                                     border: 'none',
                                                     borderRadius: '50%',
@@ -3345,176 +2174,1344 @@ const AdminDashboard = () => {
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
                                                     cursor: 'pointer',
-                                                    color: 'white'
+                                                    marginLeft: 'auto',
+                                                    fontSize: '1.2rem'
                                                 }}
                                             >
                                                 🗑️
                                             </button>
+                                        </div>
 
-                                            <h3 style={{ margin: '0 0 1rem 0', color: '#F4B41A' }}>{reg.name}</h3>
+                                        <div className="member-info">
+                                            <p><strong>📧 Email:</strong> {member.email}</p>
+                                            <p><strong>📱 Phone:</strong> {member.phone}</p>
+                                            <p><strong>🛕 Kovil:</strong> {member.kovil}</p>
+                                            <p><strong>🔖 Pirivu:</strong> {member.pirivu}</p>
+                                            <p><strong>🏘️ Native:</strong> {member.nativePlace}</p>
+                                            <p><strong>📋 Patta Per:</strong> {member.pattaPer}</p>
+                                        </div>
 
-                                            <div className="info-grid" style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>
-                                                <p><strong>🎂 Age:</strong> {reg.age}</p>
-                                                <p><strong>📧 Email:</strong> {reg.email}</p>
-                                                <p><strong>📱 Phone:</strong> {reg.phone}</p>
-                                                <hr style={{ border: '0.5px solid rgba(255, 255, 255, 0.1)', margin: '1rem 0' }} />
-                                                <p><strong>🛕 Kovil:</strong> {reg.kovil}</p>
-                                                <p><strong>🔖 Pirivu:</strong> {reg.pirivu}</p>
-                                                <p><strong>🏘️ Native:</strong> {reg.nativePlace}</p>
-                                                <p><strong>📋 Patta Per:</strong> {reg.pattaPer}</p>
-                                                <p><strong>📍 In Hyd:</strong> {reg.atHyderabad === 'yes' ? '✅ Yes' : '❌ No'}</p>
-                                                <hr style={{ border: '0.5px solid rgba(255, 255, 255, 0.1)', margin: '1rem 0' }} />
-                                                <p><strong>🏠 Address:</strong> {reg.address}</p>
-                                                <p><strong>🏙️ City:</strong> {reg.city}, {reg.state} - {reg.pincode}</p>
+                                        {/* Family Members Section */}
+                                        <div className="family-section">
+                                            <h4>👥 Family Members ({member.familyMembers?.length || 0}):</h4>
+                                            {member.familyMembers && member.familyMembers.length > 0 ? (
+                                                <div className="family-list">
+                                                    {member.familyMembers.map((fm, idx) => (
+                                                        <div key={idx} className="family-member-tag">
+                                                            {fm.name} ({fm.relation}, {fm.age} yrs)
+                                                            {fm.phone && ` 📱 ${fm.phone}`}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="no-family">No family members added</p>
+                                            )}
+                                        </div>
 
-                                                {reg.familyMembers && reg.familyMembers.length > 0 && (
-                                                    <div style={{ marginTop: '1rem' }}>
-                                                        <strong>👨‍👩‍👧‍👦 Family ({reg.familyMembers.length}):</strong>
-                                                        <ul style={{ paddingLeft: '1.2rem', marginTop: '0.5rem' }}>
-                                                            {reg.familyMembers.map((fm, idx) => (
-                                                                <li key={idx} style={{ fontSize: '0.85rem' }}>
-                                                                    {fm.name} ({fm.relation}, {fm.age}y)
-                                                                </li>
-                                                            ))}
-                                                        </ul>
+                                        <div className="member-footer">
+                                            <small>Joined: {member.createdAt ? new Date(member.createdAt).toLocaleDateString() : 'N/A'}</small>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+
+                {/* GUEST RECORDS TAB - NEW FEATURE */}
+                {activeTab === 'guests' && (
+                    <div className="guest-records-section">
+                        <h2>🎫 Guest Registration Records</h2>
+                        <GuestRecordsContent />
+                    </div>
+                )}
+                {/* VOTING TAB */}
+                {activeTab === 'voting' && (
+                    <div className="voting-section">
+                        <h2>🗳️ Voting Management</h2>
+
+                        <div className="create-poll-section">
+                            <h3>Create New Poll</h3>
+                            <form onSubmit={handleCreatePoll} className="poll-form">
+                                <div className="form-group">
+                                    <label>Poll Title</label>
+                                    <input
+                                        type="text"
+                                        value={pollForm.title}
+                                        onChange={(e) => setPollForm({ ...pollForm, title: e.target.value })}
+                                        required
+                                        placeholder="e.g., Committee Election 2026"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Description</label>
+                                    <textarea
+                                        value={pollForm.description}
+                                        onChange={(e) => setPollForm({ ...pollForm, description: e.target.value })}
+                                        placeholder="Poll description..."
+                                        rows="3"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>End Date</label>
+                                    <input
+                                        type="datetime-local"
+                                        value={pollForm.endDate}
+                                        onChange={(e) => setPollForm({ ...pollForm, endDate: e.target.value })}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="role-builder">
+                                    <h4>Add Roles & Candidates</h4>
+                                    <div className="form-group">
+                                        <label>Role Name (e.g., President, Secretary)</label>
+                                        <input
+                                            type="text"
+                                            value={roleForm.roleName}
+                                            onChange={(e) => setRoleForm({ ...roleForm, roleName: e.target.value })}
+                                            placeholder="Enter role name"
+                                        />
+                                    </div>
+
+                                    <div className="candidates-builder">
+                                        <label>Candidates for {roleForm.roleName || 'this role'}</label>
+                                        <div className="candidate-input-row">
+                                            <input
+                                                type="text"
+                                                value={candidateName}
+                                                onChange={(e) => setCandidateName(e.target.value)}
+                                                placeholder="Candidate name"
+                                                onKeyPress={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        handleAddCandidate();
+                                                    }
+                                                }}
+                                            />
+                                            <button type="button" onClick={handleAddCandidate} className="add-btn">
+                                                ➕ Add Candidate
+                                            </button>
+                                        </div>
+
+                                        {roleForm.candidates.length > 0 && (
+                                            <div className="candidates-list">
+                                                {roleForm.candidates.map((candidate, idx) => (
+                                                    <div key={idx} className="candidate-item">
+                                                        <span>{candidate.name}</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveCandidate(idx)}
+                                                            className="remove-btn-small"
+                                                        >
+                                                            ✕
+                                                        </button>
                                                     </div>
-                                                )}
+                                                ))}
                                             </div>
-                                            <div style={{ marginTop: '1.5rem', fontSize: '0.8rem', opacity: 0.5, textAlign: 'right' }}>
-                                                Registered: {reg.timestamp?.toDate ? reg.timestamp.toDate().toLocaleString() : new Date(reg.timestamp).toLocaleString()}
+                                        )}
+                                    </div>
+
+                                    <button type="button" onClick={handleAddRole} className="add-role-btn">
+                                        ➕ Add Role to Poll
+                                    </button>
+                                </div>
+
+                                {pollForm.roles.length > 0 && (
+                                    <div className="roles-preview">
+                                        <h4>Roles in This Poll ({pollForm.roles.length})</h4>
+                                        {pollForm.roles.map((role, idx) => (
+                                            <div key={idx} className="role-preview-card">
+                                                <div className="role-preview-header">
+                                                    <strong>{role.roleName}</strong>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveRole(idx)}
+                                                        className="remove-btn-small"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                                <div className="candidates-preview">
+                                                    {role.candidates.map((c, i) => (
+                                                        <span key={i} className="candidate-tag">{c.name}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <button type="submit" className="submit-btn">Create Poll</button>
+                            </form>
+                        </div>
+
+                        <div className="polls-list-section">
+                            <h3>All Polls</h3>
+                            {polls.length === 0 ? (
+                                <p className="no-data">No polls created yet.</p>
+                            ) : (
+                                <div className="polls-grid">
+                                    {polls.map(poll => (
+                                        <div key={poll.id} className={`poll-card ${poll.status}`}>
+                                            <div className="poll-card-header">
+                                                <h4>{poll.title}</h4>
+                                                <span className={`status-badge ${poll.status}`}>
+                                                    {poll.status === 'active' ? '🟢 Active' : '🔴 Closed'}
+                                                </span>
+                                            </div>
+                                            <p>{poll.description}</p>
+                                            <p><strong>End Date:</strong> {new Date(poll.endDate).toLocaleString()}</p>
+                                            <p><strong>Roles:</strong> {poll.roles.length}</p>
+                                            <div className="poll-actions">
+                                                <button onClick={() => handleViewResults(poll)} className="view-results-btn">
+                                                    📊 View Results
+                                                </button>
+                                                <button onClick={() => exportPollResults(poll)} className="export-btn">
+                                                    📥 Export Excel
+                                                </button>
+                                                {poll.status === 'active' && (
+                                                    <button onClick={() => handleClosePoll(poll.id)} className="close-poll-btn">
+                                                        🔒 Close Poll
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() => handleDeletePoll(poll.id)}
+                                                    className="delete-poll-btn"
+                                                    style={{ backgroundColor: '#dc3545', color: 'white', marginTop: '10px' }}
+                                                >
+                                                    🗑️ Delete Poll
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
                         </div>
-                    )}
-                    {/* GALLERY HANDLING TAB */}
-                    {activeTab === 'gallery' && (
-                        <div className="gallery-mgmt-section" style={{ padding: '2rem' }}>
-                            <h2 style={{ color: '#F4B41A', marginBottom: '2rem' }}>🖼️ Gallery Handling</h2>
 
-                            {/* Create Event Form */}
-                            <div className="admin-form-card" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '2rem', borderRadius: '15px', marginBottom: '3rem' }}>
-                                <h3>Add New Gallery Event</h3>
-                                <form onSubmit={handleCreateGalleryEvent} className="admin-form">
-                                    <div className="form-row">
-                                        <div className="form-group">
-                                            <label>Event Title</label>
-                                            <input type="text" value={galleryForm.title} onChange={(e) => setGalleryForm({ ...galleryForm, title: e.target.value })} required placeholder="e.g., Sangamam 2025" />
-                                        </div>
-                                        <div className="form-group">
-                                            <label>Category</label>
-                                            <select value={galleryForm.category} onChange={(e) => setGalleryForm({ ...galleryForm, category: e.target.value })}>
-                                                <option value="events">Events</option>
-                                                <option value="religious">Religious</option>
-                                            </select>
-                                        </div>
+                        {selectedPoll && (
+                            <div className="results-modal">
+                                <div className="results-modal-content">
+                                    <button onClick={() => setSelectedPoll(null)} className="close-modal-btn">✕</button>
+                                    <h3>Results: {selectedPoll.title}</h3>
+                                    <p>Total Voters: {selectedPoll.votes.length}</p>
+
+                                    {selectedPoll.roles.map((role, idx) => {
+                                        const roleCandidates = role.candidates.map(candidate => {
+                                            const votes = selectedPoll.votes.filter(v =>
+                                                v.votes.some(vote => vote.roleName === role.roleName && vote.candidateName === candidate.name)
+                                            ).length;
+                                            return { ...candidate, votes };
+                                        });
+
+                                        const totalRoleVotes = roleCandidates.reduce((sum, c) => sum + c.votes, 0);
+
+                                        return (
+                                            <div key={idx} className="role-results">
+                                                <h4>{role.roleName}</h4>
+                                                <div className="candidates-results">
+                                                    {roleCandidates.map((candidate, i) => {
+                                                        const percentage = totalRoleVotes > 0 ? ((candidate.votes / totalRoleVotes) * 100).toFixed(2) : '0';
+                                                        return (
+                                                            <div key={i} className="candidate-result">
+                                                                <div className="candidate-result-header">
+                                                                    <span>{candidate.name}</span>
+                                                                    <span>{candidate.votes} votes ({percentage}%)</span>
+                                                                </div>
+                                                                <div className="result-bar">
+                                                                    <div className="result-bar-fill" style={{ width: `${percentage}%` }}></div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+                {/* MOMs TAB */}
+                {activeTab === 'moms' && (
+                    <div className="moms-section">
+                        <h2>📋 Minutes of Meeting (MOMs)</h2>
+
+                        <div className="moms-form-section">
+                            <h3>{editingMom ? '✏️ Edit MOM' : '➕ Create New MOM'}</h3>
+                            <form onSubmit={editingMom ? handleUpdateMom : handleCreateMom} className="mom-form">
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Date</label>
+                                        <input
+                                            type="date"
+                                            value={momForm.date}
+                                            onChange={(e) => setMomForm({ ...momForm, date: e.target.value })}
+                                            required
+                                        />
                                     </div>
                                     <div className="form-group">
-                                        <label>Description</label>
-                                        <textarea value={galleryForm.description} onChange={(e) => setGalleryForm({ ...galleryForm, description: e.target.value })} required placeholder="Full description of the event..." />
+                                        <label>Time</label>
+                                        <input
+                                            type="time"
+                                            value={momForm.time}
+                                            onChange={(e) => setMomForm({ ...momForm, time: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Venue Type</label>
+                                    <div className="radio-group">
+                                        <label className="radio-label">
+                                            <input
+                                                type="radio"
+                                                value="online"
+                                                checked={momForm.venueType === 'online'}
+                                                onChange={(e) => setMomForm({ ...momForm, venueType: e.target.value, venueLocation: '' })}
+                                            />
+                                            <span>💻 Online</span>
+                                        </label>
+                                        <label className="radio-label">
+                                            <input
+                                                type="radio"
+                                                value="offline"
+                                                checked={momForm.venueType === 'offline'}
+                                                onChange={(e) => setMomForm({ ...momForm, venueType: e.target.value })}
+                                            />
+                                            <span>🏢 Offline</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {momForm.venueType === 'offline' && (
+                                    <div className="form-group">
+                                        <label>Venue Location</label>
+                                        <input
+                                            type="text"
+                                            value={momForm.venueLocation}
+                                            onChange={(e) => setMomForm({ ...momForm, venueLocation: e.target.value })}
+                                            required
+                                            placeholder="Enter venue location"
+                                        />
+                                    </div>
+                                )}
+
+                                <div className="form-group">
+                                    <label>Participants</label>
+                                    <textarea
+                                        value={momForm.participants}
+                                        onChange={(e) => setMomForm({ ...momForm, participants: e.target.value })}
+                                        required
+                                        placeholder="Enter participant names (comma separated)"
+                                        rows="3"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Meeting Summary</label>
+                                    <textarea
+                                        value={momForm.summary}
+                                        onChange={(e) => setMomForm({ ...momForm, summary: e.target.value })}
+                                        required
+                                        placeholder="Enter meeting summary and key points discussed..."
+                                        rows="6"
+                                    />
+                                </div>
+
+                                <div className="form-actions">
+                                    <button type="submit" className="submit-btn">
+                                        {editingMom ? '💾 Update MOM' : '➕ Create MOM'}
+                                    </button>
+                                    {editingMom && (
+                                        <button
+                                            type="button"
+                                            className="cancel-btn"
+                                            onClick={() => {
+                                                setEditingMom(null);
+                                                setMomForm({
+                                                    date: '',
+                                                    time: '',
+                                                    venueType: 'online',
+                                                    venueLocation: '',
+                                                    participants: '',
+                                                    summary: ''
+                                                });
+                                            }}
+                                        >
+                                            ❌ Cancel
+                                        </button>
+                                    )}
+                                </div>
+                            </form>
+                        </div>
+
+                        <div className="moms-list-section">
+                            <h3>All MOMs</h3>
+                            {moms.length === 0 ? (
+                                <p className="no-data">No MOMs created yet.</p>
+                            ) : (
+                                <div className="moms-grid">
+                                    {moms.map(mom => (
+                                        <div key={mom.id} className="mom-card">
+                                            <div className="mom-header">
+                                                <h4>📅 {mom.date} • ⏰ {mom.time}</h4>
+                                                <span className="venue-badge">
+                                                    {mom.venueType === 'online' ? '💻 Online' : `🏢 ${mom.venueLocation}`}
+                                                </span>
+                                            </div>
+                                            <div className="mom-content">
+                                                <p><strong>👥 Participants:</strong> {mom.participants}</p>
+                                                <p><strong>📝 Summary:</strong></p>
+                                                <p className="mom-summary">{mom.summary}</p>
+                                            </div>
+                                            <div className="mom-actions">
+                                                <button onClick={() => handleEditMom(mom)} className="edit-btn">
+                                                    ✏️ Edit
+                                                </button>
+                                                <button onClick={() => handleDeleteMom(mom.id)} className="delete-btn">
+                                                    🗑️ Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+                {/* CARETAKERS TAB */}
+                {activeTab === 'caretakers' && (
+                    <div className="caretakers-section">
+                        <h2>👷 Caretakers Management</h2>
+
+                        <div className="caretakers-form-section">
+                            <h3>{editingCaretaker ? '✏️ Edit Caretaker' : '➕ Add New Caretaker'}</h3>
+                            <form onSubmit={editingCaretaker ? handleUpdateCaretaker : handleCreateCaretaker} className="caretaker-form">
+                                <div className="form-group">
+                                    <label>Name</label>
+                                    <input
+                                        type="text"
+                                        value={caretakerForm.name}
+                                        onChange={(e) => setCaretakerForm({ ...caretakerForm, name: e.target.value })}
+                                        required
+                                        placeholder="Enter caretaker name"
+                                    />
+                                </div>
+
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Phone</label>
+                                        <input
+                                            type="tel"
+                                            value={caretakerForm.phone}
+                                            onChange={(e) => setCaretakerForm({ ...caretakerForm, phone: e.target.value })}
+                                            required
+                                            placeholder="Enter phone number"
+                                        />
                                     </div>
                                     <div className="form-group">
-                                        <label>Thumbnail Image</label>
-                                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                            <label className="browser-btn secondary" style={{ cursor: 'pointer', margin: 0, flex: 1, padding: '12px', textAlign: 'center', background: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.2)', borderRadius: '8px' }}>
-                                                {galleryForm.thumbnail ? '✅ Thumbnail Selected' : '💻 Select Thumbnail from Computer'}
-                                                <input type="file" hidden accept="image/*" onChange={handleThumbnailLocalUpload} />
-                                            </label>
-                                            {galleryForm.thumbnail && (
-                                                <div style={{ width: '50px', height: '50px', borderRadius: '5px', overflow: 'hidden', border: '1px solid #F4B41A' }}>
-                                                    <img src={galleryForm.thumbnail} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <label>Email</label>
+                                        <input
+                                            type="email"
+                                            value={caretakerForm.email}
+                                            onChange={(e) => setCaretakerForm({ ...caretakerForm, email: e.target.value })}
+                                            placeholder="Enter email (optional)"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Address</label>
+                                    <textarea
+                                        value={caretakerForm.address}
+                                        onChange={(e) => setCaretakerForm({ ...caretakerForm, address: e.target.value })}
+                                        required
+                                        placeholder="Enter address"
+                                        rows="2"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Responsibility</label>
+                                    <input
+                                        type="text"
+                                        value={caretakerForm.responsibility}
+                                        onChange={(e) => setCaretakerForm({ ...caretakerForm, responsibility: e.target.value })}
+                                        required
+                                        placeholder="e.g., Temple Cleaning, Security"
+                                    />
+                                </div>
+
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Joining Date</label>
+                                        <input
+                                            type="date"
+                                            value={caretakerForm.joiningDate}
+                                            onChange={(e) => setCaretakerForm({ ...caretakerForm, joiningDate: e.target.value })}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Salary (₹)</label>
+                                        <input
+                                            type="number"
+                                            value={caretakerForm.salary}
+                                            onChange={(e) => setCaretakerForm({ ...caretakerForm, salary: e.target.value })}
+                                            required
+                                            placeholder="Enter monthly salary"
+                                            min="0"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-actions">
+                                    <button type="submit" className="submit-btn">
+                                        {editingCaretaker ? '💾 Update Caretaker' : '➕ Add Caretaker'}
+                                    </button>
+                                    {editingCaretaker && (
+                                        <button
+                                            type="button"
+                                            className="cancel-btn"
+                                            onClick={() => {
+                                                setEditingCaretaker(null);
+                                                setCaretakerForm({
+                                                    name: '',
+                                                    phone: '',
+                                                    email: '',
+                                                    address: '',
+                                                    responsibility: '',
+                                                    joiningDate: '',
+                                                    salary: ''
+                                                });
+                                            }}
+                                        >
+                                            ❌ Cancel
+                                        </button>
+                                    )}
+                                </div>
+                            </form>
+                        </div>
+
+                        <div className="caretakers-list-section">
+                            <h3>All Caretakers</h3>
+                            {caretakers.length === 0 ? (
+                                <p className="no-data">No caretakers added yet.</p>
+                            ) : (
+                                <div className="caretakers-grid">
+                                    {caretakers.map(caretaker => (
+                                        <div key={caretaker.id} className="caretaker-card">
+                                            <div className="caretaker-header">
+                                                <h4>👤 {caretaker.name}</h4>
+                                                <span className="salary-badge">💰 ₹{caretaker.salary}/month</span>
+                                            </div>
+                                            <div className="caretaker-info">
+                                                <p><strong>📱 Phone:</strong> {caretaker.phone}</p>
+                                                {caretaker.email && <p><strong>📧 Email:</strong> {caretaker.email}</p>}
+                                                <p><strong>📍 Address:</strong> {caretaker.address}</p>
+                                                <p><strong>💼 Responsibility:</strong> {caretaker.responsibility}</p>
+                                                <p><strong>📅 Joined:</strong> {new Date(caretaker.joiningDate).toLocaleDateString()}</p>
+                                            </div>
+                                            <div className="caretaker-actions">
+                                                <button onClick={() => handleEditCaretaker(caretaker)} className="edit-btn">
+                                                    ✏️ Edit
+                                                </button>
+                                                <button onClick={() => handleDeleteCaretaker(caretaker.id)} className="delete-btn">
+                                                    🗑️ Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+                {/* BUDGET TAB */}
+                {activeTab === 'budget' && (
+                    <div className="budget-section">
+                        <div className="section-header">
+                            <h2 className="section-title">💰 Budget Planning</h2>
+                            <p className="section-subtitle">Plan and manage event budgets efficiently</p>
+                        </div>
+
+                        <div className="budget-form-section">
+                            <div className="form-card">
+                                <div className="form-card-header">
+                                    <h3>➕ Create New Budget Plan</h3>
+                                </div>
+
+                                <form onSubmit={handleCreateBudget} className="budget-form">
+                                    <div className="form-section">
+                                        <h4 className="form-section-title">Event Details</h4>
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <label>Event Name *</label>
+                                                <input
+                                                    type="text"
+                                                    value={budgetForm.eventName}
+                                                    onChange={(e) => setBudgetForm({ ...budgetForm, eventName: e.target.value })}
+                                                    required
+                                                    placeholder="Enter event name"
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Event Date *</label>
+                                                <input
+                                                    type="date"
+                                                    value={budgetForm.eventDate}
+                                                    onChange={(e) => setBudgetForm({ ...budgetForm, eventDate: e.target.value })}
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-section category-builder">
+                                        <h4 className="form-section-title">Add Budget Category</h4>
+                                        <div className="form-group">
+                                            <label>Category Name</label>
+                                            <input
+                                                type="text"
+                                                value={budgetCategory.categoryName}
+                                                onChange={(e) => setBudgetCategory({ ...budgetCategory, categoryName: e.target.value })}
+                                                placeholder="e.g., Food, Decoration, Transport"
+                                            />
+                                        </div>
+
+                                        <div className="items-builder">
+                                            <h5 className="items-subtitle">Add Items to Category</h5>
+                                            <div className="item-input-grid">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Item name"
+                                                    value={budgetItem.itemName}
+                                                    onChange={(e) => setBudgetItem({ ...budgetItem, itemName: e.target.value })}
+                                                    className="item-input"
+                                                />
+                                                <input
+                                                    type="number"
+                                                    placeholder="Quantity"
+                                                    value={budgetItem.quantity}
+                                                    onChange={(e) => setBudgetItem({ ...budgetItem, quantity: e.target.value })}
+                                                    min="0"
+                                                    step="0.01"
+                                                    className="item-input"
+                                                />
+                                                <input
+                                                    type="number"
+                                                    placeholder="Unit Price (₹)"
+                                                    value={budgetItem.unitPrice}
+                                                    onChange={(e) => setBudgetItem({ ...budgetItem, unitPrice: e.target.value })}
+                                                    min="0"
+                                                    step="0.01"
+                                                    className="item-input"
+                                                />
+                                                <button type="button" onClick={handleAddBudgetItem} className="add-item-btn">
+                                                    ➕ Add Item
+                                                </button>
+                                            </div>
+
+                                            {budgetCategory.items.length > 0 && (
+                                                <div className="items-list">
+                                                    <table className="items-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Item</th>
+                                                                <th>Quantity</th>
+                                                                <th>Unit Price</th>
+                                                                <th>Total</th>
+                                                                <th>Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {budgetCategory.items.map((item, idx) => (
+                                                                <tr key={idx}>
+                                                                    <td>{item.itemName}</td>
+                                                                    <td>{item.quantity}</td>
+                                                                    <td>₹{parseFloat(item.unitPrice).toFixed(2)}</td>
+                                                                    <td className="total-cell">₹{parseFloat(item.totalPrice).toFixed(2)}</td>
+                                                                    <td>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                const updatedItems = budgetCategory.items.filter((_, i) => i !== idx);
+                                                                                setBudgetCategory({ ...budgetCategory, items: updatedItems });
+                                                                            }}
+                                                                            className="remove-item-btn"
+                                                                        >
+                                                                            ✕
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                        <tfoot>
+                                                            <tr className="total-row">
+                                                                <td colSpan="3"><strong>Category Total</strong></td>
+                                                                <td className="total-cell">
+                                                                    <strong>₹{budgetCategory.items.reduce((sum, item) => sum + item.totalPrice, 0).toFixed(2)}</strong>
+                                                                </td>
+                                                                <td></td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
                                                 </div>
                                             )}
                                         </div>
-                                        <p style={{ fontSize: '0.8rem', opacity: 0.5, marginTop: '5px' }}>* Strict local upload only. No external URLs allowed.</p>
+
+                                        <button
+                                            type="button"
+                                            onClick={handleAddBudgetCategory}
+                                            className="add-category-btn"
+                                            disabled={!budgetCategory.categoryName || budgetCategory.items.length === 0}
+                                        >
+                                            ➕ Add Category to Budget
+                                        </button>
                                     </div>
-                                    <button type="submit" className="submit-btn" style={{ background: '#F4B41A', color: 'black', fontWeight: 'bold' }}>Create Gallery Event</button>
+
+                                    {budgetForm.categories.length > 0 && (
+                                        <div className="categories-preview">
+                                            <h4 className="preview-title">Budget Categories ({budgetForm.categories.length})</h4>
+                                            <div className="categories-preview-grid">
+                                                {budgetForm.categories.map((cat, idx) => (
+                                                    <div key={idx} className="category-preview-card">
+                                                        <div className="category-preview-header">
+                                                            <h5>{cat.categoryName}</h5>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleRemoveBudgetCategory(idx)}
+                                                                className="remove-category-btn"
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                        <div className="category-preview-body">
+                                                            <p className="items-count">{cat.items.length} items</p>
+                                                            <p className="category-total-amount">
+                                                                ₹{cat.items.reduce((sum, item) => sum + item.totalPrice, 0).toFixed(2)}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="grand-total-preview">
+                                                <strong>Grand Total:</strong>
+                                                <span className="grand-total-amount">
+                                                    ₹{budgetForm.categories.reduce((total, cat) =>
+                                                        total + cat.items.reduce((sum, item) => sum + item.totalPrice, 0), 0
+                                                    ).toFixed(2)}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <button type="submit" className="submit-btn budget-submit-btn" disabled={budgetForm.categories.length === 0}>
+                                        💾 Create Budget Plan
+                                    </button>
                                 </form>
                             </div>
+                        </div>
 
-                            {/* Events List */}
-                            <div className="events-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
-                                {galleryItems.map(item => (
-                                    <div key={item.id} className="admin-card" style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                                        <img src={item.thumbnail} alt={item.title} style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
-                                        <div style={{ padding: '1.5rem' }}>
-                                            <h4 style={{ color: '#F4B41A', margin: '0 0 0.5rem 0' }}>{item.title}</h4>
-                                            <p style={{ fontSize: '0.85rem', opacity: 0.8, height: '40px', overflow: 'hidden' }}>{item.description}</p>
-                                            <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
-                                                <button
-                                                    onClick={() => setSelectedGalleryEvent(item)}
-                                                    style={{ flex: 1, padding: '8px', borderRadius: '5px', background: 'transparent', border: '1px solid #F4B41A', color: '#F4B41A', cursor: 'pointer' }}
-                                                >
-                                                    📸 Manage Photos
+                        <div className="budgets-list-section">
+                            <h3 className="list-title">📋 All Budget Plans</h3>
+                            {budgets.length === 0 ? (
+                                <div className="no-data-card">
+                                    <div className="no-data-icon">📊</div>
+                                    <p className="no-data-text">No budget plans created yet.</p>
+                                    <p className="no-data-subtext">Create your first budget plan above to get started.</p>
+                                </div>
+                            ) : (
+                                <div className="budgets-grid">
+                                    {budgets.map(budget => (
+                                        <div key={budget.id} className="budget-card">
+                                            <div className="budget-card-header">
+                                                <div className="budget-title-section">
+                                                    <h4>🎯 {budget.eventName}</h4>
+                                                    <span className="budget-date">📅 {budget.eventDate}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="budget-card-body">
+                                                <div className="budget-stats">
+                                                    <div className="stat-item">
+                                                        <span className="stat-label">Categories</span>
+                                                        <span className="stat-value">{budget.categories.length}</span>
+                                                    </div>
+                                                    <div className="stat-item">
+                                                        <span className="stat-label">Total Items</span>
+                                                        <span className="stat-value">
+                                                            {budget.categories.reduce((sum, cat) => sum + cat.items.length, 0)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="budget-categories-list">
+                                                    {budget.categories.map((cat, idx) => (
+                                                        <div key={idx} className="budget-category-row">
+                                                            <span className="category-name-badge">{cat.categoryName}</span>
+                                                            <span className="category-amount-badge">
+                                                                ₹{cat.items.reduce((sum, item) => sum + item.totalPrice, 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div className="budget-card-footer">
+                                                <div className="budget-total-section">
+                                                    <span className="total-label">Total Budget</span>
+                                                    <span className="total-amount">₹{calculateBudgetTotal(budget).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                </div>
+                                                <div className="budget-actions">
+                                                    <button onClick={() => exportBudgetToExcel(budget)} className="action-btn export-btn">
+                                                        📊 Export
+                                                    </button>
+                                                    <button onClick={() => handleDeleteBudget(budget.id)} className="action-btn delete-btn">
+                                                        🗑️ Delete
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+                {/* STOCK TAB */}
+                {activeTab === 'stock' && (
+                    <div className="stock-section">
+                        <h2>📦 Stock Management</h2>
+
+                        <div className="stock-header-actions">
+                            {stocks.length > 0 && (
+                                <button onClick={exportStocksToExcel} className="export-btn">
+                                    📊 Export to Excel
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="stock-form-section">
+                            <h3>{editingStock ? '✏️ Edit Stock Item' : '➕ Add New Stock Item'}</h3>
+                            <form onSubmit={editingStock ? handleUpdateStock : handleCreateStock} className="stock-form">
+                                <div className="form-group">
+                                    <label>Item Name</label>
+                                    <input
+                                        type="text"
+                                        value={stockForm.itemName}
+                                        onChange={(e) => setStockForm({ ...stockForm, itemName: e.target.value })}
+                                        required
+                                        placeholder="Enter item name"
+                                    />
+                                </div>
+
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Quantity</label>
+                                        <input
+                                            type="number"
+                                            value={stockForm.quantity}
+                                            onChange={(e) => setStockForm({ ...stockForm, quantity: e.target.value })}
+                                            required
+                                            placeholder="Enter quantity"
+                                            min="0"
+                                            step="0.01"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Unit</label>
+                                        <input
+                                            type="text"
+                                            value={stockForm.unit}
+                                            onChange={(e) => setStockForm({ ...stockForm, unit: e.target.value })}
+                                            required
+                                            placeholder="e.g., kg, pieces, liters"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Category</label>
+                                        <input
+                                            type="text"
+                                            value={stockForm.category}
+                                            onChange={(e) => setStockForm({ ...stockForm, category: e.target.value })}
+                                            required
+                                            placeholder="e.g., Food, Equipment, Decorations"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Storage Location</label>
+                                        <input
+                                            type="text"
+                                            value={stockForm.location}
+                                            onChange={(e) => setStockForm({ ...stockForm, location: e.target.value })}
+                                            required
+                                            placeholder="Enter storage location"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-actions">
+                                    <button type="submit" className="submit-btn">
+                                        {editingStock ? '💾 Update Stock' : '➕ Add Stock'}
+                                    </button>
+                                    {editingStock && (
+                                        <button
+                                            type="button"
+                                            className="cancel-btn"
+                                            onClick={() => {
+                                                setEditingStock(null);
+                                                setStockForm({ itemName: '', quantity: '', unit: '', category: '', location: '' });
+                                            }}
+                                        >
+                                            ❌ Cancel
+                                        </button>
+                                    )}
+                                </div>
+                            </form>
+                        </div>
+
+                        <div className="stocks-list-section">
+                            <h3>All Stock Items</h3>
+                            {stocks.length === 0 ? (
+                                <p className="no-data">No stock items added yet.</p>
+                            ) : (
+                                <div className="stocks-grid">
+                                    {stocks.map(stock => (
+                                        <div key={stock.id} className="stock-card">
+                                            <div className="stock-header">
+                                                <h4>📦 {stock.itemName}</h4>
+                                                <span className="stock-quantity">
+                                                    {stock.quantity} {stock.unit}
+                                                </span>
+                                            </div>
+                                            <div className="stock-body">
+                                                <p><strong>🏷️ Category:</strong> {stock.category}</p>
+                                                <p><strong>📍 Location:</strong> {stock.location}</p>
+                                                <p><strong>📅 Added:</strong> {new Date(stock.createdAt).toLocaleDateString()}</p>
+                                            </div>
+
+                                            {stock.usageHistory && stock.usageHistory.length > 0 && (
+                                                <div className="usage-history">
+                                                    <strong>📋 Usage History ({stock.usageHistory.length})</strong>
+                                                    <ul>
+                                                        {stock.usageHistory.map((usage, idx) => (
+                                                            <li key={idx} className={usage.returned ? 'returned' : ''}>
+                                                                <div>
+                                                                    <strong>{usage.eventName}</strong>
+                                                                    <span> - {usage.usedQuantity} {stock.unit}</span>
+                                                                    <div style={{ fontSize: '0.85rem', opacity: 0.7 }}>
+                                                                        {new Date(usage.usageDate).toLocaleDateString()}
+                                                                        {usage.returned && ` • Returned: ${usage.returnedQuantity} ${stock.unit}`}
+                                                                    </div>
+                                                                </div>
+                                                                {!usage.returned && (
+                                                                    <button
+                                                                        onClick={() => handleStockReturn(stock, idx)}
+                                                                        className="return-btn-small"
+                                                                    >
+                                                                        ↩️ Return
+                                                                    </button>
+                                                                )}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+
+                                            <div className="stock-actions">
+                                                <button onClick={() => handleStockUsage(stock)} className="usage-btn">
+                                                    📤 Use Stock
                                                 </button>
-                                                <button
-                                                    onClick={() => handleDeleteGalleryEvent(item.id)}
-                                                    style={{ padding: '8px', borderRadius: '5px', background: 'rgba(255, 0, 0, 0.2)', border: 'none', color: '#ff4444', cursor: 'pointer' }}
-                                                >
-                                                    🗑️
+                                                <button onClick={() => handleEditStock(stock)} className="edit-btn">
+                                                    ✏️ Edit
+                                                </button>
+                                                <button onClick={() => handleDeleteStock(stock.id)} className="delete-btn">
+                                                    🗑️ Delete
                                                 </button>
                                             </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+
+                {/* AUCTION TAB */}
+                {activeTab === 'auction' && (
+                    <div className="auction-section">
+                        <h2>🔨 Auction Records</h2>
+
+                        <div className="year-selector-container">
+                            <label className="year-selector-label">📅 SELECT YEAR:</label>
+                            <div className="year-selector-wrapper">
+                                <select
+                                    value={selectedYear}
+                                    onChange={(e) => {
+                                        const newYear = parseInt(e.target.value);
+                                        setSelectedYear(newYear);           // 1️⃣ Change the year
+                                        fetchAuctionItems(newYear);         // 2️⃣ Load items for that year
+                                    }}
+                                    className="year-select-professional"
+                                >
+
+                                    {Array.from({ length: 101 }, (_, i) => 2000 + i).map(year => (
+                                        <option key={year} value={year}>
+                                            {year}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="year-dropdown-icon">▼</div>
+                            </div>
+                        </div>
+
+
+                        <div className="auction-form-section">
+                            <h3>➕ Add Auction Item for {selectedYear}</h3>
+                            <form onSubmit={handleAddAuctionItem} className="auction-form">
+                                <div className="form-group">
+                                    <label>Item Name</label>
+                                    <input
+                                        type="text"
+                                        name="itemName"
+                                        value={auctionForm.itemName}
+                                        onChange={handleAuctionInputChange}
+                                        required
+                                        placeholder="Enter item name"
+                                    />
+                                </div>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Buyer Name</label>
+                                        <input
+                                            type="text"
+                                            name="buyerName"
+                                            value={auctionForm.buyerName}
+                                            onChange={handleAuctionInputChange}
+                                            required
+                                            placeholder="Enter buyer name"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Price (₹)</label>
+                                        <input
+                                            type="number"
+                                            name="price"
+                                            value={auctionForm.price}
+                                            onChange={handleAuctionInputChange}
+                                            required
+                                            placeholder="Enter price"
+                                            min="0"
+                                            step="0.01"
+                                        />
+                                    </div>
+                                </div>
+                                <button type="submit" className="submit-btn">Add Auction Item</button>
+                            </form>
+                        </div>
+
+                        <div className="auction-list-section">
+                            <div className="auction-header">
+                                <h3>Auction Items - {selectedYear}</h3>
+                                {auctionItems.length > 0 && (
+                                    <button onClick={exportAuctionToExcel} className="export-btn">
+                                        📊 Export to Excel
+                                    </button>
+                                )}
+                            </div>
+
+                            {auctionItems.length === 0 ? (
+                                <p className="no-data">No auction items for {selectedYear}.</p>
+                            ) : (
+                                <div className="auction-table-container">
+                                    <table className="auction-table">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No</th>
+                                                <th>Item Name</th>
+                                                <th>Buyer Name</th>
+                                                <th>Price (₹)</th>
+                                                <th>Payment Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {auctionItems.map((item, index) => (
+                                                <tr key={item.id}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{item.itemName}</td>
+                                                    <td>{item.buyerName}</td>
+                                                    <td>₹{item.price.toLocaleString('en-IN')}</td>
+                                                    <td>
+                                                        <label className="payment-toggle">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={item.isPaid}
+                                                                onChange={() => handleTogglePayment(item.id, item.isPaid)}
+                                                            />
+                                                            <span className={`payment-status ${item.isPaid ? 'paid' : 'unpaid'}`}>
+                                                                {item.isPaid ? '✅ Paid' : '⏳ Unpaid'}
+                                                            </span>
+                                                        </label>
+                                                        {item.isPaid && item.paidAt && (
+                                                            <small className="paid-date">
+                                                                {new Date(item.paidAt).toLocaleDateString()}
+                                                            </small>
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            className="delete-btn"
+                                                            onClick={() => handleDeleteAuctionItem(item.id)}
+                                                        >
+                                                            🗑️ Delete
+                                                        </button>
+                                                    </td>
+
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr className="total-row">
+                                                <td colSpan="3"><strong>TOTAL AMOUNT</strong></td>
+                                                <td><strong>₹{calculateTotalAmount().toLocaleString('en-IN')}</strong></td>
+                                                <td colSpan="2">
+                                                    <span className="payment-summary">
+                                                        Paid: ₹{auctionItems.filter(i => i.isPaid).reduce((sum, i) => sum + i.price, 0).toLocaleString('en-IN')}
+                                                        {' | '}
+                                                        Pending: ₹{auctionItems.filter(i => !i.isPaid).reduce((sum, i) => sum + i.price, 0).toLocaleString('en-IN')}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+                {/* NEW MEMBER REGISTRATIONS TAB */}
+                {activeTab === 'new_members' && (
+                    <div className="new-members-section" style={{ padding: '2rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                            <h2 style={{ margin: 0, color: '#F4B41A' }}>🆕 New Member Registered Details ({newMemberRegistrations.length})</h2>
+                        </div>
+
+                        {newMemberRegistrations.length === 0 ? (
+                            <p className="no-data">No new member registrations found.</p>
+                        ) : (
+                            <div className="registrations-grid" style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+                                gap: '1.5rem'
+                            }}>
+                                {newMemberRegistrations.map(reg => (
+                                    <div key={reg.id} className="member-detail-card" style={{
+                                        background: 'rgba(255, 255, 255, 0.05)',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        borderRadius: '12px',
+                                        padding: '1.5rem',
+                                        position: 'relative'
+                                    }}>
+                                        <button
+                                            className="delete-icon-btn"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteNewMemberRegistration(reg.id);
+                                            }}
+                                            title="Delete Registration"
+                                            style={{
+                                                position: 'absolute',
+                                                top: '1rem',
+                                                right: '1rem',
+                                                background: 'rgba(255, 0, 0, 0.1)',
+                                                border: 'none',
+                                                borderRadius: '50%',
+                                                width: '35px',
+                                                height: '35px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                cursor: 'pointer',
+                                                color: 'white'
+                                            }}
+                                        >
+                                            🗑️
+                                        </button>
+
+                                        <h3 style={{ margin: '0 0 1rem 0', color: '#F4B41A' }}>{reg.name}</h3>
+
+                                        <div className="info-grid" style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>
+                                            <p><strong>🎂 Age:</strong> {reg.age}</p>
+                                            <p><strong>📧 Email:</strong> {reg.email}</p>
+                                            <p><strong>📱 Phone:</strong> {reg.phone}</p>
+                                            <hr style={{ border: '0.5px solid rgba(255, 255, 255, 0.1)', margin: '1rem 0' }} />
+                                            <p><strong>🛕 Kovil:</strong> {reg.kovil}</p>
+                                            <p><strong>🔖 Pirivu:</strong> {reg.pirivu}</p>
+                                            <p><strong>🏘️ Native:</strong> {reg.nativePlace}</p>
+                                            <p><strong>📋 Patta Per:</strong> {reg.pattaPer}</p>
+                                            <p><strong>📍 In Hyd:</strong> {reg.atHyderabad === 'yes' ? '✅ Yes' : '❌ No'}</p>
+                                            <hr style={{ border: '0.5px solid rgba(255, 255, 255, 0.1)', margin: '1rem 0' }} />
+                                            <p><strong>🏠 Address:</strong> {reg.address}</p>
+                                            <p><strong>🏙️ City:</strong> {reg.city}, {reg.state} - {reg.pincode}</p>
+
+                                            {reg.familyMembers && reg.familyMembers.length > 0 && (
+                                                <div style={{ marginTop: '1rem' }}>
+                                                    <strong>👨‍👩‍👧‍👦 Family ({reg.familyMembers.length}):</strong>
+                                                    <ul style={{ paddingLeft: '1.2rem', marginTop: '0.5rem' }}>
+                                                        {reg.familyMembers.map((fm, idx) => (
+                                                            <li key={idx} style={{ fontSize: '0.85rem' }}>
+                                                                {fm.name} ({fm.relation}, {fm.age}y)
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div style={{ marginTop: '1.5rem', fontSize: '0.8rem', opacity: 0.5, textAlign: 'right' }}>
+                                            Registered: {reg.timestamp?.toDate ? reg.timestamp.toDate().toLocaleString() : new Date(reg.timestamp).toLocaleString()}
                                         </div>
                                     </div>
                                 ))}
                             </div>
+                        )}
+                    </div>
+                )}
+                {/* GALLERY HANDLING TAB */}
+                {activeTab === 'gallery' && (
+                    <div className="gallery-mgmt-section" style={{ padding: '2rem' }}>
+                        <h2 style={{ color: '#F4B41A', marginBottom: '2rem' }}>🖼️ Gallery Handling</h2>
 
-                            {/* Photos Management Modal/Section */}
-                            {selectedGalleryEvent && (
-                                <div className="photos-mgmt-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.9)', zIndex: 1000, padding: '2rem', overflowY: 'auto' }}>
-                                    <div style={{ maxWidth: '900px', margin: '0 auto', background: '#1a1a1a', padding: '2rem', borderRadius: '20px' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                                            <div>
-                                                <h3 style={{ color: '#F4B41A', margin: 0 }}>Photos for: {selectedGalleryEvent.title}</h3>
-                                                <p style={{ margin: '5px 0 0 0', opacity: 0.6, fontSize: '0.9rem' }}>{selectedGalleryEvent.description}</p>
+                        {/* Create Event Form */}
+                        <div className="admin-form-card" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '2rem', borderRadius: '15px', marginBottom: '3rem' }}>
+                            <h3>Add New Gallery Event</h3>
+                            <form onSubmit={handleCreateGalleryEvent} className="admin-form">
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Event Title</label>
+                                        <input type="text" value={galleryForm.title} onChange={(e) => setGalleryForm({ ...galleryForm, title: e.target.value })} required placeholder="e.g., Sangamam 2025" />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Category</label>
+                                        <select value={galleryForm.category} onChange={(e) => setGalleryForm({ ...galleryForm, category: e.target.value })}>
+                                            <option value="events">Events</option>
+                                            <option value="religious">Religious</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="form-group">
+                                    <label>Description</label>
+                                    <textarea value={galleryForm.description} onChange={(e) => setGalleryForm({ ...galleryForm, description: e.target.value })} required placeholder="Full description of the event..." />
+                                </div>
+                                <div className="form-group">
+                                    <label>Thumbnail Image</label>
+                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                        <label className="browser-btn secondary" style={{ cursor: 'pointer', margin: 0, flex: 1, padding: '12px', textAlign: 'center', background: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.2)', borderRadius: '8px' }}>
+                                            {galleryForm.thumbnail ? '✅ Thumbnail Selected' : '💻 Select Thumbnail from Computer'}
+                                            <input type="file" hidden accept="image/*" onChange={handleThumbnailLocalUpload} />
+                                        </label>
+                                        {galleryForm.thumbnail && (
+                                            <div style={{ width: '50px', height: '50px', borderRadius: '5px', overflow: 'hidden', border: '1px solid #F4B41A' }}>
+                                                <img src={galleryForm.thumbnail} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             </div>
-                                            <div style={{ display: 'flex', gap: '1rem' }}>
-                                                <button
-                                                    onClick={() => setShowLocalBrowser(true)}
-                                                    style={{ background: '#DAA520', color: 'black', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
-                                                >
-                                                    📂 Browse Local Folder
-                                                </button>
-                                                <button onClick={() => setSelectedGalleryEvent(null)} style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
-                                            </div>
-                                        </div>
+                                        )}
+                                    </div>
+                                    <p style={{ fontSize: '0.8rem', opacity: 0.5, marginTop: '5px' }}>* Strict local upload only. No external URLs allowed.</p>
+                                </div>
+                                <button type="submit" className="submit-btn" style={{ background: '#F4B41A', color: 'black', fontWeight: 'bold' }}>Create Gallery Event</button>
+                            </form>
+                        </div>
 
-
-
-                                        {/* Photos Grid */}
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
-                                            {selectedGalleryEvent.photos?.map((photo, idx) => (
-                                                <div key={idx} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
-                                                    <img src={photo.url} alt="" style={{ width: '100%', height: '150px', objectFit: 'cover' }} />
-                                                    <div style={{ padding: '8px', background: 'rgba(0,0,0,0.7)', fontSize: '0.8rem' }}>
-                                                        {photo.description || 'No description'}
-                                                    </div>
-                                                    <button
-                                                        onClick={() => handleDeletePhotoFromEvent(selectedGalleryEvent.id, idx)}
-                                                        style={{ position: 'absolute', top: '5px', right: '5px', background: 'rgba(255,0,0,0.5)', border: 'none', color: 'white', borderRadius: '50%', width: '25px', height: '25px', cursor: 'pointer' }}
-                                                    >
-                                                        ✕
-                                                    </button>
-                                                </div>
-                                            ))}
+                        {/* Events List */}
+                        <div className="events-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
+                            {galleryItems.map(item => (
+                                <div key={item.id} className="admin-card" style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                                    <img src={item.thumbnail} alt={item.title} style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
+                                    <div style={{ padding: '1.5rem' }}>
+                                        <h4 style={{ color: '#F4B41A', margin: '0 0 0.5rem 0' }}>{item.title}</h4>
+                                        <p style={{ fontSize: '0.85rem', opacity: 0.8, height: '40px', overflow: 'hidden' }}>{item.description}</p>
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
+                                            <button
+                                                onClick={() => setSelectedGalleryEvent(item)}
+                                                style={{ flex: 1, padding: '8px', borderRadius: '5px', background: 'transparent', border: '1px solid #F4B41A', color: '#F4B41A', cursor: 'pointer' }}
+                                            >
+                                                📸 Manage Photos
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteGalleryEvent(item.id)}
+                                                style={{ padding: '8px', borderRadius: '5px', background: 'rgba(255, 0, 0, 0.2)', border: 'none', color: '#ff4444', cursor: 'pointer' }}
+                                            >
+                                                🗑️
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-                            )}
+                            ))}
                         </div>
-                    )}
-                </div>
 
-                {showLocalBrowser && (
-                    <LocalAssetBrowser
-                        onImport={handleLocalBrowserImport}
-                        onClose={() => setShowLocalBrowser(false)}
-                    />
+                        {/* Photos Management Modal/Section */}
+                        {selectedGalleryEvent && (
+                            <div className="photos-mgmt-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.9)', zIndex: 1000, padding: '2rem', overflowY: 'auto' }}>
+                                <div style={{ maxWidth: '900px', margin: '0 auto', background: '#1a1a1a', padding: '2rem', borderRadius: '20px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                                        <div>
+                                            <h3 style={{ color: '#F4B41A', margin: 0 }}>Photos for: {selectedGalleryEvent.title}</h3>
+                                            <p style={{ margin: '5px 0 0 0', opacity: 0.6, fontSize: '0.9rem' }}>{selectedGalleryEvent.description}</p>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '1rem' }}>
+                                            <button
+                                                onClick={() => setShowLocalBrowser(true)}
+                                                style={{ background: '#DAA520', color: 'black', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
+                                            >
+                                                📂 Browse Local Folder
+                                            </button>
+                                            <button onClick={() => setSelectedGalleryEvent(null)} style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
+                                        </div>
+                                    </div>
+
+
+
+                                    {/* Photos Grid */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                                        {selectedGalleryEvent.photos?.map((photo, idx) => (
+                                            <div key={idx} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                                <img src={photo.url} alt="" style={{ width: '100%', height: '150px', objectFit: 'cover' }} />
+                                                <div style={{ padding: '8px', background: 'rgba(0,0,0,0.7)', fontSize: '0.8rem' }}>
+                                                    {photo.description || 'No description'}
+                                                </div>
+                                                <button
+                                                    onClick={() => handleDeletePhotoFromEvent(selectedGalleryEvent.id, idx)}
+                                                    style={{ position: 'absolute', top: '5px', right: '5px', background: 'rgba(255,0,0,0.5)', border: 'none', color: 'white', borderRadius: '50%', width: '25px', height: '25px', cursor: 'pointer' }}
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 )}
             </div>
-        );
-    };
 
-    export default AdminDashboard;
+            {showLocalBrowser && (
+                <LocalAssetBrowser
+                    onImport={handleLocalBrowserImport}
+                    onClose={() => setShowLocalBrowser(false)}
+                />
+            )}
+        </div>
+    );
+};
+
+export default AdminDashboard;
