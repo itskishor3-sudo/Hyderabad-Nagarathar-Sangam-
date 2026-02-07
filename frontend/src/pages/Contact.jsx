@@ -26,8 +26,22 @@ const Contact = () => {
         setSubmitting(true);
 
         try {
-            // Simulate form submission without sending emails
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Send form data to backend API
+            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://hyderabad-nagarathar-sangam-backend.onrender.com';
+
+            const response = await fetch(`${API_BASE_URL}/api/contact`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Failed to send message');
+            }
 
             // Success - show success message
             showToast('✅ Message received! We will get back to you soon.', 'success');
