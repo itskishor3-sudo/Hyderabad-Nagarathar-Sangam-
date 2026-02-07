@@ -201,14 +201,6 @@ app.post('/api/guest/register', async (req, res) => {
         // Get admin emails from environment variable
         const adminEmails = process.env.ADMIN_EMAILS || 'itskishor3@gmail.com,sramadasu1974@gmail.com,Sai.cpk@gmail.com';
 
-        // Logo attachment
-        const logoPath = path.join(__dirname, '../frontend/public/image.png');
-        const logoAttachment = fs.existsSync(logoPath) ? [{
-            filename: 'logo.png',
-            path: logoPath,
-            cid: 'hnnsc_logo'
-        }] : [];
-
         // SCENARIO 1: Send emails on registration
 
         // 1. Send notification to all 3 admins
@@ -216,8 +208,7 @@ app.post('/api/guest/register', async (req, res) => {
             from: `"HNNSC Guest System" <${process.env.EMAIL_USER}>`,
             to: adminEmails,
             subject: 'New Guest Registration Request Received',
-            html: getAdminNotificationEmail(guestData),
-            attachments: logoAttachment
+            html: getAdminNotificationEmail(guestData)
         };
 
         // 2. Send acknowledgment to guest
@@ -225,8 +216,7 @@ app.post('/api/guest/register', async (req, res) => {
             from: `"Hyderabad Nagarathar Sangam" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Guest Registration Received – Pending Approval',
-            html: getGuestAcknowledgmentEmail(guestData),
-            attachments: logoAttachment
+            html: getGuestAcknowledgmentEmail(guestData)
         };
 
         // Send both emails
@@ -252,21 +242,12 @@ app.post('/api/guest/approve', async (req, res) => {
 
         const notificationEmail = process.env.NOTIFICATION_EMAIL || 'nnscahyderabad@gmail.com';
 
-        // Logo attachment
-        const logoPath = path.join(__dirname, '../frontend/public/image.png');
-        const logoAttachment = fs.existsSync(logoPath) ? [{
-            filename: 'logo.png',
-            path: logoPath,
-            cid: 'hnnsc_logo'
-        }] : [];
-
         // Send approval email ONLY to guest (not to sangam email)
         const guestApprovalMailOptions = {
             from: `"Hyderabad Nagarathar Sangam" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Guest Request Approved – Welcome',
-            html: getGuestApprovalEmail(guestData),
-            attachments: logoAttachment
+            html: getGuestApprovalEmail(guestData)
         };
 
         // Send email to guest only
