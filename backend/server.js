@@ -80,6 +80,7 @@ if (!process.env.BREVO_API_KEY) {
 }
 
 // Helper function to send emails via Brevo
+// Helper function to send emails via Brevo
 const sendEmail = async ({ to, subject, htmlContent, senderName, senderEmail, replyTo, attachment }) => {
     try {
         const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
@@ -103,26 +104,17 @@ const sendEmail = async ({ to, subject, htmlContent, senderName, senderEmail, re
             sendSmtpEmail.replyTo = { email: replyTo };
         }
 
-        if (attachment) {
-            return {
-                name: att.filename,
-                content: fileContent
-            };
-        }
-        return null;
-    }).filter(a => a !== null);
+        // Logging for debugging
+        console.log(`📨 Sending email via Brevo to: ${JSON.stringify(sendSmtpEmail.to)}`);
 
-    if (atts.length > 0) sendSmtpEmail.attachment = atts;
-}
-        }
-
-const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
-console.log(`✅ Email sent successfully via Brevo. MessageId: ${data.messageId}`);
-return data;
+        const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+        console.log(`✅ Brevo Response: Success! Message ID: ${data.messageId}`);
+        return data;
     } catch (error) {
-    console.error('❌ Brevo Email Error:', error);
-    throw error;
-}
+        console.error('❌ Error sending email via Brevo:', error);
+        if (error.response) console.error('   API Details:', JSON.stringify(error.response.text));
+        throw error;
+    }
 };
 
 // Health check endpoint
