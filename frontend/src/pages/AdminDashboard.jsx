@@ -623,7 +623,15 @@ const AdminDashboard = () => {
                 windowHeight: 1123,
                 onclone: (doc) => {
                     const style = doc.createElement('style');
-                    style.innerHTML = "@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');";
+                    style.innerHTML = `
+                        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+                        .invitation-container, .invitation-container * {
+                            font-family: 'Arial', 'Helvetica', sans-serif !important;
+                            font-weight: bold !important;
+                            color: #FFFFFF !important;
+                            text-shadow: 0 2px 4px rgba(0,0,0,0.8) !important;
+                        }
+                    `;
                     doc.head.appendChild(style);
                 }
             });

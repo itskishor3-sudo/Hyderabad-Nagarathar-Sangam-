@@ -423,7 +423,7 @@ const AdminDashboard = () => {
         invitationElement.style.flexDirection = 'column';
         invitationElement.style.alignItems = 'center';
         invitationElement.style.boxSizing = 'border-box';
-        invitationElement.style.fontFamily = "'Playfair Display', serif";
+        invitationElement.style.fontFamily = "Times New Roman, serif";
 
         // Compute a strict "safe box" inside the green patterned area,
         // based on the *actual rendered* background image size (background-size: contain).
@@ -467,7 +467,7 @@ const AdminDashboard = () => {
         const eventImageSrc = event?.image || '';
 
         // Use a rich gold color for all invitation text (to match the vels).
-        const inviteTextColor = '#F4B41A';
+        const inviteTextColor = '#ffffffff';
 
         invitationElement.innerHTML = `
         <div style="
