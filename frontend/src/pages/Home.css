@@ -221,6 +221,24 @@
     text-decoration: underline;
 }
 
+.forgot-password {
+    margin-top: 0.8rem;
+    text-align: right;
+    font-size: 0.85rem;
+}
+
+.forgot-link {
+    color: #ffd600;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.forgot-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
 /* ===================== COMMITTEE MEMBERS ===================== */
 
 .committee-section {

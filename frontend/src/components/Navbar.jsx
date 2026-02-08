@@ -10,7 +10,7 @@ const Navbar = () => {
         <nav className="navbar">
             <div className="nav-container">
                 <Link to="/" className="nav-logo">
-                    <img src={logo} alt="NNSC Logo" className="nav-logo-img" />
+                    <img src={logo} alt="NNSCA Logo" className="nav-logo-img" />
                     <div className="nav-logo-text">
                         <span className="nav-title">HYDERABAD NAGARATHAR SANGAM</span>
                         <span className="nav-subtitle"></span>
@@ -36,7 +36,7 @@ const Navbar = () => {
                     </li>
                     <li className="nav-item">
                         <Link to="/sub-committee" className="nav-link" onClick={() => setIsOpen(false)}>
-                            NNSC Sub Committee
+                            NNSCA Sub Committee
                         </Link>
                     </li>
                     <li className="nav-item">

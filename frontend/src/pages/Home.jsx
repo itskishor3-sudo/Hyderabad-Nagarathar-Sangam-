@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
+    sendPasswordResetEmail
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, addDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
@@ -222,6 +223,32 @@ const Home = () => {
         }
     };
 
+    const handleForgotPassword = async () => {
+        if (!email) {
+            showToast('Please enter your email address first.', 'error');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            await sendPasswordResetEmail(auth, email);
+            showToast('Password reset email sent! Check your inbox.', 'success');
+            setLoading(false);
+        } catch (error) {
+            console.error('Password reset error:', error);
+            let errorMessage = 'Failed to send reset email. Please try again.';
+
+            if (error.code === 'auth/user-not-found') {
+                errorMessage = 'No account found with this email.';
+            } else if (error.code === 'auth/invalid-email') {
+                errorMessage = 'Invalid email format.';
+            }
+
+            showToast(errorMessage, 'error');
+            setLoading(false);
+        }
+    };
+
     const handleBack = () => {
         setSelectedType('');
         setEmail('');
@@ -338,6 +365,14 @@ const Home = () => {
                                                 {loading ? 'Logging in...' : 'Login'}
                                             </button>
                                         </form>
+                                        <div className="forgot-password">
+                                            <span
+                                                onClick={handleForgotPassword}
+                                                className="forgot-link"
+                                            >
+                                                Forgot Password?
+                                            </span>
+                                        </div>
                                         <div className="toggle-form">
                                             <p>
                                                 New member?{' '}
@@ -674,7 +709,13 @@ const Home = () => {
                     <div className="container">
                         <h2 className="section-title">Location & Contact Details</h2>
                         <div className="contact-grid">
-                            <div className="contact-card">
+                            <a
+                                href="https://maps.app.goo.gl/a2Go8iqnC9k21EnDA"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="contact-card"
+                                style={{ textDecoration: 'none', color: 'inherit' }}
+                            >
                                 <div className="contact-photo">📍</div>
                                 <h3>Location</h3>
                                 <p className="contact-position">Our Address</p>
@@ -683,7 +724,7 @@ const Home = () => {
                                     <p>Hyderabad, Telangana</p>
                                     <p>India</p>
                                 </div>
-                            </div>
+                            </a>
                             <div className="contact-card">
                                 <div className="contact-photo">📧</div>
                                 <h3>Email</h3>
@@ -691,7 +732,7 @@ const Home = () => {
                                 <div className="contact-details">
                                     <p>
                                         <a
-                                            href={`https://mail.google.com/mail/?view=cm&fs=1&to=nnscahyderabad@gmail.com&su=${encodeURIComponent('Inquiry - NNSC Association')}&body=${encodeURIComponent(`Dear NNSC Team,
+                                            href={`https://mail.google.com/mail/?view=cm&fs=1&to=nnscahyderabad@gmail.com&su=${encodeURIComponent('Inquiry - NNSCA')}&body=${encodeURIComponent(`Dear NNSCA Team,
 
 I hope this message finds you well. I am reaching out to inquire about [your topic].
 

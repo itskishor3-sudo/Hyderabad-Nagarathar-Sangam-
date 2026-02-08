@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
-import { API_BASE_URL } from '../config';
 import { collection, addDoc, getDocs, query, orderBy, where, deleteDoc, doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType } from 'docx';
 import { saveAs } from 'file-saver';
@@ -11,16 +10,15 @@ import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import invitationTemplate from '../assets/template.jpg';
-import LocalAssetBrowser from '../components/LocalAssetBrowser';
+
 
 const AdminDashboard = () => {
-    const [activeTab, setActiveTab] = useState('create');
+    const [activeTab, setActiveTab] = useState('guests');
     const [events, setEvents] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [registrations, setRegistrations] = useState([]);
     const [members, setMembers] = useState([]);
     const [newMemberRegistrations, setNewMemberRegistrations] = useState([]);
-    const [galleryItems, setGalleryItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [toast, setToast] = useState(null); // Keep for local rendering if needed, but we'll use global
     const { showToast } = useToast();
@@ -99,23 +97,18 @@ const AdminDashboard = () => {
 
     // MOMs State
     const [moms, setMoms] = useState([]);
-    const [galleryForm, setGalleryForm] = useState({
-        title: '',
-        description: '',
-        category: 'events',
-        thumbnail: ''
-    });
-    const [selectedGalleryEvent, setSelectedGalleryEvent] = useState(null);
     const [momForm, setMomForm] = useState({
+        topic: '',
         date: '',
         time: '',
         venueType: 'online',
         venueLocation: '',
         participants: '',
-        summary: ''
+        summary: '',
+        actionable: ''
     });
     const [editingMom, setEditingMom] = useState(null);
-    const [showLocalBrowser, setShowLocalBrowser] = useState(false);
+
 
     // Caretaker State
     const [caretakers, setCaretakers] = useState([]);
@@ -173,135 +166,8 @@ const AdminDashboard = () => {
     useEffect(() => { if (activeTab === 'caretakers') fetchCaretakers(); }, [activeTab]);
     useEffect(() => { if (activeTab === 'budget') fetchBudgets(); }, [activeTab]);
     useEffect(() => { if (activeTab === 'stock') fetchStocks(); }, [activeTab]);
-    useEffect(() => { if (activeTab === 'gallery') fetchGalleryItems(); }, [activeTab]);
+    // Removed Gallery fetch effect
 
-    const fetchGalleryItems = async () => {
-        try {
-            const q = query(collection(db, 'gallery'), orderBy('createdAt', 'desc'));
-            const querySnapshot = await getDocs(q);
-            const items = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setGalleryItems(items);
-        } catch (error) {
-            console.error("Error fetching gallery items:", error);
-            showToast('Failed to load gallery items', 'error');
-        }
-    };
-
-    const handleDeleteGalleryEvent = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this gallery event and all its photos?')) return;
-        try {
-            await deleteDoc(doc(db, 'gallery', id));
-            showToast('Gallery event deleted successfully!', 'success');
-            fetchGalleryItems();
-        } catch (error) {
-            console.error("Error deleting gallery event:", error);
-            showToast('Failed to delete gallery event', 'error');
-        }
-    };
-
-    const handleCreateGalleryEvent = async (e) => {
-        e.preventDefault();
-        try {
-            await addDoc(collection(db, 'gallery'), {
-                ...galleryForm,
-                photos: [],
-                createdAt: new Date().toISOString()
-            });
-            showToast('Gallery event created successfully!', 'success');
-            setGalleryForm({ title: '', description: '', category: 'events', thumbnail: '' });
-            fetchGalleryItems();
-        } catch (error) {
-            console.error("Error creating gallery event:", error);
-            showToast('Failed to create gallery event', 'error');
-        }
-    };
-
-
-
-    const handleDeletePhotoFromEvent = async (eventId, photoIndex) => {
-        try {
-            const eventRef = doc(db, 'gallery', eventId);
-            const eventDoc = galleryItems.find(item => item.id === eventId);
-            const updatedPhotos = eventDoc.photos.filter((_, idx) => idx !== photoIndex);
-            await updateDoc(eventRef, { photos: updatedPhotos });
-            fetchGalleryItems();
-            showToast('Photo removed successfully!', 'success');
-        } catch (error) {
-            console.error("Error deleting photo:", error);
-            showToast('Failed to delete photo', 'error');
-        }
-    };
-
-    const handleLocalBrowserImport = async (localFiles) => {
-        if (!selectedGalleryEvent) return;
-
-        try {
-            const formData = new FormData();
-            localFiles.forEach(fileObj => {
-                formData.append('images', fileObj.file);
-            });
-
-            const response = await fetch(`${API_BASE_URL}/api/gallery/bulk-upload`, {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                // Now add these to Firestore
-                const newPhotos = data.images.map((img, idx) => ({
-                    url: img.imageUrl,
-                    description: localFiles[idx].tag || ''
-                }));
-
-                const updatedPhotos = [...(selectedGalleryEvent.photos || []), ...newPhotos];
-                await updateDoc(doc(db, 'gallery', selectedGalleryEvent.id), {
-                    photos: updatedPhotos
-                });
-
-                // Update local state
-                setGalleryItems(prev => prev.map(item =>
-                    item.id === selectedGalleryEvent.id ? { ...item, photos: updatedPhotos } : item
-                ));
-                setSelectedGalleryEvent(prev => ({ ...prev, photos: updatedPhotos }));
-
-                showToast(`Successfully imported ${localFiles.length} photos`, 'success');
-                setShowLocalBrowser(false);
-            } else {
-                showToast('Import failed: ' + data.message, 'error');
-            }
-        } catch (error) {
-            console.error('Import error:', error);
-            showToast('Failed to import photos. Is the backend server running?', 'error');
-        }
-    };
-
-    const handleThumbnailLocalUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        try {
-            const formData = new FormData();
-            formData.append('image', file);
-
-            const response = await fetch(`${API_BASE_URL}/api/gallery/upload`, {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                setGalleryForm({ ...galleryForm, thumbnail: data.imageUrl });
-                showToast('Thumbnail uploaded successfully!', 'success');
-            } else {
-                showToast('Thumbnail upload failed', 'error');
-            }
-        } catch (error) {
-            console.error('Thumbnail upload error:', error);
-            showToast('Failed to upload thumbnail. Is the backend server running?', 'error');
-        }
-    };
     useEffect(() => { if (activeTab === 'new_members') fetchNewMemberRegistrations(); }, [activeTab]);
 
     // --- API CALLS ---
@@ -822,12 +688,14 @@ const AdminDashboard = () => {
             });
             showToast('MOM created successfully!', 'success');
             setMomForm({
+                topic: '',
                 date: '',
                 time: '',
                 venueType: 'online',
                 venueLocation: '',
                 participants: '',
-                summary: ''
+                summary: '',
+                actionable: ''
             });
             fetchMoms();
         } catch (error) {
@@ -843,12 +711,14 @@ const AdminDashboard = () => {
             showToast('MOM updated successfully!', 'success');
             setEditingMom(null);
             setMomForm({
+                topic: '',
                 date: '',
                 time: '',
                 venueType: 'online',
                 venueLocation: '',
                 participants: '',
-                summary: ''
+                summary: '',
+                actionable: ''
             });
             fetchMoms();
         } catch (error) {
@@ -872,13 +742,16 @@ const AdminDashboard = () => {
     const handleEditMom = (mom) => {
         setEditingMom(mom);
         setMomForm({
-            date: mom.date,
-            time: mom.time,
-            venueType: mom.venueType,
-            venueLocation: mom.venueLocation,
-            participants: mom.participants,
-            summary: mom.summary
+            topic: mom.topic || '',
+            date: mom.date || '',
+            time: mom.time || '',
+            venueType: mom.venueType || 'online',
+            venueLocation: mom.venueLocation || '',
+            participants: mom.participants || '',
+            summary: mom.summary || '',
+            actionable: mom.actionable || ''
         });
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to form
     };
     const handleCreateCaretaker = async (e) => {
         e.preventDefault();
@@ -1054,7 +927,7 @@ const AdminDashboard = () => {
         const worksheet = XLSX.utils.json_to_sheet(data);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Budget');
-        XLSX.writeFile(workbook, `Budget_${budget.eventName.replace(/\s+/g, '_')}.xlsx`);
+        XLSX.writeFile(workbook, `Budget_${budget.eventName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
         showToast('Budget exported successfully!', 'success');
     };
     const handleCreateStock = async (e) => {
@@ -1377,7 +1250,7 @@ const AdminDashboard = () => {
         const worksheet = XLSX.utils.json_to_sheet(data);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Poll Results');
-        XLSX.writeFile(workbook, `Poll_${poll.title.replace(/\s+/g, '_')}_Results.xlsx`);
+        XLSX.writeFile(workbook, `Poll_${poll.title.replace(/\s+/g, '_')}_Results_${new Date().toISOString().split('T')[0]}.xlsx`);
         showToast('Results exported successfully!', 'success');
     };
     const handleAddAuctionItem = async (e) => {
@@ -1452,24 +1325,25 @@ const AdminDashboard = () => {
 
         const data = auctionItems.map((item, index) => ({
             'S.No': index + 1,
-            'Item Name': item.itemName,
-            'Buyer Name': item.buyerName,
-            'Price': item.price,
+            'Item Name': item.itemName || 'N/A',
+            'Buyer Name': item.buyerName || 'N/A',
+            'Price': Number(item.price) || 0,
             'Payment Status': item.isPaid ? 'Paid' : 'Unpaid',
-            'Paid Date': item.isPaid && item.paidAt ? new Date(item.paidAt).toLocaleDateString() : '-'
+            'Paid Date': item.isPaid && item.paidAt ? new Date(item.paidAt).toLocaleDateString('en-GB') : '-'
         }));
 
-        const totalPaid = auctionItems.filter(i => i.isPaid).reduce((sum, i) => sum + i.price, 0);
-        const totalPending = auctionItems.filter(i => !i.isPaid).reduce((sum, i) => sum + i.price, 0);
+        const totalPaid = auctionItems.filter(i => i.isPaid).reduce((sum, i) => sum + (Number(i.price) || 0), 0);
+        const totalPending = auctionItems.filter(i => !i.isPaid).reduce((sum, i) => sum + (Number(i.price) || 0), 0);
+        const grandTotal = auctionItems.reduce((sum, i) => sum + (Number(i.price) || 0), 0);
 
-        data.push({ 'S.No': '', 'Item Name': '', 'Buyer Name': 'TOTAL AMOUNT', 'Price': calculateTotalAmount(), 'Payment Status': '', 'Paid Date': '' });
+        data.push({ 'S.No': '', 'Item Name': '', 'Buyer Name': 'TOTAL AMOUNT', 'Price': grandTotal, 'Payment Status': '', 'Paid Date': '' });
         data.push({ 'S.No': '', 'Item Name': '', 'Buyer Name': 'PAID AMOUNT', 'Price': totalPaid, 'Payment Status': '', 'Paid Date': '' });
         data.push({ 'S.No': '', 'Item Name': '', 'Buyer Name': 'PENDING AMOUNT', 'Price': totalPending, 'Payment Status': '', 'Paid Date': '' });
 
         const worksheet = XLSX.utils.json_to_sheet(data);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, workbook, `Auction ${selectedYear}`);
-        XLSX.writeFile(workbook, `Auction_${selectedYear}_Records.xlsx`);
+        XLSX.utils.book_append_sheet(workbook, worksheet, `Auction ${selectedYear}`);
+        XLSX.writeFile(workbook, `Auction_${selectedYear}_Records_${new Date().toISOString().split('T')[0]}.xlsx`);
         showToast('Auction data exported successfully!', 'success');
     };
     const calculateTotalHeadcount = () => {
@@ -1552,23 +1426,99 @@ const AdminDashboard = () => {
 
         const data = members.map((member, index) => ({
             'S.No': index + 1,
-            'Name': member.name,
-            'Age': member.age,
-            'Email': member.email,
-            'Phone': member.phone,
-            'Kovil': member.kovil,
-            'Pirivu': member.pirivu,
-            'Native Place': member.nativePlace,
-            'Patta Per': member.pattaPer,
-            'At Hyderabad': member.atHyderabad ? 'Yes' : 'No',
-            'Family Members': member.familyMembers?.length || 0
+            'Name': member.name || 'N/A',
+            'Age': member.age || 'N/A',
+            'Email': member.email || 'N/A',
+            'Phone': member.phone || 'N/A',
+            'Area': member.area || member.hyderabadArea || 'N/A',
+            'Kovil': member.kovil || 'N/A',
+            'Pirivu': member.pirivu || 'N/A',
+            'Native Place': member.nativePlace || 'N/A',
+            'Patta Per': member.pattaPer || 'N/A',
+            'At Hyderabad': member.atHyderabad === 'yes' || member.atHyderabad === true ? 'Yes' : 'No',
+            'Family Members': member.familyMembers?.length || 0,
+            'Registered At': member.createdAt ? new Date(member.createdAt).toLocaleDateString('en-GB') : 'N/A'
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(data);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Members');
-        XLSX.writeFile(workbook, `NNSC_Members_${new Date().toISOString().split('T')[0]}.xlsx`);
+        XLSX.writeFile(workbook, `NNSCA_Members_${new Date().toISOString().split('T')[0]}.xlsx`);
         showToast('Members data exported successfully!', 'success');
+    };
+
+    const exportMomToWord = async (mom) => {
+        try {
+            const doc = new Document({
+                sections: [{
+                    children: [
+                        new Paragraph({ text: `MINUTES OF MEETING`, heading: 'Heading1', alignment: 'center' }),
+                        new Paragraph({ text: '' }),
+                        new Paragraph({ text: `Topic: ${mom.topic || 'General Meeting'}`, heading: 'Heading2' }),
+                        new Paragraph({ text: `Date: ${mom.date} | Time: ${mom.time}` }),
+                        new Paragraph({ text: `Venue: ${mom.venueType === 'online' ? 'Online' : mom.venueLocation}` }),
+                        new Paragraph({ text: '' }),
+                        new Paragraph({ text: `Participants:`, bold: true }),
+                        new Paragraph({ text: mom.participants }),
+                        new Paragraph({ text: '' }),
+                        new Paragraph({ text: `Summary of Discussion:`, bold: true }),
+                        new Paragraph({ text: mom.summary }),
+                        new Paragraph({ text: '' }),
+                        new Paragraph({ text: `Generated by HNNSC Portal`, italic: true, alignment: 'right' })
+                    ]
+                }]
+            });
+
+            const blob = await Packer.toBlob(doc);
+            saveAs(blob, `MOM_${mom.date}_${(mom.topic || 'Meeting').replace(/\s+/g, '_')}.docx`);
+            showToast('MOM exported to Word successfully!', 'success');
+        } catch (error) {
+            console.error('Error exporting MOM to Word:', error);
+            showToast('Failed to export MOM to Word', 'error');
+        }
+    };
+
+    const exportMomsToExcel = () => {
+        if (moms.length === 0) {
+            showToast('No MOMs to export', 'info');
+            return;
+        }
+
+        const data = moms.map(m => ({
+            'Date': m.date,
+            'Time': m.time,
+            'Topic': m.topic || 'N/A',
+            'Venue Type': m.venueType,
+            'Venue Location': m.venueLocation || 'Online',
+            'Participants': m.participants,
+            'Summary': m.summary,
+            'Actionable Items': m.actionable || 'N/A'
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "MOMs");
+        XLSX.writeFile(wb, "HNNSC_MOMs_Report.xlsx");
+        showToast('MOMs list exported successfully!', 'success');
+    };
+
+    const exportActionableToExcel = (mom) => {
+        if (!mom.actionable) {
+            showToast('No actionable items to export', 'info');
+            return;
+        }
+
+        const data = [{
+            'Meeting Topic': mom.topic || 'N/A',
+            'Date': mom.date,
+            'Actionable Items': mom.actionable
+        }];
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Actionables");
+        XLSX.writeFile(wb, `Actionables_${(mom.topic || 'Meeting').replace(/\s+/g, '_')}_${mom.date}.xlsx`);
+        showToast('Actionable items exported successfully!', 'success');
     };
 
     const filteredMembers = members.filter(member => {
@@ -1580,7 +1530,9 @@ const AdminDashboard = () => {
             member.kovil?.toLowerCase().includes(search) ||
             member.pirivu?.toLowerCase().includes(search) ||
             member.nativePlace?.toLowerCase().includes(search) ||
-            member.pattaPer?.toLowerCase().includes(search)
+            member.pattaPer?.toLowerCase().includes(search) ||
+            member.area?.toLowerCase().includes(search) ||
+            member.hyderabadArea?.toLowerCase().includes(search)
         );
     });
     // Guest Records Component
@@ -1621,17 +1573,12 @@ const AdminDashboard = () => {
                 if (newStatus === 'approved') {
                     const guest = guests.find(g => g.id === guestId);
                     if (guest && guest.email) {
-                        fetch(`${API_BASE_URL}/api/guest/approve`, {
+                        fetch('http://localhost:5000/api/guest/approve', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 name: guest.name || guest.fullName,
-                                email: guest.email,
-                                checkInDate: guest.checkInDate,
-                                checkInTime: guest.checkInTime,
-                                expectedCheckOutDate: guest.expectedCheckOutDate,
-                                expectedCheckOutTime: guest.expectedCheckOutTime,
-                                roomHall: guest.roomHall
+                                email: guest.email
                             })
                         }).catch(err => console.error('Error sending approval email:', err));
                     }
@@ -1659,10 +1606,66 @@ const AdminDashboard = () => {
             }
         };
 
+        const exportGuestsToExcel = () => {
+            if (guests.length === 0) {
+                showToast('No guest records to export', 'info');
+                return;
+            }
+
+            const data = guests.map((guest, index) => ({
+                'S.No': index + 1,
+                'Full Name': guest.name || guest.fullName || 'N/A',
+                'Age': guest.age || 'N/A',
+                'Native Place': guest.nativePlace || 'N/A',
+                'Kovil': guest.kovil || 'N/A',
+                'Pirivu': guest.pirivu || 'N/A',
+                'House Name': guest.houseNamePattaiPeyar || 'N/A',
+                'Father Name': guest.fathersName || 'N/A',
+                'Email': guest.email || 'N/A',
+                'Phone': guest.phoneNumber || guest.phone || 'N/A',
+                'Address': guest.permanentAddress || guest.address || 'N/A',
+                'Check-in': `${guest.checkInDate || 'N/A'} at ${guest.checkInTime || 'N/A'}`,
+                'Check-out': `${guest.expectedCheckOutDate || 'N/A'} at ${guest.expectedCheckOutTime || 'N/A'}`,
+                'Total Guests': guest.totalNumberOfGuests || 'N/A',
+                'Room/Hall': guest.roomHall || 'N/A',
+                'Aadhar': guest.aadharNumber || 'N/A',
+                'At Hyderabad': guest.atHyderabad === 'yes' || guest.atHyderabad === true ? 'Yes' : 'No',
+                'Area': guest.area || 'N/A',
+                'Status': guest.status?.toUpperCase() || 'PENDING',
+                'Registered Date': guest.createdAt ? new Date(guest.createdAt).toLocaleDateString('en-GB') : 'N/A'
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Guest Records');
+            XLSX.writeFile(workbook, `NNSCA_Guests_${new Date().toISOString().split('T')[0]}.xlsx`);
+            showToast('Guest records exported successfully!', 'success');
+        };
+
         if (loading) return <div className="loading">Loading guest records...</div>;
 
         return (
             <div className="guests-management">
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
+                    <button
+                        onClick={exportGuestsToExcel}
+                        className="export-btn"
+                        style={{
+                            padding: '0.8rem 1.5rem',
+                            background: '#4caf50',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
+                        }}
+                    >
+                        📊 Export All Guests to Excel
+                    </button>
+                </div>
                 {/* Stats Cards - UPDATED */}
                 <div className="stats-row" style={{ marginBottom: '2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                     <div className="stat-card" style={{ background: 'rgba(33, 150, 243, 0.2)', padding: '1.5rem', borderRadius: '10px', textAlign: 'center' }}>
@@ -1728,6 +1731,11 @@ const AdminDashboard = () => {
                                     <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', opacity: 0.8 }}>
                                         🎂 Age: {guest.age || 'N/A'}
                                     </p>
+                                    {(guest.atHyderabad === 'yes' || guest.atHyderabad === true) && (
+                                        <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', opacity: 0.9, color: '#4caf50' }}>
+                                            🏙️ Area: {guest.area || 'N/A'}
+                                        </p>
+                                    )}
                                 </div>
                                 <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', opacity: 0.6 }}>
                                     Registered: {new Date(guest.createdAt).toLocaleDateString()}
@@ -1819,6 +1827,10 @@ const AdminDashboard = () => {
                                     <p><strong>Total Guests:</strong> {selectedGuest.totalNumberOfGuests || 'N/A'}</p>
                                     <p><strong>Room/Hall:</strong> {selectedGuest.roomHall || 'N/A'}</p>
                                     <p><strong>Aadhar:</strong> {selectedGuest.aadharNumber || 'N/A'}</p>
+                                    <p><strong>At Hyderabad:</strong> {selectedGuest.atHyderabad === 'yes' || selectedGuest.atHyderabad === true ? 'Yes' : 'No'}</p>
+                                    {(selectedGuest.atHyderabad === 'yes' || selectedGuest.atHyderabad === true) && (
+                                        <p><strong>Area:</strong> {selectedGuest.area || 'N/A'}</p>
+                                    )}
                                 </div>
                             </div>
 
@@ -1845,23 +1857,29 @@ const AdminDashboard = () => {
             </div>
 
             <div className="dashboard-tabs">
+                <button className={activeTab === 'guests' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('guests')}>
+                    🎫 Guest Records
+                </button>
+                <button className={activeTab === 'new_members' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('new_members')}>
+                    🆕 New Member Registered Details
+                </button>
+                <button className={activeTab === 'members' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('members')}>
+                    👥 All Members
+                </button>
                 <button className={activeTab === 'create' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('create')}>
                     📝 Create Event
                 </button>
                 <button className={activeTab === 'view' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('view')}>
                     👁️ View Registrations
                 </button>
-                <button className={activeTab === 'members' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('members')}>
-                    👥 All Members
-                </button>
-                <button className={activeTab === 'guests' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('guests')}>
-                    🎫 Guest Records
+                <button className={activeTab === 'moms' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('moms')}>
+                    📋 MOMs
                 </button>
                 <button className={activeTab === 'voting' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('voting')}>
                     🗳️ Voting
                 </button>
-                <button className={activeTab === 'moms' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('moms')}>
-                    📋 MOMs
+                <button className={activeTab === 'auction' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('auction')}>
+                    🔨 Auction Records
                 </button>
                 <button className={activeTab === 'caretakers' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('caretakers')}>
                     👷 Caretakers
@@ -1871,15 +1889,6 @@ const AdminDashboard = () => {
                 </button>
                 <button className={activeTab === 'stock' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('stock')}>
                     📦 Stock
-                </button>
-                <button className={activeTab === 'new_members' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('new_members')}>
-                    🆕 New Member Registered Details
-                </button>
-                <button className={activeTab === 'gallery' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('gallery')}>
-                    🖼️ Gallery Handling
-                </button>
-                <button className={activeTab === 'auction' ? 'tab-btn active' : 'tab-btn'} onClick={() => setActiveTab('auction')}>
-                    🔨 Auction Records
                 </button>
             </div>
 
@@ -2145,12 +2154,12 @@ const AdminDashboard = () => {
                                             <div className="member-name-section">
                                                 <h3>{member.name} <span className="age-badge">({member.age} yrs)</span></h3>
                                                 <div className="status-container">
-                                                    <span className={`status-badge ${member.atHyderabad ? 'in-hyd' : 'out-hyd'}`}>
-                                                        {member.atHyderabad ? '📍 Hyderabad' : '🏠 Other'}
+                                                    <span className={`status-badge ${member.atHyderabad === 'yes' || member.atHyderabad === true ? 'in-hyd' : 'out-hyd'}`}>
+                                                        {member.atHyderabad === 'yes' || member.atHyderabad === true ? '📍 Hyderabad' : '🏠 Other'}
                                                     </span>
-                                                    {member.atHyderabad && member.hyderabadArea && (
+                                                    {(member.atHyderabad === 'yes' || member.atHyderabad === true) && (member.area || member.hyderabadArea) && (
                                                         <span className="area-badge">
-                                                            🏙️ {member.hyderabadArea}
+                                                            🏙️ {member.area || member.hyderabadArea}
                                                         </span>
                                                     )}
                                                 </div>
@@ -2437,11 +2446,28 @@ const AdminDashboard = () => {
                 {/* MOMs TAB */}
                 {activeTab === 'moms' && (
                     <div className="moms-section">
-                        <h2>📋 Minutes of Meeting (MOMs)</h2>
+                        <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h2>📋 Minutes of Meeting (MOMs)</h2>
+                            {moms.length > 0 && (
+                                <button onClick={exportMomsToExcel} className="export-btn">
+                                    📊 Export All to Excel
+                                </button>
+                            )}
+                        </div>
 
                         <div className="moms-form-section">
                             <h3>{editingMom ? '✏️ Edit MOM' : '➕ Create New MOM'}</h3>
                             <form onSubmit={editingMom ? handleUpdateMom : handleCreateMom} className="mom-form">
+                                <div className="form-group">
+                                    <label>Meeting Topic</label>
+                                    <input
+                                        type="text"
+                                        value={momForm.topic}
+                                        onChange={(e) => setMomForm({ ...momForm, topic: e.target.value })}
+                                        required
+                                        placeholder="e.g., Monthly Committee Meeting, Budget Discussion"
+                                    />
+                                </div>
                                 <div className="form-row">
                                     <div className="form-group">
                                         <label>Date</label>
@@ -2522,6 +2548,16 @@ const AdminDashboard = () => {
                                     />
                                 </div>
 
+                                <div className="form-group">
+                                    <label>Actionable Items</label>
+                                    <textarea
+                                        value={momForm.actionable}
+                                        onChange={(e) => setMomForm({ ...momForm, actionable: e.target.value })}
+                                        placeholder="Enter tasks, decisions, and outcomes that require action..."
+                                        rows="4"
+                                    />
+                                </div>
+
                                 <div className="form-actions">
                                     <button type="submit" className="submit-btn">
                                         {editingMom ? '💾 Update MOM' : '➕ Create MOM'}
@@ -2558,7 +2594,10 @@ const AdminDashboard = () => {
                                     {moms.map(mom => (
                                         <div key={mom.id} className="mom-card">
                                             <div className="mom-header">
-                                                <h4>📅 {mom.date} • ⏰ {mom.time}</h4>
+                                                <div className="mom-title-section">
+                                                    <h4>{mom.topic || 'General Meeting'}</h4>
+                                                    <small>📅 {mom.date} • ⏰ {mom.time}</small>
+                                                </div>
                                                 <span className="venue-badge">
                                                     {mom.venueType === 'online' ? '💻 Online' : `🏢 ${mom.venueLocation}`}
                                                 </span>
@@ -2567,8 +2606,22 @@ const AdminDashboard = () => {
                                                 <p><strong>👥 Participants:</strong> {mom.participants}</p>
                                                 <p><strong>📝 Summary:</strong></p>
                                                 <p className="mom-summary">{mom.summary}</p>
+                                                {mom.actionable && (
+                                                    <>
+                                                        <p><strong>✅ Actionable Items:</strong></p>
+                                                        <p className="mom-actionable">{mom.actionable}</p>
+                                                    </>
+                                                )}
                                             </div>
                                             <div className="mom-actions">
+                                                <button onClick={() => exportMomToWord(mom)} className="export-btn-small" style={{ backgroundColor: '#2b5797', color: 'white' }}>
+                                                    📄 Export Word
+                                                </button>
+                                                {mom.actionable && (
+                                                    <button onClick={() => exportActionableToExcel(mom)} className="export-btn-small" style={{ backgroundColor: '#1d6f42', color: 'white' }}>
+                                                        📊 Export Actionable (Excel)
+                                                    </button>
+                                                )}
                                                 <button onClick={() => handleEditMom(mom)} className="edit-btn">
                                                     ✏️ Edit
                                                 </button>
@@ -3359,7 +3412,10 @@ const AdminDashboard = () => {
                                             <p><strong>🔖 Pirivu:</strong> {reg.pirivu}</p>
                                             <p><strong>🏘️ Native:</strong> {reg.nativePlace}</p>
                                             <p><strong>📋 Patta Per:</strong> {reg.pattaPer}</p>
-                                            <p><strong>📍 In Hyd:</strong> {reg.atHyderabad === 'yes' ? '✅ Yes' : '❌ No'}</p>
+                                            <p><strong>📍 In Hyd:</strong> {reg.atHyderabad === 'yes' || reg.atHyderabad === true ? '✅ Yes' : '❌ No'}</p>
+                                            {(reg.area || reg.hyderabadArea) && (
+                                                <p><strong>🏙️ Area:</strong> {reg.area || reg.hyderabadArea}</p>
+                                            )}
                                             <hr style={{ border: '0.5px solid rgba(255, 255, 255, 0.1)', margin: '1rem 0' }} />
                                             <p><strong>🏠 Address:</strong> {reg.address}</p>
                                             <p><strong>🏙️ City:</strong> {reg.city}, {reg.state} - {reg.pincode}</p>
@@ -3386,130 +3442,8 @@ const AdminDashboard = () => {
                         )}
                     </div>
                 )}
-                {/* GALLERY HANDLING TAB */}
-                {activeTab === 'gallery' && (
-                    <div className="gallery-mgmt-section" style={{ padding: '2rem' }}>
-                        <h2 style={{ color: '#F4B41A', marginBottom: '2rem' }}>🖼️ Gallery Handling</h2>
-
-                        {/* Create Event Form */}
-                        <div className="admin-form-card" style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '2rem', borderRadius: '15px', marginBottom: '3rem' }}>
-                            <h3>Add New Gallery Event</h3>
-                            <form onSubmit={handleCreateGalleryEvent} className="admin-form">
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label>Event Title</label>
-                                        <input type="text" value={galleryForm.title} onChange={(e) => setGalleryForm({ ...galleryForm, title: e.target.value })} required placeholder="e.g., Sangamam 2025" />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Category</label>
-                                        <select value={galleryForm.category} onChange={(e) => setGalleryForm({ ...galleryForm, category: e.target.value })}>
-                                            <option value="events">Events</option>
-                                            <option value="religious">Religious</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="form-group">
-                                    <label>Description</label>
-                                    <textarea value={galleryForm.description} onChange={(e) => setGalleryForm({ ...galleryForm, description: e.target.value })} required placeholder="Full description of the event..." />
-                                </div>
-                                <div className="form-group">
-                                    <label>Thumbnail Image</label>
-                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                        <label className="browser-btn secondary" style={{ cursor: 'pointer', margin: 0, flex: 1, padding: '12px', textAlign: 'center', background: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.2)', borderRadius: '8px' }}>
-                                            {galleryForm.thumbnail ? '✅ Thumbnail Selected' : '💻 Select Thumbnail from Computer'}
-                                            <input type="file" hidden accept="image/*" onChange={handleThumbnailLocalUpload} />
-                                        </label>
-                                        {galleryForm.thumbnail && (
-                                            <div style={{ width: '50px', height: '50px', borderRadius: '5px', overflow: 'hidden', border: '1px solid #F4B41A' }}>
-                                                <img src={galleryForm.thumbnail} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <p style={{ fontSize: '0.8rem', opacity: 0.5, marginTop: '5px' }}>* Strict local upload only. No external URLs allowed.</p>
-                                </div>
-                                <button type="submit" className="submit-btn" style={{ background: '#F4B41A', color: 'black', fontWeight: 'bold' }}>Create Gallery Event</button>
-                            </form>
-                        </div>
-
-                        {/* Events List */}
-                        <div className="events-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
-                            {galleryItems.map(item => (
-                                <div key={item.id} className="admin-card" style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                                    <img src={item.thumbnail} alt={item.title} style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
-                                    <div style={{ padding: '1.5rem' }}>
-                                        <h4 style={{ color: '#F4B41A', margin: '0 0 0.5rem 0' }}>{item.title}</h4>
-                                        <p style={{ fontSize: '0.85rem', opacity: 0.8, height: '40px', overflow: 'hidden' }}>{item.description}</p>
-                                        <div style={{ display: 'flex', gap: '10px', marginTop: '1rem' }}>
-                                            <button
-                                                onClick={() => setSelectedGalleryEvent(item)}
-                                                style={{ flex: 1, padding: '8px', borderRadius: '5px', background: 'transparent', border: '1px solid #F4B41A', color: '#F4B41A', cursor: 'pointer' }}
-                                            >
-                                                📸 Manage Photos
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteGalleryEvent(item.id)}
-                                                style={{ padding: '8px', borderRadius: '5px', background: 'rgba(255, 0, 0, 0.2)', border: 'none', color: '#ff4444', cursor: 'pointer' }}
-                                            >
-                                                🗑️
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Photos Management Modal/Section */}
-                        {selectedGalleryEvent && (
-                            <div className="photos-mgmt-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.9)', zIndex: 1000, padding: '2rem', overflowY: 'auto' }}>
-                                <div style={{ maxWidth: '900px', margin: '0 auto', background: '#1a1a1a', padding: '2rem', borderRadius: '20px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                                        <div>
-                                            <h3 style={{ color: '#F4B41A', margin: 0 }}>Photos for: {selectedGalleryEvent.title}</h3>
-                                            <p style={{ margin: '5px 0 0 0', opacity: 0.6, fontSize: '0.9rem' }}>{selectedGalleryEvent.description}</p>
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '1rem' }}>
-                                            <button
-                                                onClick={() => setShowLocalBrowser(true)}
-                                                style={{ background: '#DAA520', color: 'black', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
-                                            >
-                                                📂 Browse Local Folder
-                                            </button>
-                                            <button onClick={() => setSelectedGalleryEvent(null)} style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
-                                        </div>
-                                    </div>
-
-
-
-                                    {/* Photos Grid */}
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
-                                        {selectedGalleryEvent.photos?.map((photo, idx) => (
-                                            <div key={idx} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
-                                                <img src={photo.url} alt="" style={{ width: '100%', height: '150px', objectFit: 'cover' }} />
-                                                <div style={{ padding: '8px', background: 'rgba(0,0,0,0.7)', fontSize: '0.8rem' }}>
-                                                    {photo.description || 'No description'}
-                                                </div>
-                                                <button
-                                                    onClick={() => handleDeletePhotoFromEvent(selectedGalleryEvent.id, idx)}
-                                                    style={{ position: 'absolute', top: '5px', right: '5px', background: 'rgba(255,0,0,0.5)', border: 'none', color: 'white', borderRadius: '50%', width: '25px', height: '25px', cursor: 'pointer' }}
-                                                >
-                                                    ✕
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
+                {/* Removed LocalAssetBrowser */}
             </div>
-
-            {showLocalBrowser && (
-                <LocalAssetBrowser
-                    onImport={handleLocalBrowserImport}
-                    onClose={() => setShowLocalBrowser(false)}
-                />
-            )}
         </div>
     );
 };

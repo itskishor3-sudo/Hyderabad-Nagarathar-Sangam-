@@ -1,6 +1,6 @@
 # Gmail App Password Setup Guide
 
-This guide will help you set up Gmail to work with the HNNSC contact form email functionality.
+This guide will help you set up Gmail to work with the NNSCA contact form email functionality.
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ If you haven't already enabled 2FA on your Gmail account:
 5. You may be asked to sign in again
 6. In the "Select app" dropdown, choose **Mail**
 7. In the "Select device" dropdown, choose **Other (Custom name)**
-8. Enter a name like "HNNSC Contact Form" or "Website Backend"
+8. Enter a name like "NNSCA Contact Form" or "Website Backend"
 9. Click **Generate**
 10. Google will display a 16-character password (format: `xxxx xxxx xxxx xxxx`)
 11. **IMPORTANT**: Copy this password immediately - you won't be able to see it again!

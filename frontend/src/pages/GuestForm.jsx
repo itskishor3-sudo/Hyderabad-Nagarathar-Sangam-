@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
+import { API_BASE_URL } from '../config';
 import { collection, addDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
@@ -28,7 +29,9 @@ const GuestForm = () => {
         expectedCheckOutTime: '',
         totalNumberOfGuests: '',
         roomHall: '',
-        aadharNumber: ''
+        aadharNumber: '',
+        atHyderabad: '',
+        area: ''
     });
 
     const handleInputChange = (e) => {
@@ -47,8 +50,13 @@ const GuestForm = () => {
             !formData.fathersName || !formData.permanentAddress || !formData.phoneNumber ||
             !formData.checkInDate || !formData.checkInTime || !formData.expectedCheckOutDate ||
             !formData.expectedCheckOutTime || !formData.totalNumberOfGuests ||
-            !formData.roomHall || !formData.aadharNumber) {
+            !formData.roomHall || !formData.aadharNumber || !formData.atHyderabad) {
             showToast('Please fill all required fields', 'warning');
+            return;
+        }
+
+        if (formData.atHyderabad === 'yes' && !formData.area) {
+            showToast('Please enter your area in Hyderabad', 'warning');
             return;
         }
 
@@ -64,8 +72,6 @@ const GuestForm = () => {
             });
 
             // 2️⃣ TRIGGER AUTOMATED EMAIL SYSTEM
-            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-
             const response = await fetch(`${API_BASE_URL}/api/guest/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -80,7 +86,14 @@ const GuestForm = () => {
 
             // Success
             setSubmitted(true);
-            setFormData({});
+            setFormData({
+                email: '', name: '', age: '', nativePlace: '', kovil: '', pirivu: '',
+                houseNamePattaiPeyar: '', fathersName: '', permanentAddress: '',
+                phoneNumber: '', checkInDate: '', checkInTime: '',
+                expectedCheckOutDate: '', expectedCheckOutTime: '',
+                totalNumberOfGuests: '', roomHall: '', aadharNumber: '',
+                atHyderabad: '', area: ''
+            });
             showToast('✅ Registration successful! Emails sent to admins and you.', 'success');
 
         } catch (error) {
@@ -171,6 +184,25 @@ const GuestForm = () => {
                             <label>Phone number *</label>
                             <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} placeholder="+91 9876543210" required />
                         </div>
+                        <div className="form-group">
+                            <label>Are you currently residing in Hyderabad? *</label>
+                            <div className="radio-group" style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
+                                <label className="radio-option" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                    <input type="radio" name="atHyderabad" value="yes" checked={formData.atHyderabad === 'yes'} onChange={handleInputChange} required />
+                                    <span>YES</span>
+                                </label>
+                                <label className="radio-option" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                    <input type="radio" name="atHyderabad" value="no" checked={formData.atHyderabad === 'no'} onChange={handleInputChange} required />
+                                    <span>NO</span>
+                                </label>
+                            </div>
+                        </div>
+                        {formData.atHyderabad === 'yes' && (
+                            <div className="form-group">
+                                <label>Area / Location (e.g., Kukatpally, Madhapur) *</label>
+                                <input type="text" name="area" value={formData.area} onChange={handleInputChange} placeholder="Enter your area" required />
+                            </div>
+                        )}
                     </div>
 
                     <div className="form-section">
@@ -223,22 +255,20 @@ const GuestForm = () => {
                     </div>
 
                     {/* ⏰ SERVER WAIT TIME NOTICE */}
-                    <div className="form-section" style={{
-                        background: 'linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(255, 193, 7, 0.15))',
-                        border: '2px solid rgba(255, 152, 0, 0.4)',
-                        borderRadius: '12px',
+                    <div className="form-section server-wait-notice" style={{
                         padding: '1.5rem',
                         marginBottom: '1.5rem',
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        borderRadius: '12px'
                     }}>
-                        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⏰</div>
-                        <h3 style={{ color: '#FFC107', marginBottom: '0.8rem', fontSize: '1.2rem' }}>
-                            Please Wait for Server Response
+                        <div style={{ fontSize: '2.5rem', marginBottom: '0.8rem' }}>⏰</div>
+                        <h3 style={{ color: '#FFC107', marginBottom: '0.5rem', fontSize: '1.5rem' }}>
+                            Processing Request...
                         </h3>
-                        <p style={{ color: '#fff', fontSize: '1rem', lineHeight: '1.6', margin: 0 }}>
-                            After clicking submit, please wait <strong>30-40 seconds</strong> for the form to reach our servers and for the admin confirmation email to be sent.
+                        <p style={{ color: '#fff', fontSize: '1.1rem', lineHeight: '1.6', margin: 0 }}>
+                            Please wait <strong>~30 seconds</strong> for confirmation.
                             <br />
-                            <strong>Do not close this page</strong> until you see the success message.
+                            <strong>Do not close this page.</strong>
                         </p>
                     </div>
 

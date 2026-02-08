@@ -16,6 +16,7 @@ const MemberProfileRegistration = () => {
         nativePlace: '',
         pattaPer: '',
         atHyderabad: '', // Empty string for radio buttons
+        area: '',
         familyMembers: []
     });
     const [loading, setLoading] = useState(false);
@@ -216,6 +217,19 @@ const MemberProfileRegistration = () => {
                                 </label>
                             </div>
                         </div>
+                        {formData.atHyderabad === 'yes' && (
+                            <div className="form-group" style={{ marginTop: '1rem' }}>
+                                <label className="field-label">Area / Location (e.g., Kukatpally, Madhapur) *</label>
+                                <input
+                                    type="text"
+                                    name="area"
+                                    value={formData.area}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="Enter your area"
+                                />
+                            </div>
+                        )}
                     </section>
 
 

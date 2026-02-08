@@ -373,6 +373,41 @@
     /* Slight zoom on hover */
 }
 
+/* Page Header Styles */
+.gallery-page {
+    background: #0B2C4D;
+    min-height: 100vh;
+    color: white;
+}
+
+.no-photos-message {
+    text-align: center;
+    padding: 100px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 20px;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    margin: 40px auto;
+    max-width: 600px;
+}
+
+.empty-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+.no-photos-message h2 {
+    color: #F4B41A;
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.no-photos-message p {
+    font-size: 1.1rem;
+    opacity: 0.7;
+    line-height: 1.6;
+}
+
 .gallery-info {
     padding: 1.5rem;
     color: white;

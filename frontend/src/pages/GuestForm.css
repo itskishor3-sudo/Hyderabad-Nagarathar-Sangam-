@@ -286,3 +286,35 @@
         font-size: 1.8rem;
     }
 }
+
+@keyframes noticePulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+    }
+
+    70% {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 15px rgba(255, 193, 7, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+    }
+}
+
+.server-wait-notice {
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.25), rgba(255, 193, 7, 0.25)) !important;
+    border: 3px solid #F4B41A !important;
+    animation: noticePulse 2s infinite ease-in-out;
+}
+
+.server-wait-notice h3 {
+    text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+    font-weight: 900 !important;
+}
+
+.server-wait-notice p {
+    font-weight: 700 !important;
+}

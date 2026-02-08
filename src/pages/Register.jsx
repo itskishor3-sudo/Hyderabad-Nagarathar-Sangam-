@@ -18,6 +18,7 @@ const Register = () => {
         nativePlace: '',
         pattaPer: '',
         atHyderabad: '',
+        area: '',
         familyMembers: []
     });
     const [loading, setLoading] = useState(false);
@@ -149,7 +150,7 @@ const Register = () => {
                                     name="atHyderabad"
                                     value="yes"
                                     checked={formData.atHyderabad === 'yes'}
-                                    onChange={(e) => setFormData({ ...formData, atHyderabad: e.target.value })}
+                                    onChange={handleInputChange}
                                 />
                                 <span className="radio-custom"></span>
                                 Yes
@@ -160,13 +161,26 @@ const Register = () => {
                                     name="atHyderabad"
                                     value="no"
                                     checked={formData.atHyderabad === 'no'}
-                                    onChange={(e) => setFormData({ ...formData, atHyderabad: e.target.value })}
+                                    onChange={handleInputChange}
                                 />
                                 <span className="radio-custom"></span>
                                 No
                             </label>
                         </div>
                     </div>
+                    {formData.atHyderabad === 'yes' && (
+                        <div className="form-group" style={{ marginTop: '1rem' }}>
+                            <label className="field-label">Area / Location (e.g., Kukatpally, Madhapur) *</label>
+                            <input
+                                type="text"
+                                name="area"
+                                value={formData.area}
+                                onChange={handleInputChange}
+                                required
+                                placeholder="Enter your area"
+                            />
+                        </div>
+                    )}
                 </section>
 
 

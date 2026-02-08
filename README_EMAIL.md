@@ -1,6 +1,6 @@
-# HNNSC Contact Form Email System
+# NNSCA Contact Form Email System
 
-This document explains the email functionality for the HNNSC website contact form.
+This document explains the email functionality for the NNSCA website contact form.
 
 ## System Architecture
 
@@ -123,7 +123,7 @@ Sends an email with the contact form data.
 ## Email Template
 
 The backend sends HTML-formatted emails with:
-- Professional styling with HNNSC branding
+- Professional styling with NNSCA branding
 - All form fields clearly displayed
 - Clickable email and phone links
 - Timestamp in Indian Standard Time

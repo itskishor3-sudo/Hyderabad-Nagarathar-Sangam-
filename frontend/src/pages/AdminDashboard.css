@@ -3958,3 +3958,18 @@ button.tab-btn {
 .delete-btn:hover {
     background: #c0392b;
 }
+/* MOM ENHANCEMENTS */
+.moms-section { padding: 1rem; }
+.moms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem; margin-top: 2rem; }
+.mom-card { background: rgba(30, 60, 100, 0.4); backdrop-filter: blur(10px); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 15px; padding: 2rem; color: white; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.3s ease; }
+.mom-card:hover { transform: translateY(-5px); border-color: rgba(244, 180, 26, 0.5); }
+.mom-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1rem; }
+.mom-title-section h4 { margin: 0; font-size: 1.3rem; color: #F4B41A; margin-bottom: 0.3rem; }
+.mom-title-section small { display: block; color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; }
+.venue-badge { padding: 0.3rem 0.8rem; background: rgba(255, 255, 255, 0.1); border-radius: 20px; font-size: 0.8rem; white-space: nowrap; }
+.mom-content p { margin: 0.8rem 0; line-height: 1.5; }
+.mom-summary, .mom-actionable { background: rgba(0, 0, 0, 0.2); padding: 1rem; border-radius: 8px; font-size: 0.95rem; margin-top: 0.5rem !important; }
+.mom-actionable { border-left: 3px solid #4CAF50; background: rgba(76, 175, 80, 0.1); }
+.mom-actions { margin-top: 1.5rem; display: flex; gap: 0.8rem; flex-wrap: wrap; }
+.export-btn-small { padding: 0.6rem 1.2rem; border-radius: 50px; border: none; font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: all 0.3s ease; }
+.export-btn-small:hover { transform: scale(1.05); filter: brightness(1.2); }

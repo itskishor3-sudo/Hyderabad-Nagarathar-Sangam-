@@ -691,7 +691,7 @@ const Home = () => {
                                 <div className="contact-details">
                                     <p>
                                         <a
-                                            href={`https://mail.google.com/mail/?view=cm&fs=1&to=nnscahyderabad@gmail.com&su=${encodeURIComponent('Inquiry - NNSC Association')}&body=${encodeURIComponent(`Dear NNSC Team,
+                                            href={`https://mail.google.com/mail/?view=cm&fs=1&to=nnscahyderabad@gmail.com&su=${encodeURIComponent('Inquiry - NNSCA')}&body=${encodeURIComponent(`Dear NNSCA Team,
 
 I hope this message finds you well. I am reaching out to inquire about [your topic].
 

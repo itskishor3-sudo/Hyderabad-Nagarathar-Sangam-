@@ -36,7 +36,10 @@ const AdminMembersList = () => {
                         <p>📧 {member.email}</p>
                         <p>🏛️ Kovil: {member.kovil} | Pirivu: {member.pirivu}</p>
                         <p>🏘️ Native: {member.nativePlace} | Patta Per: {member.pattaPer}</p>
-                        <p>📍 Hyderabad: {member.atHyderabad ? 'Yes' : 'No'}</p>
+                        <p>📍 Hyderabad: {member.atHyderabad === 'yes' || member.atHyderabad === true ? 'Yes' : 'No'}</p>
+                        {(member.area || member.hyderabadArea) && (
+                            <p>🏙️ Area: {member.area || member.hyderabadArea}</p>
+                        )}
                         {member.familyMembers && member.familyMembers.length > 0 && (
                             <div className="family-list">
                                 <strong>Family ({member.familyMembers.length}):</strong>

@@ -916,7 +916,7 @@ const AdminDashboard = () => {
         const worksheet = XLSX.utils.json_to_sheet(data);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Budget');
-        XLSX.writeFile(workbook, `Budget_${budget.eventName.replace(/\s+/g, '_')}.xlsx`);
+        XLSX.writeFile(workbook, `Budget_${budget.eventName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
         showToast('Budget exported successfully!', 'success');
     };
     const handleCreateStock = async (e) => {
@@ -1239,7 +1239,7 @@ const AdminDashboard = () => {
         const worksheet = XLSX.utils.json_to_sheet(data);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Poll Results');
-        XLSX.writeFile(workbook, `Poll_${poll.title.replace(/\s+/g, '_')}_Results.xlsx`);
+        XLSX.writeFile(workbook, `Poll_${poll.title.replace(/\s+/g, '_')}_Results_${new Date().toISOString().split('T')[0]}.xlsx`);
         showToast('Results exported successfully!', 'success');
     };
     const handleAddAuctionItem = async (e) => {
@@ -1314,24 +1314,25 @@ const AdminDashboard = () => {
 
         const data = auctionItems.map((item, index) => ({
             'S.No': index + 1,
-            'Item Name': item.itemName,
-            'Buyer Name': item.buyerName,
-            'Price': item.price,
+            'Item Name': item.itemName || 'N/A',
+            'Buyer Name': item.buyerName || 'N/A',
+            'Price': Number(item.price) || 0,
             'Payment Status': item.isPaid ? 'Paid' : 'Unpaid',
-            'Paid Date': item.isPaid && item.paidAt ? new Date(item.paidAt).toLocaleDateString() : '-'
+            'Paid Date': item.isPaid && item.paidAt ? new Date(item.paidAt).toLocaleDateString('en-GB') : '-'
         }));
 
-        const totalPaid = auctionItems.filter(i => i.isPaid).reduce((sum, i) => sum + i.price, 0);
-        const totalPending = auctionItems.filter(i => !i.isPaid).reduce((sum, i) => sum + i.price, 0);
+        const totalPaid = auctionItems.filter(i => i.isPaid).reduce((sum, i) => sum + (Number(i.price) || 0), 0);
+        const totalPending = auctionItems.filter(i => !i.isPaid).reduce((sum, i) => sum + (Number(i.price) || 0), 0);
+        const grandTotal = auctionItems.reduce((sum, i) => sum + (Number(i.price) || 0), 0);
 
-        data.push({ 'S.No': '', 'Item Name': '', 'Buyer Name': 'TOTAL AMOUNT', 'Price': calculateTotalAmount(), 'Payment Status': '', 'Paid Date': '' });
+        data.push({ 'S.No': '', 'Item Name': '', 'Buyer Name': 'TOTAL AMOUNT', 'Price': grandTotal, 'Payment Status': '', 'Paid Date': '' });
         data.push({ 'S.No': '', 'Item Name': '', 'Buyer Name': 'PAID AMOUNT', 'Price': totalPaid, 'Payment Status': '', 'Paid Date': '' });
         data.push({ 'S.No': '', 'Item Name': '', 'Buyer Name': 'PENDING AMOUNT', 'Price': totalPending, 'Payment Status': '', 'Paid Date': '' });
 
         const worksheet = XLSX.utils.json_to_sheet(data);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, `Auction ${selectedYear}`);
-        XLSX.writeFile(workbook, `Auction_${selectedYear}_Records.xlsx`);
+        XLSX.writeFile(workbook, `Auction_${selectedYear}_Records_${new Date().toISOString().split('T')[0]}.xlsx`);
         showToast('Auction data exported successfully!', 'success');
     };
     const calculateTotalHeadcount = () => {
@@ -1414,22 +1415,24 @@ const AdminDashboard = () => {
 
         const data = members.map((member, index) => ({
             'S.No': index + 1,
-            'Name': member.name,
-            'Age': member.age,
-            'Email': member.email,
-            'Phone': member.phone,
-            'Kovil': member.kovil,
-            'Pirivu': member.pirivu,
-            'Native Place': member.nativePlace,
-            'Patta Per': member.pattaPer,
+            'Name': member.name || 'N/A',
+            'Age': member.age || 'N/A',
+            'Email': member.email || 'N/A',
+            'Phone': member.phone || 'N/A',
+            'Area': member.area || member.hyderabadArea || 'N/A',
+            'Kovil': member.kovil || 'N/A',
+            'Pirivu': member.pirivu || 'N/A',
+            'Native Place': member.nativePlace || 'N/A',
+            'Patta Per': member.pattaPer || 'N/A',
             'At Hyderabad': member.atHyderabad ? 'Yes' : 'No',
-            'Family Members': member.familyMembers?.length || 0
+            'Family Members': member.familyMembers?.length || 0,
+            'Registered At': member.createdAt ? new Date(member.createdAt).toLocaleDateString('en-GB') : 'N/A'
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(data);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Members');
-        XLSX.writeFile(workbook, `NNSC_Members_${new Date().toISOString().split('T')[0]}.xlsx`);
+        XLSX.writeFile(workbook, `NNSCA_Members_${new Date().toISOString().split('T')[0]}.xlsx`);
         showToast('Members data exported successfully!', 'success');
     };
 
@@ -1442,7 +1445,9 @@ const AdminDashboard = () => {
             member.kovil?.toLowerCase().includes(search) ||
             member.pirivu?.toLowerCase().includes(search) ||
             member.nativePlace?.toLowerCase().includes(search) ||
-            member.pattaPer?.toLowerCase().includes(search)
+            member.pattaPer?.toLowerCase().includes(search) ||
+            member.area?.toLowerCase().includes(search) ||
+            member.hyderabadArea?.toLowerCase().includes(search)
         );
     });
     // Guest Records Component
@@ -1521,10 +1526,64 @@ const AdminDashboard = () => {
             }
         };
 
+        const exportGuestsToExcel = () => {
+            if (guests.length === 0) {
+                showToast('No guest records to export', 'info');
+                return;
+            }
+
+            const data = guests.map((guest, index) => ({
+                'S.No': index + 1,
+                'Full Name': guest.name || guest.fullName || 'N/A',
+                'Age': guest.age || 'N/A',
+                'Native Place': guest.nativePlace || 'N/A',
+                'Kovil': guest.kovil || 'N/A',
+                'Pirivu': guest.pirivu || 'N/A',
+                'House Name': guest.houseNamePattaiPeyar || 'N/A',
+                'Father Name': guest.fathersName || 'N/A',
+                'Email': guest.email || 'N/A',
+                'Phone': guest.phoneNumber || guest.phone || 'N/A',
+                'Address': guest.permanentAddress || guest.address || 'N/A',
+                'Check-in': `${guest.checkInDate || 'N/A'} at ${guest.checkInTime || 'N/A'}`,
+                'Check-out': `${guest.expectedCheckOutDate || 'N/A'} at ${guest.expectedCheckOutTime || 'N/A'}`,
+                'Total Guests': guest.totalNumberOfGuests || 'N/A',
+                'Room/Hall': guest.roomHall || 'N/A',
+                'Aadhar': guest.aadharNumber || 'N/A',
+                'Status': guest.status?.toUpperCase() || 'PENDING',
+                'Registered Date': guest.createdAt ? new Date(guest.createdAt).toLocaleDateString('en-GB') : 'N/A'
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Guest Records');
+            XLSX.writeFile(workbook, `NNSCA_Guests_${new Date().toISOString().split('T')[0]}.xlsx`);
+            showToast('Guest records exported successfully!', 'success');
+        };
+
         if (loading) return <div className="loading">Loading guest records...</div>;
 
         return (
             <div className="guests-management">
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
+                    <button
+                        onClick={exportGuestsToExcel}
+                        className="export-btn"
+                        style={{
+                            padding: '0.8rem 1.5rem',
+                            background: '#4caf50',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem'
+                        }}
+                    >
+                        📊 Export All Guests to Excel
+                    </button>
+                </div>
                 {/* Stats Cards - UPDATED */}
                 <div className="stats-row" style={{ marginBottom: '2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                     <div className="stat-card" style={{ background: 'rgba(33, 150, 243, 0.2)', padding: '1.5rem', borderRadius: '10px', textAlign: 'center' }}>
@@ -2005,12 +2064,12 @@ const AdminDashboard = () => {
                                             <div className="member-name-section">
                                                 <h3>{member.name} <span className="age-badge">({member.age} yrs)</span></h3>
                                                 <div className="status-container">
-                                                    <span className={`status-badge ${member.atHyderabad ? 'in-hyd' : 'out-hyd'}`}>
-                                                        {member.atHyderabad ? '📍 Hyderabad' : '🏠 Other'}
+                                                    <span className={`status-badge ${member.atHyderabad === 'yes' || member.atHyderabad === true ? 'in-hyd' : 'out-hyd'}`}>
+                                                        {member.atHyderabad === 'yes' || member.atHyderabad === true ? '📍 Hyderabad' : '🏠 Other'}
                                                     </span>
-                                                    {member.atHyderabad && member.hyderabadArea && (
+                                                    {(member.atHyderabad === 'yes' || member.atHyderabad === true) && (member.area || member.hyderabadArea) && (
                                                         <span className="area-badge">
-                                                            🏙️ {member.hyderabadArea}
+                                                            🏙️ {member.area || member.hyderabadArea}
                                                         </span>
                                                     )}
                                                 </div>
@@ -3220,6 +3279,9 @@ const AdminDashboard = () => {
                                             <p><strong>🏘️ Native:</strong> {reg.nativePlace}</p>
                                             <p><strong>📋 Patta Per:</strong> {reg.pattaPer}</p>
                                             <p><strong>📍 In Hyd:</strong> {reg.atHyderabad === 'yes' ? '✅ Yes' : '❌ No'}</p>
+                                            {(reg.area || reg.hyderabadArea) && (
+                                                <p><strong>🏙️ Area:</strong> {reg.area || reg.hyderabadArea}</p>
+                                            )}
                                             <hr style={{ border: '0.5px solid rgba(255, 255, 255, 0.1)', margin: '1rem 0' }} />
                                             <p><strong>🏠 Address:</strong> {reg.address}</p>
                                             <p><strong>🏙️ City:</strong> {reg.city}, {reg.state} - {reg.pincode}</p>

@@ -1,7 +1,7 @@
 {
-    "name": "hnnsc-backend",
+    "name": "nnsca-backend",
     "version": "1.0.0",
-    "description": "Backend server for HNNSC contact form email functionality",
+    "description": "Backend server for NNSCA contact form email functionality",
     "main": "server.js",
     "type": "module",
     "scripts": {

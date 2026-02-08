@@ -92,25 +92,33 @@ const Gallery = () => {
                         ))}
                     </div>
 
-                    <div className="gallery-grid">
-                        {filteredItems.map(item => (
-                            <div key={item.id} className="gallery-item" onClick={() => openAlbum(item)}>
-                                <div className="gallery-image-wrapper">
-                                    <img src={item.thumbnail} alt={item.title} className="gallery-img" />
-                                    <div className="image-overlay">
-                                        <span className="overlay-icon">📷</span>
-                                        <span className="overlay-text">{item.images.length > 1 ? `View Album (${item.images.length})` : 'View Full Size'}</span>
+                    {filteredItems.length === 0 ? (
+                        <div className="no-photos-message">
+                            <div className="empty-icon">📷</div>
+                            <h2>No Photos to Display</h2>
+                            <p>Our gallery is currently being updated. Please check back later for new photos from our community events.</p>
+                        </div>
+                    ) : (
+                        <div className="gallery-grid">
+                            {filteredItems.map(item => (
+                                <div key={item.id} className="gallery-item" onClick={() => openAlbum(item)}>
+                                    <div className="gallery-image-wrapper">
+                                        <img src={item.thumbnail} alt={item.title} className="gallery-img" />
+                                        <div className="image-overlay">
+                                            <span className="overlay-icon">📷</span>
+                                            <span className="overlay-text">{item.images.length > 1 ? `View Album (${item.images.length})` : 'View Full Size'}</span>
+                                        </div>
+                                        {item.images.length > 1 && <div className="multi-photo-badge">❐ {item.images.length}</div>}
                                     </div>
-                                    {item.images.length > 1 && <div className="multi-photo-badge">❐ {item.images.length}</div>}
+                                    <div className="gallery-info">
+                                        <h3>{item.title}</h3>
+                                        <p>{item.description}</p>
+                                        <span className="category-tag">{item.category}</span>
+                                    </div>
                                 </div>
-                                <div className="gallery-info">
-                                    <h3>{item.title}</h3>
-                                    <p>{item.description}</p>
-                                    <span className="category-tag">{item.category}</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </section>
 

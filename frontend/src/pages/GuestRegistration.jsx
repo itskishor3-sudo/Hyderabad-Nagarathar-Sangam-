@@ -10,6 +10,7 @@ const GuestRegistration = () => {
         kovil: '', pirivu: '', nativePlace: '', pattaPer: '',
         address: '', city: '', state: '', pincode: '',
         atHyderabad: '',
+        area: '',
         familyMembers: []
     });
 
@@ -67,6 +68,7 @@ const GuestRegistration = () => {
                 kovil: '', pirivu: '', nativePlace: '', pattaPer: '',
                 address: '', city: '', state: '', pincode: '',
                 atHyderabad: '',
+                area: '',
                 familyMembers: []
             });
 
@@ -83,7 +85,7 @@ const GuestRegistration = () => {
             <div className="registration-container">
                 <div className="registration-header">
                     <h1>🎯 Member Registration</h1>
-                    <p className="registration-subtitle">Join the NNSC Association Family</p>
+                    <p className="registration-subtitle">Join the NNSCA Family</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="registration-form">
@@ -173,6 +175,30 @@ const GuestRegistration = () => {
                                 </label>
                             </div>
                         </div>
+                        {formData.atHyderabad === 'yes' && (
+                            <div className="form-group" style={{ marginTop: '1.5rem' }}>
+                                <label htmlFor="area" style={{ color: 'white', fontWeight: 'bold' }}>Area / Location (e.g., Kukatpally, Madhapur) *</label>
+                                <input
+                                    type="text"
+                                    id="area"
+                                    name="area"
+                                    value={formData.area}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="Enter your area"
+                                    style={{
+                                        width: '100%',
+                                        padding: '1rem',
+                                        borderRadius: '8px',
+                                        border: '2px solid rgba(255, 255, 255, 0.2)',
+                                        background: 'rgba(255, 255, 255, 0.1)',
+                                        color: 'white',
+                                        fontSize: '1rem',
+                                        marginTop: '0.5rem'
+                                    }}
+                                />
+                            </div>
+                        )}
                     </div>
 
                     {/* ✅ ADDRESS SECTION */}

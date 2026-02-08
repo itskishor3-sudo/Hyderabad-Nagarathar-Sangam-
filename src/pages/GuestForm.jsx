@@ -29,7 +29,9 @@ const GuestForm = () => {
         expectedCheckOutTime: '',
         totalNumberOfGuests: '',
         roomHall: '',
-        aadharNumber: ''
+        aadharNumber: '',
+        atHyderabad: '',
+        area: ''
     });
 
     const handleInputChange = (e) => {
@@ -80,8 +82,14 @@ const GuestForm = () => {
 
             // ONLY set submitted if email was successful
             setSubmitted(true);
-            setFormData({});
-            showToast('✅ Registration successful! Confirmation email sent.', 'success');
+            setFormData({
+                email: '', name: '', age: '', nativePlace: '', kovil: '', pirivu: '',
+                houseNamePattaiPeyar: '', fathersName: '', permanentAddress: '',
+                phoneNumber: '', checkInDate: '', checkInTime: '',
+                expectedCheckOutDate: '', expectedCheckOutTime: '',
+                totalNumberOfGuests: '', roomHall: '', aadharNumber: '', area: ''
+            });
+            showToast('✅ Registration successful! Emails sent to admins and you.', 'success');
 
         } catch (error) {
             console.error('Error:', error);
@@ -172,6 +180,25 @@ const GuestForm = () => {
                             <label>Phone number *</label>
                             <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} placeholder="+91 9876543210" required />
                         </div>
+                        <div className="form-group">
+                            <label>Are you currently residing in Hyderabad? *</label>
+                            <div className="radio-group" style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
+                                <label className="radio-option" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                    <input type="radio" name="atHyderabad" value="yes" checked={formData.atHyderabad === 'yes'} onChange={handleInputChange} required />
+                                    <span>YES</span>
+                                </label>
+                                <label className="radio-option" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                    <input type="radio" name="atHyderabad" value="no" checked={formData.atHyderabad === 'no'} onChange={handleInputChange} required />
+                                    <span>NO</span>
+                                </label>
+                            </div>
+                        </div>
+                        {formData.atHyderabad === 'yes' && (
+                            <div className="form-group">
+                                <label>Area / Location (e.g., Kukatpally, Madhapur) *</label>
+                                <input type="text" name="area" value={formData.area} onChange={handleInputChange} placeholder="Enter your area" required />
+                            </div>
+                        )}
                     </div>
 
                     <div className="form-section">

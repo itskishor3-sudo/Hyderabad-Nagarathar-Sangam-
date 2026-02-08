@@ -28,7 +28,7 @@ const About = () => {
             name: "Sreenivas Ramaswamy",
             role: "President",
             place: "Karaikudi",
-            email: "Rm.sreenivas@gmail.com",
+            email: "hnsnnscapresident@gmail.com",
             phone: "+91 98844 01655",
             photo: sreenivasImg
         },
@@ -36,7 +36,7 @@ const About = () => {
             name: "Kuppu Kulandayan",
             role: "Vice President",
             place: "Rayavaram",
-            email: "klkuppu@gmail.com",
+            email: "hnsnnscavicepresident@gmail.com",
             phone: "+91 99894 99460",
             photo: kuppuImg
         },
@@ -44,7 +44,7 @@ const About = () => {
             name: "S.Shanmugam",
             role: "Secretary",
             place: "Pon. Pudupatti",
-            email: "sramadasu1974@gmail.com",
+            email: "hnsnnscasecretary@gmail.com",
             phone: "+91 9618334424",
             photo: shanmugamImg
         },
@@ -52,7 +52,7 @@ const About = () => {
             name: "Saikumar Chidambaram",
             role: "Joint Secretary",
             place: "K. Lakshmipuram",
-            email: "Sai.cpk@gmail.com",
+            email: "hnsnnscajointsecretary@gmail.com",
             phone: "+91 90326 52375",
             photo: saikumarImg
         },
@@ -60,7 +60,7 @@ const About = () => {
             name: "N.G. Ramanathan",
             role: "Treasurer",
             place: "Nachandupatti",
-            email: "ngramu@yahoo.com",
+            email: "hnsnnscatreasurer@gmail.com",
             phone: "+91 92836 69216",
             photo: ramanathanImg
         },
@@ -68,7 +68,7 @@ const About = () => {
             name: "S. Kumar",
             role: "Management Committe Member",
             place: "K. Lakshmipuram",
-            email: "kumar27siva@yahoo.co.in",
+            email: "hnsnnscamcmember1@gmail.com",
             phone: "+91 97100 59443",
             photo: kumarImg
         },
@@ -76,7 +76,7 @@ const About = () => {
             name: "Muthuveerappan Periyakaruppan",
             role: "Management Committe Member",
             place: "",
-            email: "muthuveerappan@gmail.com",
+            email: "hnsnnscamcmember2@gmail.com",
             phone: "+91 91777 71224",
             photo: muthuImg
         }
@@ -89,12 +89,12 @@ const About = () => {
                 {/* About Us Section */}
                 <section className="about-section">
                     <div className="section-header">
-                        <h2>About NNSC Association</h2>
+                        <h2>About NNSCA</h2>
                         <div className="header-line"></div>
                     </div>
                     <div className="about-content">
                         <p>
-                            The Hyderabad Nattukkottai Nagarathar Social and Cultural Association (NNSC)
+                            The Hyderabad Nattukkottai Nagarathar Social and Cultural Association (NNSCA)
                             is dedicated to preserving and promoting the rich Tamil culture and heritage
                             of the Nattukkottai Nagarathar community in Hyderabad.
                         </p>
@@ -196,8 +196,8 @@ Best regards`;
                                     <a
                                         href={createGmailLink(
                                             'nnscahyderabad@gmail.com',
-                                            'General Inquiry - NNSC Association',
-                                            `Dear NNSC Team,
+                                            'General Inquiry - NNSCA',
+                                            `Dear NNSCA Team,
 
 I hope this message finds you well. I am writing to inquire about [your topic].
 

@@ -32,7 +32,9 @@ const GuestDashboard = () => {
         additionalComments: '',
         emergencyContactName: '',
         emergencyContactPhone: '',
-        preferredLanguage: 'English'
+        preferredLanguage: 'English',
+        atHyderabad: '',
+        area: ''
     });
 
     const [accompaniedPerson, setAccompaniedPerson] = useState({
@@ -285,6 +287,35 @@ const GuestDashboard = () => {
                                         />
                                     </div>
                                 </div>
+
+                                <div className="form-group" style={{ marginTop: '1.5rem' }}>
+                                    <label style={{ color: '#00FFF9', display: 'block', fontWeight: '700', marginBottom: '0.7rem' }}>Are you currently residing in Hyderabad? *</label>
+                                    <div className="radio-group" style={{ display: 'flex', gap: '2rem', marginTop: '0.5rem' }}>
+                                        <label className="radio-option" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                            <input type="radio" name="atHyderabad" value="yes" checked={formData.atHyderabad === 'yes'} onChange={handleInputChange} required />
+                                            <span style={{ color: '#fff' }}>YES</span>
+                                        </label>
+                                        <label className="radio-option" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                            <input type="radio" name="atHyderabad" value="no" checked={formData.atHyderabad === 'no'} onChange={handleInputChange} required />
+                                            <span style={{ color: '#fff' }}>NO</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {formData.atHyderabad === 'yes' && (
+                                    <div className="form-group" style={{ marginTop: '1rem' }}>
+                                        <label style={{ color: '#00FFF9', display: 'block', fontWeight: '700', marginBottom: '0.7rem' }}>Area / Location in Hyderabad *</label>
+                                        <input
+                                            type="text"
+                                            name="area"
+                                            value={formData.area}
+                                            onChange={handleInputChange}
+                                            placeholder="e.g., Kukatpally, Madhapur"
+                                            required
+                                            style={{ width: '100%', padding: '1rem', borderRadius: '12px', background: 'rgba(255,255,255,0.2)', color: '#00FFF9', border: '2px solid rgba(255,255,255,0.3)' }}
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             <div className="form-section">

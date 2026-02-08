@@ -62,7 +62,7 @@ const Contact = () => {
     };
 
     // Correct Google Maps Link for the Button
-    const mapLink = "https://www.google.com/maps/place/Hyderabad+Nagarathar+Sangam/@17.4473403,78.512149,15z/data=!4m6!3m5!1s0x3bcb9b673285afe5:0x254cdf5e90a104db!8m2!3d17.4473403!4d78.512149";
+    const mapLink = "https://maps.app.goo.gl/a2Go8iqnC9k21EnDA";
 
     return (
         <div className="contact-page">
@@ -80,7 +80,13 @@ const Contact = () => {
                     <div className="contact-wrapper">
                         {/* Contact Information Cards */}
                         <div className="contact-info-grid">
-                            <div className="info-card">
+                            <a
+                                href={mapLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="info-card"
+                                style={{ textDecoration: 'none', color: 'inherit' }}
+                            >
                                 <div className="info-icon">📍</div>
                                 <h3>Location</h3>
                                 <div className="contact-text-block">
@@ -89,13 +95,13 @@ const Contact = () => {
                                     <p>Mamidpalli, East Marredpally</p>
                                     <p>Secunderabad, Telangana 500026</p>
                                 </div>
-                            </div>
+                            </a>
 
                             <div className="info-card">
                                 <div className="info-icon">📧</div>
                                 <h3>Email</h3>
                                 <a
-                                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=nnscahyderabad@gmail.com&su=${encodeURIComponent('Contact Request - NNSC Association')}&body=${encodeURIComponent(`Dear NNSC Team,
+                                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=nnscahyderabad@gmail.com&su=${encodeURIComponent('Contact Request - NNSCA')}&body=${encodeURIComponent(`Dear NNSCA Team,
 
 I hope this message finds you well. I am reaching out to you regarding [your inquiry topic].
 
@@ -222,7 +228,7 @@ Best regards`)}`}
                         allowFullScreen=""
                         loading="lazy"
                         referrerPolicy="no-referrer-when-downgrade"
-                        title="NNSC Association Location"
+                        title="NNSCA Location"
                     ></iframe>
 
                     <div className="map-overlay">

@@ -46,22 +46,19 @@ app.use(express.urlencoded({ extended: true }));
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Configure Multer for Gallery Uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const dir = './uploads/gallery';
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
+// Multer for other uploads if needed in future can be added here
+const upload = multer({
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => {
+            const dir = './uploads';
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            cb(null, dir);
+        },
+        filename: (req, file, cb) => {
+            cb(null, Date.now() + '-' + file.originalname);
         }
-        cb(null, dir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
+    })
 });
-
-const upload = multer({ storage: storage });
 
 // Configure Brevo (Sendinblue) API
 import SibApiV3Sdk from 'sib-api-v3-sdk';
@@ -474,7 +471,7 @@ app.post('/api/approve-guest', async (req, res) => {
         }
 
         // Shared Template Styles (with hosted logo)
-        const logoHtml = `<img src="https://hyderabad-nagarathar-sangam.vercel.app/image.png" alt="HNNSC Logo" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 2px solid #DAA520;">`;
+        const logoHtml = `<img src="https://hyderabad-nagarathar-sangam.vercel.app/image.png" alt="NNSCA Logo" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 2px solid #DAA520;">`;
 
         const headerHtml = `
             <div style="background-color: #0B2C4D; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
@@ -485,7 +482,7 @@ app.post('/api/approve-guest', async (req, res) => {
         `;
         const footerHtml = `
             <div style="background-color: #f4f4f4; padding: 15px; text-align: center; border-radius: 0 0 8px 8px; font-size: 12px; color: #666;">
-                <p style="margin: 0;">&copy; ${new Date().getFullYear()} HNNSC Association. All rights reserved.</p>
+                <p style="margin: 0;">&copy; ${new Date().getFullYear()} NNSCA. All rights reserved.</p>
                 <p style="margin: 5px 0 0 0;">Hyderabad, India</p>
             </div>
         `;
@@ -511,7 +508,7 @@ app.post('/api/approve-guest', async (req, res) => {
 
         await sendEmail({
             to: email,
-            subject: "Request Accepted - HNNSC Sangam",
+            subject: "Request Accepted - NNSCA Sangam",
             htmlContent: htmlContent
         });
 
@@ -519,50 +516,6 @@ app.post('/api/approve-guest', async (req, res) => {
     } catch (error) {
         console.error('❌ Error sending approval email:', error);
         res.status(500).json({ success: false, message: 'Failed to send approval email.' });
-    }
-});
-
-// --- GALLERY REPLACEMENT API ---
-
-// Single Image Upload
-app.post('/api/gallery/upload', upload.single('image'), (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ success: false, message: 'No file uploaded' });
-        }
-
-        const imageUrl = `${BACKEND_URL}/uploads/gallery/${req.file.filename}`;
-        res.status(200).json({
-            success: true,
-            imageUrl: imageUrl,
-            filename: req.file.filename
-        });
-    } catch (error) {
-        console.error('❌ Upload error:', error);
-        res.status(500).json({ success: false, message: 'Upload failed' });
-    }
-});
-
-// Bulk Image Upload
-app.post('/api/gallery/bulk-upload', upload.array('images', 50), (req, res) => {
-    try {
-        if (!req.files || req.files.length === 0) {
-            return res.status(400).json({ success: false, message: 'No files uploaded' });
-        }
-
-        const uploadedImages = req.files.map(file => ({
-            imageUrl: `${BACKEND_URL}/uploads/gallery/${file.filename}`,
-            filename: file.filename,
-            originalName: file.originalname
-        }));
-
-        res.status(200).json({
-            success: true,
-            images: uploadedImages
-        });
-    } catch (error) {
-        console.error('❌ Bulk upload error:', error);
-        res.status(500).json({ success: false, message: 'Bulk upload failed' });
     }
 });
 

@@ -12,8 +12,8 @@ const Footer = () => {
     };
 
     // Email mailto link with pre-filled content
-    const emailSubject = 'General Inquiry - NNSC Association';
-    const emailBody = `Dear NNSC Team,
+    const emailSubject = 'General Inquiry - NNSCA';
+    const emailBody = `Dear NNSCA Team,
 
 I hope this message finds you well. I am writing to inquire about [your topic].
 
@@ -31,8 +31,8 @@ Best regards`;
                 {/* LOGO & DESCRIPTION */}
                 <div className="footer-section footer-about">
                     <div className="footer-logo-section">
-                        <img src={logo} alt="NNSC Logo" className="footer-logo" />
-                        <h3 className="footer-title">NNSC Association</h3>
+                        <img src={logo} alt="NNSCA Logo" className="footer-logo" />
+                        <h3 className="footer-title">NNSCA</h3>
                     </div>
                     <p className="footer-description">
                         Preserving Tamil culture and heritage in Hyderabad, devoted to Lord Murugan
@@ -89,14 +89,21 @@ Best regards`;
                         </div>
                         <div className="contact-item">
                             <span className="contact-icon">📍</span>
-                            <p>East Marredpally, Hyderabad, Telangana, India</p>
+                            <a
+                                href="https://maps.app.goo.gl/a2Go8iqnC9k21EnDA"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="contact-link"
+                            >
+                                East Marredpally, Hyderabad, Telangana, India
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div className="footer-bottom">
-                <p className="copyright">&copy; 2026 Hyderabad Nattukkottai Nagarathar Social and Cultural Association. All rights reserved.</p>
+                <p className="copyright">&copy; 2026 Nattukkottai Nagarathar Social and Cultural Association. All rights reserved.</p>
                 <p className="blessing">|| Om Saravana Bhava ||</p>
             </div>
         </footer>

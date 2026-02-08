@@ -46,7 +46,7 @@ const Hero = () => {
 
             {/* Existing Content */}
             <div className="hero-content-wrapper">
-                <img src={logo} alt="NNSC Logo" className="hero-logo" />
+                <img src={logo} alt="NNSCA Logo" className="hero-logo" />
                 <h1 className="hero-title">NATTUKKOTTAI NAGARATHAR</h1>
                 <p className="hero-subtitle">SOCIAL AND CULTURAL ASSOCIATION</p>
                 <p className="hero-blessing">|| வேல் வேல் முருகா வெற்றிவேல் முருகா ||</p>

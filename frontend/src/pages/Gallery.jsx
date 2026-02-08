@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { db } from '../firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import React, { useState } from 'react';
 import './Gallery.css';
 
-// --- IMPORT ALL IMAGES (Keep for fallbacks or references if needed) ---
-import sangamamImage from '../assets/sangamam.jpg';
+// Import images
+import sangamamImg from '../assets/sangamam.jpg';
 import nonbu1 from '../assets/nonbu1.jpg';
 import nonbu2 from '../assets/nonbu2.jpg';
 import nonbu3 from '../assets/nonbu3.jpg';
@@ -16,93 +14,60 @@ import kavadi2 from '../assets/kavadi2.jpg';
 import kavadi3 from '../assets/kavadi3.jpg';
 
 const Gallery = () => {
-    const [selectedCategory, setSelectedCategory] = useState('all');
-    const [modalData, setModalData] = useState(null);
-    const [galleryItems, setGalleryItems] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-    useEffect(() => {
-        const fetchGallery = async () => {
-            try {
-                const q = query(collection(db, 'gallery'), orderBy('createdAt', 'desc'));
-                const querySnapshot = await getDocs(q);
-                const items = querySnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    // Map 'photos' to 'images' for the modal logic compatibility
-                    images: doc.data().photos?.map(p => p.url) || []
-                }));
-
-                // Fallback to original hardcoded items if Firestore is empty
-                if (items.length === 0) {
-                    setGalleryItems([
-                        {
-                            id: 1,
-                            title: 'Sangamam 2025',
-                            category: 'events',
-                            description: 'Grand community gathering at Sri Vidyadhari Kshetram.',
-                            thumbnail: sangamamImage,
-                            images: [sangamamImage]
-                        },
-                        {
-                            id: 2,
-                            title: 'Pillayar Nonbu 2025',
-                            category: 'religious',
-                            description: 'Nagarathar unique festival celebration in December.',
-                            thumbnail: nonbu1,
-                            images: [nonbu1, nonbu2, nonbu3, nonbu4, nonbu5, nonbu6]
-                        },
-                        {
-                            id: 3,
-                            title: 'Murugan Kaavadi Poojai',
-                            category: 'religious',
-                            description: 'Murugan Kaavadi Poojai Jan 2026.',
-                            thumbnail: kavadi1,
-                            images: [kavadi1, kavadi2, kavadi3]
-                        }
-                    ]);
-                } else {
-                    setGalleryItems(items);
-                }
-            } catch (error) {
-                console.error("Error fetching gallery:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchGallery();
-    }, []);
-
-    const categories = [
-        { id: 'all', name: 'All' },
-        { id: 'events', name: 'Events' },
-        { id: 'religious', name: 'Religious' }
+    const events = [
+        {
+            id: 1,
+            title: "Sangamam 2025",
+            description: "Grand community gathering at Sri Vidyadhari Kshetram.",
+            tag: "EVENTS",
+            tagClass: "events",
+            images: [sangamamImg]
+        },
+        {
+            id: 2,
+            title: "Pillayar Nonbu 2025",
+            description: "Nagarathar unique festival celebration featuring traditional attire and performances.",
+            tag: "RELIGIOUS",
+            tagClass: "religious",
+            images: [nonbu1, nonbu2, nonbu3, nonbu4, nonbu5, nonbu6]
+        },
+        {
+            id: 3,
+            title: "Murugan Kaavadi Poojai",
+            description: "Murugan Kaavadi Poojai Jan 2026.",
+            tag: "RELIGIOUS",
+            tagClass: "religious",
+            images: [kavadi1, kavadi2, kavadi3]
+        }
     ];
 
-    const filteredItems = selectedCategory === 'all'
-        ? galleryItems
-        : galleryItems.filter(item => item.category === selectedCategory);
+    const openLightbox = (event, index = 0) => {
+        setSelectedEvent(event);
+        setCurrentImageIndex(index);
+        document.body.style.overflow = 'hidden';
+    };
 
-    const openAlbum = (item) => {
-        // If photos come with descriptions, use them in modal
-        const imagesWithDesc = item.photos || item.images.map(url => ({ url, description: item.description }));
-        setModalData({
-            imagesWithData: imagesWithDesc,
-            currentIndex: 0,
-            title: item.title,
-            description: item.description
-        });
+    const closeLightbox = () => {
+        setSelectedEvent(null);
+        setCurrentImageIndex(0);
+        document.body.style.overflow = 'auto';
     };
 
     const nextImage = (e) => {
         e.stopPropagation();
-        setModalData(prev => ({ ...prev, currentIndex: (prev.currentIndex + 1) % prev.imagesWithData.length }));
+        setCurrentImageIndex((prev) =>
+            prev === selectedEvent.images.length - 1 ? 0 : prev + 1
+        );
     };
 
     const prevImage = (e) => {
         e.stopPropagation();
-        setModalData(prev => ({ ...prev, currentIndex: (prev.currentIndex - 1 + prev.imagesWithData.length) % prev.imagesWithData.length }));
+        setCurrentImageIndex((prev) =>
+            prev === 0 ? selectedEvent.images.length - 1 : prev - 1
+        );
     };
 
     return (
@@ -116,27 +81,28 @@ const Gallery = () => {
 
             <section className="gallery-section">
                 <div className="container">
-                    <div className="gallery-filters">
-                        {categories.map(cat => (
-                            <button key={cat.id} className={`filter-btn ${selectedCategory === cat.id ? 'active' : ''}`} onClick={() => setSelectedCategory(cat.id)}>{cat.name}</button>
-                        ))}
-                    </div>
-
                     <div className="gallery-grid">
-                        {filteredItems.map(item => (
-                            <div key={item.id} className="gallery-item" onClick={() => openAlbum(item)}>
+                        {events.map((event) => (
+                            <div
+                                key={event.id}
+                                className="gallery-item"
+                                onClick={() => openLightbox(event)}
+                            >
                                 <div className="gallery-image-wrapper">
-                                    <img src={item.thumbnail} alt={item.title} className="gallery-img" />
-                                    <div className="image-overlay">
-                                        <span className="overlay-icon">📷</span>
-                                        <span className="overlay-text">{item.images.length > 1 ? `View Album (${item.images.length})` : 'View Full Size'}</span>
-                                    </div>
-                                    {item.images.length > 1 && <div className="multi-photo-badge">❐ {item.images.length}</div>}
+                                    <img src={event.images[0]} alt={event.title} className="gallery-img" />
+                                    {event.images.length > 1 && (
+                                        <div className="multi-photo-badge">
+                                            <span>📷</span>
+                                            <span>{event.images.length} Photos</span>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="gallery-info">
-                                    <h3>{item.title}</h3>
-                                    <p>{item.description}</p>
-                                    <span className="category-tag">{item.category}</span>
+                                    <h3>{event.title}</h3>
+                                    <p>{event.description}</p>
+                                    <span className={`category-tag ${event.tagClass}`}>
+                                        {event.tag}
+                                    </span>
                                 </div>
                             </div>
                         ))}
@@ -144,20 +110,31 @@ const Gallery = () => {
                 </div>
             </section>
 
-            {modalData && (
-                <div className="fullscreen-modal" onClick={() => setModalData(null)}>
-                    <button className="close-modal">✕</button>
-                    <img src={modalData.imagesWithData[modalData.currentIndex].url} alt="Gallery" className="fullscreen-img" onClick={(e) => e.stopPropagation()} />
-                    {modalData.imagesWithData.length > 1 && (
+            {/* Lightbox Modal */}
+            {selectedEvent && (
+                <div className="fullscreen-modal" onClick={closeLightbox}>
+                    <button className="close-modal" onClick={closeLightbox}>&times;</button>
+
+                    {selectedEvent.images.length > 1 && (
                         <>
-                            <button className="nav-btn prev" onClick={prevImage}>❮</button>
-                            <button className="nav-btn next" onClick={nextImage}>❯</button>
-                            <div className="slide-counter">{modalData.currentIndex + 1} / {modalData.imagesWithData.length}</div>
+                            <div className="slide-counter">
+                                {currentImageIndex + 1} / {selectedEvent.images.length}
+                            </div>
+                            <button className="nav-btn prev" onClick={prevImage}>&#10094;</button>
+                            <button className="nav-btn next" onClick={nextImage}>&#10095;</button>
                         </>
                     )}
-                    <div className="fullscreen-caption">
-                        <h2>{modalData.title}</h2>
-                        <p>{modalData.imagesWithData[modalData.currentIndex].description || modalData.description}</p>
+
+                    <div className="fullscreen-content" onClick={(e) => e.stopPropagation()}>
+                        <img
+                            src={selectedEvent.images[currentImageIndex]}
+                            alt={`${selectedEvent.title} ${currentImageIndex + 1}`}
+                            className="fullscreen-img"
+                        />
+                        <div className="fullscreen-caption">
+                            <h2>{selectedEvent.title}</h2>
+                            <p>{selectedEvent.description}</p>
+                        </div>
                     </div>
                 </div>
             )}

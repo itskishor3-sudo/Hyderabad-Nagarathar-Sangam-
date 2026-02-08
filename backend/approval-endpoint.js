@@ -16,7 +16,7 @@ app.post('/api/guest/approve', async (req, res) => {
 
         // 2. Send notification copy to nnscahyderabad@gmail.com
         const adminCopyMailOptions = {
-            from: `"HNNSC Guest System" <${process.env.EMAIL_USER}>`,
+            from: `"NNSCA Guest System" <${process.env.EMAIL_USER}>`,
             to: notificationEmail,
             subject: `Guest Approved – ${name}`,
             html: getAdminApprovalCopyEmail(guestData)

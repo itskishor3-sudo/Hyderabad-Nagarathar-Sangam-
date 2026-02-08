@@ -9,7 +9,7 @@ const SubCommittee = () => {
                 {/* Header Section */}
                 <section className="subcommittee-header-section">
                     <div className="section-header">
-                        <h2>NNSC Sub Committee</h2>
+                        <h2>NNSCA Sub Committee</h2>
                         <div className="header-line"></div>
                     </div>
                 </section>
@@ -121,7 +121,7 @@ const SubCommittee = () => {
                         <div className="contact-info-box">
                             <p>
                                 <span className="icon">📧</span>{' '}
-                                <a href={`https://mail.google.com/mail/?view=cm&fs=1&to=nnscahyderabad@gmail.com&su=${encodeURIComponent('Inquiry about Ettu Kalvi Class Committee')}&body=${encodeURIComponent(`Dear NNSC Team,
+                                <a href={`https://mail.google.com/mail/?view=cm&fs=1&to=nnscahyderabad@gmail.com&su=${encodeURIComponent('Inquiry about Ettu Kalvi Class Committee')}&body=${encodeURIComponent(`Dear NNSCA Team,
 
 I hope this message finds you well. I am writing to express my interest in the Ettu Kalvi Class Committee and its educational programs.
 
