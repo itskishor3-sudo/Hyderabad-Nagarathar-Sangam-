@@ -29,10 +29,17 @@ const AdminDashboard = () => {
     // --- MULTI-ADMIN CONFIGURATION ---
     // ✅ THIS WAS MISSING IN YOUR CODE
     const ALLOWED_ADMINS = [
+        "nnscahyderabad@gmail.com",
         "hyderabadnagarathar@gmail.com",
         "sramadasu1974@gmail.com",
         "itskishor3@gmail.com",
-
+        "hnsnnscapresident@gmail.com",
+        "hnsnnscatreasurer@gmail.com",
+        "hnsnnscajointsecretary@gmail.com",
+        "hnsnnscavicepresident@gmail.com",
+        "hnsnnscamcmember1@gmail.com", // Kumar
+        "hnsnnscamcmember2@gmail.com", // Muthuveerappan
+        "hnsnnscasecretary@gmail.com",
     ];
 
     // --- AUTH CHECK ---
@@ -47,7 +54,7 @@ const AdminDashboard = () => {
                     // Not authorized
                     showToast("Access Denied: You are not authorized to view this dashboard.", "error");
                     await auth.signOut();
-                    navigate('/admin-login');
+                    navigate('/');
                 }
             } else {
                 // Not logged in
