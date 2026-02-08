@@ -46,23 +46,29 @@ const AdminDashboard = () => {
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // Check if the logged-in user is in the allowed list
-                if (ALLOWED_ADMINS.includes(user.email)) {
-                    // Success! User is authorized.
+                console.log("🔐 Checking Admin Access...");
+                console.log("👤 Logged in user email:", user.email);
+                console.log("📋 Allowed Admins List:", ALLOWED_ADMINS);
+
+                // Normalize checks (lowercase & trim) to prevent simple errors
+                const userEmail = user.email ? user.email.toLowerCase().trim() : '';
+                const allowedList = ALLOWED_ADMINS.map(e => e.toLowerCase().trim());
+
+                if (allowedList.includes(userEmail)) {
+                    console.log("✅ Access Granted!");
                     return;
                 } else {
-                    // Not authorized
+                    console.warn("❌ Access Denied! Email not found in allowed list.");
                     showToast("Access Denied: You are not authorized to view this dashboard.", "error");
                     await auth.signOut();
                     navigate('/');
                 }
             } else {
-                // Not logged in
-                navigate('/admin-login');
+                navigate('/');
             }
         });
         return () => unsubscribe();
-    }, [navigate]);
+    }, []);
 
     // Event Form State
     const [eventForm, setEventForm] = useState({

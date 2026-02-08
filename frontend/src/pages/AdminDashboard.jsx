@@ -28,29 +28,43 @@ const AdminDashboard = () => {
     // --- MULTI-ADMIN CONFIGURATION ---
     // ✅ THIS WAS MISSING IN YOUR CODE
     const ALLOWED_ADMINS = [
+        "nnscahyderabad@gmail.com",
         "hyderabadnagarathar@gmail.com",
         "sramadasu1974@gmail.com",
         "itskishor3@gmail.com",
-
+        "hnsnnscapresident@gmail.com",
+        "hnsnnscatreasurer@gmail.com",
+        "hnsnnscajointsecretary@gmail.com",
+        "hnsnnscavicepresident@gmail.com",
+        "hnsnnscamcmember1@gmail.com", // Kumar
+        "hnsnnscamcmember2@gmail.com", // Muthuveerappan
+        "hnsnnscasecretary@gmail.com",
     ];
 
     // --- AUTH CHECK ---
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // Check if the logged-in user is in the allowed list
-                if (ALLOWED_ADMINS.includes(user.email)) {
-                    // Success! User is authorized.
+                console.log("🔐 Checking Admin Access...");
+                console.log("👤 Logged in user email:", user.email);
+                console.log("📋 Allowed Admins List:", ALLOWED_ADMINS);
+
+                // Normalize checks (lowercase & trim) to prevent simple errors
+                const userEmail = user.email ? user.email.toLowerCase().trim() : '';
+                const allowedList = ALLOWED_ADMINS.map(e => e.toLowerCase().trim());
+
+                if (allowedList.includes(userEmail)) {
+                    console.log("✅ Access Granted!");
                     return;
                 } else {
-                    // Not authorized
+                    console.warn("❌ Access Denied! Email not found in allowed list.");
                     showToast("Access Denied: You are not authorized to view this dashboard.", "error");
                     await auth.signOut();
-                    navigate('/admin-login');
+                    navigate('/');
                 }
             } else {
                 // Not logged in
-                navigate('/admin-login');
+                navigate('/');
             }
         });
         return () => unsubscribe();
@@ -1581,14 +1595,22 @@ const AdminDashboard = () => {
                 if (newStatus === 'approved') {
                     const guest = guests.find(g => g.id === guestId);
                     if (guest && guest.email) {
-                        fetch('http://localhost:5000/api/guest/approve', {
+                        console.log("📧 Sending approval email to:", guest.email);
+                        fetch(`${API_BASE_URL}/api/guest/approve`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 name: guest.name || guest.fullName,
                                 email: guest.email
                             })
-                        }).catch(err => console.error('Error sending approval email:', err));
+                        })
+                            .then(res => {
+                                if (res.ok) console.log("✅ Approval email request sent successfully");
+                                else console.error("❌ Approval email request failed", res.status);
+                            })
+                            .catch(err => console.error('Error sending approval email:', err));
+                    } else {
+                        console.warn("⚠️ Cannot send email: Guest email is missing.", guest);
                     }
                 }
 
