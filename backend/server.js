@@ -443,79 +443,37 @@ app.post('/api/guest/approve', async (req, res) => {
         const guestData = req.body;
         const { name, email } = guestData;
 
+        if (!email) {
+            return res.status(400).json({ success: false, message: 'Guest email is required for approval notification.' });
+        }
+
         const notificationEmail = process.env.NOTIFICATION_EMAIL || 'nnscahyderabad@gmail.com';
 
-        // Send approval email to guest
-        await sendEmail({
+        // 1. Send approval email to guest
+        const sendGuestEmail = sendEmail({
             to: email,
             subject: 'Guest Request Approved – Welcome',
             htmlContent: getGuestApprovalEmail(guestData)
         });
 
-        console.log(`✅ Guest approval email sent to guest: ${email}`);
-        res.status(200).json({ success: true, message: 'Approval email sent successfully to guest.' });
+        // 2. Send notification copy to sangam email (for records)
+        const sendAdminCopy = sendEmail({
+            to: notificationEmail,
+            subject: `Guest Approved – ${name}`,
+            htmlContent: getAdminApprovalCopyEmail(guestData)
+        });
+
+        // Send both emails
+        console.log(`📧 Attempting to send guest approval emails for: ${name} (${email})`);
+
+        await Promise.all([sendGuestEmail, sendAdminCopy]);
+
+        console.log(`✅ Guest approval emails sent for: ${name}`);
+        res.status(200).json({ success: true, message: 'Approval emails sent successfully.' });
 
     } catch (error) {
         console.error('❌ Error in guest approval:', error);
         res.status(500).json({ success: false, message: 'Failed to send approval emails.' });
-    }
-});
-
-// Existing approval endpoint (keeping for backward compatibility)
-app.post('/api/approve-guest', async (req, res) => {
-    try {
-        const { name, email } = req.body;
-
-        if (!email) {
-            return res.status(400).json({ success: false, message: 'Email is required for approval notification.' });
-        }
-
-        // Shared Template Styles (with hosted logo)
-        const logoHtml = `<img src="https://hyderabad-nagarathar-sangam.vercel.app/image.png" alt="NNSCA Logo" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 2px solid #DAA520;">`;
-
-        const headerHtml = `
-            <div style="background-color: #0B2C4D; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
-                ${logoHtml}
-                <h1 style="color: #ffffff; margin: 0; font-family: 'Playfair Display', serif; text-transform: uppercase; letter-spacing: 2px; font-size: 24px;">Hyderabad Nagarathar Sangam</h1>
-                <p style="color: #DAA520; margin: 5px 0 0 0; font-family: Arial, sans-serif; font-size: 14px;">Social and Cultural Association</p>
-            </div>
-        `;
-        const footerHtml = `
-            <div style="background-color: #f4f4f4; padding: 15px; text-align: center; border-radius: 0 0 8px 8px; font-size: 12px; color: #666;">
-                <p style="margin: 0;">&copy; ${new Date().getFullYear()} NNSCA. All rights reserved.</p>
-                <p style="margin: 5px 0 0 0;">Hyderabad, India</p>
-            </div>
-        `;
-
-        const htmlContent = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px;">
-                ${headerHtml}
-                <div style="padding: 30px; background-color: #ffffff; text-align: center;">
-                    <h2 style="color: #2e7d32; margin-top: 0;">Congratulations!</h2>
-                    <p style="font-size: 16px; color: #555;">Dear <strong>${name}</strong>,</p>
-                    <p style="font-size: 16px; color: #555; line-height: 1.5;">We are pleased to inform you that your guest request has been <strong>ACCEPTED</strong>.</p>
-                    
-                    <div style="background-color: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 8px; padding: 20px; margin: 25px 0;">
-                        <h3 style="color: #2e7d32; margin: 0 0 10px 0;">✔ Visit Confirmed</h3>
-                        <p style="margin: 0; color: #555;">Your stay has been officially approved by the association. We are excited to welcome you.</p>
-                    </div>
-                    
-                    <p style="color: #777; font-size: 14px;">If you have any further questions, please contact the administration office.</p>
-                </div>
-                ${footerHtml}
-            </div>
-        `;
-
-        await sendEmail({
-            to: email,
-            subject: "Request Accepted - NNSCA Sangam",
-            htmlContent: htmlContent
-        });
-
-        res.status(200).json({ success: true, message: 'Approval email sent successfully.' });
-    } catch (error) {
-        console.error('❌ Error sending approval email:', error);
-        res.status(500).json({ success: false, message: 'Failed to send approval email.' });
     }
 });
 

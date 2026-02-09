@@ -1504,16 +1504,13 @@ const AdminDashboard = () => {
                         fetch(`${API_BASE_URL}/api/guest/approve`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                name: guest.name || guest.fullName,
-                                email: guest.email,
-                                checkInDate: guest.checkInDate,
-                                checkInTime: guest.checkInTime,
-                                expectedCheckOutDate: guest.expectedCheckOutDate,
-                                expectedCheckOutTime: guest.expectedCheckOutTime,
-                                roomHall: guest.roomHall
+                            body: JSON.stringify(guest) // Send the full guest object
+                        })
+                            .then(res => {
+                                if (res.ok) console.log("✅ Approval email request sent successfully");
+                                else console.error("❌ Approval email request failed", res.status);
                             })
-                        }).catch(err => console.error('Error sending approval email:', err));
+                            .catch(err => console.error('Error sending approval email:', err));
                     }
                 }
 
@@ -1521,8 +1518,9 @@ const AdminDashboard = () => {
                 fetchGuests();
                 setSelectedGuest(null);
             } catch (error) {
-                console.error('Error updating guest status:', error);
-                showToast('Failed to update guest status', 'error');
+                console.error('❌ Error updating guest status:', error);
+                console.error('   Details:', error.message, error.code);
+                showToast('Failed to update guest status. Check console for details.', 'error');
             }
         };
 

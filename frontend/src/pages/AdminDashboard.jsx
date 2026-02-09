@@ -1599,10 +1599,7 @@ const AdminDashboard = () => {
                         fetch(`${API_BASE_URL}/api/guest/approve`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                name: guest.name || guest.fullName,
-                                email: guest.email
-                            })
+                            body: JSON.stringify(guest) // Send the full guest object
                         })
                             .then(res => {
                                 if (res.ok) console.log("✅ Approval email request sent successfully");
