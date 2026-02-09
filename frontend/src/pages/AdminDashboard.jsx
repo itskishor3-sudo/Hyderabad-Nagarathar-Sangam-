@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import invitationTemplate from '../assets/template.jpg';
+import { API_BASE_URL } from '../config';
 
 
 const AdminDashboard = () => {
