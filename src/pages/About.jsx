@@ -66,7 +66,7 @@ const About = () => {
         },
         {
             name: "S. Kumar",
-            role: "Management Committe Member",
+            role: "Management Committee Member",
             place: "K. Lakshmipuram",
             email: "hnsnnscamcmember1@gmail.com",
             phone: "+91 97100 59443",
@@ -74,7 +74,7 @@ const About = () => {
         },
         {
             name: "Muthuveerappan Periyakaruppan",
-            role: "Management Committe Member",
+            role: "Management Committee Member",
             place: "",
             email: "hnsnnscamcmember2@gmail.com",
             phone: "+91 91777 71224",
